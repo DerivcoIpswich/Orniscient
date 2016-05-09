@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25123.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Derivco.Orniscient.Proxy", "Derivco.Orniscient.Proxy\Derivco.Orniscient.Proxy.csproj", "{72287681-2B57-4AFF-9E5A-1016017EB0B1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Derivco.Orniscient.Viewer", "Derivco.Orniscient.Viewer\Derivco.Orniscient.Viewer.csproj", "{1B93B561-7A54-40C7-B4D6-4225AF57D371}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{72287681-2B57-4AFF-9E5A-1016017EB0B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72287681-2B57-4AFF-9E5A-1016017EB0B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72287681-2B57-4AFF-9E5A-1016017EB0B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72287681-2B57-4AFF-9E5A-1016017EB0B1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1B93B561-7A54-40C7-B4D6-4225AF57D371}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1B93B561-7A54-40C7-B4D6-4225AF57D371}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1B93B561-7A54-40C7-B4D6-4225AF57D371}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1B93B561-7A54-40C7-B4D6-4225AF57D371}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
