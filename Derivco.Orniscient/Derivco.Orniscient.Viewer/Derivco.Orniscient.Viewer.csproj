@@ -183,6 +183,22 @@
   <ItemGroup>
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\img\network\acceptDeleteIcon.png" />
+    <Content Include="Content\img\network\addNodeIcon.png" />
+    <Content Include="Content\img\network\backIcon.png" />
+    <Content Include="Content\img\network\connectIcon.png" />
+    <Content Include="Content\img\network\cross.png" />
+    <Content Include="Content\img\network\cross2.png" />
+    <Content Include="Content\img\network\deleteIcon.png" />
+    <Content Include="Content\img\network\downArrow.png" />
+    <Content Include="Content\img\network\editIcon.png" />
+    <Content Include="Content\img\network\leftArrow.png" />
+    <Content Include="Content\img\network\minus.png" />
+    <Content Include="Content\img\network\plus.png" />
+    <Content Include="Content\img\network\rightArrow.png" />
+    <Content Include="Content\img\network\upArrow.png" />
+    <Content Include="Content\img\network\zoomExtends.png" />
+    <Content Include="Content\img\timeline\delete.png" />
     <Content Include="Content\vis.css" />
     <Content Include="Content\vis.min.css" />
     <Content Include="DevTestClientConfiguration.xml">

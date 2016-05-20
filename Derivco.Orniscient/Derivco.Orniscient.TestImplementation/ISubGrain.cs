@@ -6,6 +6,7 @@ using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Derivco.Orniscient.Proxy.Attributes;
 using Orleans;
 using Orleans.CodeGeneration;
 using Orleans.Providers;
@@ -128,15 +129,13 @@ namespace Derivco.Orniscient.TestImplementation
         public string Name { get; }
     }
 
-
-
-
     public interface ISubGrain : IGrainWithGuidKey
     {
         Task SayHallo();
     }
 
     [ImplicitStreamSubscription("TestStream")]
+    [Proxy.Attributes.Orniscient(linkFromType: typeof(FirstGrain),linkType:LinkType.SingleInstance,colour:"yellow")]
     public class SubGrain : Grain, ISubGrain, IAsyncObserver<Guid> 
     {
         private StreamSubscriptionHandle<Guid> _subscriptionHandle;
@@ -158,11 +157,18 @@ namespace Derivco.Orniscient.TestImplementation
            return TaskDone.Done;
         }
 
-        public Task OnNextAsync(Guid item, StreamSequenceToken token = null)
+        public async Task OnNextAsync(Guid item, StreamSequenceToken token = null)
         {
             var msg = $"Hallo from Grain : {this.GetPrimaryKey()}";
             Console.WriteLine(msg);
-            return Task.FromResult(msg);
+
+
+
+            var t = GrainFactory.GetGrain<IFooGrain>(item);
+            await t.KeepAlive();
+
+
+            await Task.FromResult(msg);
         }
 
         public Task OnCompletedAsync()

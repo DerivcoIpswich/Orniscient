@@ -62,9 +62,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Attributes\Orniscient.cs" />
     <Compile Include="Extensions\GuidExtensions.cs" />
     <Compile Include="IOrniscientGrain.cs" />
     <Compile Include="Observers\IOrniscientObserver.cs" />
+    <Compile Include="OrniscientLinkMap.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

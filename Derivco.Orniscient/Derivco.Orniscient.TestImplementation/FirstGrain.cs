@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Derivco.Orniscient.Proxy.Attributes;
 using Orleans;
-using Orleans.CodeGeneration;
 using Orleans.Streams;
 
 namespace Derivco.Orniscient.TestImplementation
 {
+    [Proxy.Attributes.Orniscient]
     public class FirstGrain : Grain, IFirstGrain
     {
         private IStreamProvider _streamProvider;
@@ -28,7 +25,7 @@ namespace Derivco.Orniscient.TestImplementation
 
         private async Task AddGrains()
         {
-            for (var i = 0; i < 3; i++)
+            for (var i = 0; i < 15; i++)
             {
                 var temp = Guid.NewGuid();
                 await _streamProvider.GetStream<Guid>(temp, "TestStream").OnNextAsync(temp);

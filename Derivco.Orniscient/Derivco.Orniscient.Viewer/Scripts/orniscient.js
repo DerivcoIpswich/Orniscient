@@ -2,7 +2,9 @@
 
     var hub = $.connection.orniscientHub,
         nodes = new vis.DataSet([]),
-        container = document.getElementById('mynetwork');
+        edges = new vis.DataSet([]),
+        container = document.getElementById('mynetwork'),
+        arrows = { to: { scaleFactor: 1 } };
 
     var options = {
         autoResize: true,
@@ -30,7 +32,7 @@
     };
     var data = {
         nodes: nodes,
-        //edges: edges
+        edges: edges
     };
 
     var network = new vis.Network(container, data, options);
@@ -41,7 +43,6 @@
             }
         }
     });
-    var i = 1;
     $.connection.hub.start()
 		.then(init);
 
@@ -49,14 +50,8 @@
         return hub.server.getCurrentSnapshot()
             .done(function (data) {
                 
-                $.each(data, function(index, value) {
-                    nodes.add({
-                        id: i,
-                        label: value.GrainName,
-                        color: '#FFFF00',
-                        silo: 'C'
-                    });
-                    i++;
+                $.each(data, function(index, grainData) {
+                    addToNodes(grainData);
                 });
             })
             .fail(function(data) {
@@ -64,17 +59,30 @@
             });
     }
 
+    function addToNodes(grainData) {
+
+        //add the node
+        nodes.add({
+            id: grainData.Id,
+            label: grainData.GrainName,
+            color: grainData.Colour,
+            silo: 'C'
+        });
+
+        //add the edge (link)
+        if (grainData.LinkToId !== '') {
+            edges.add({
+                from: grainData.Id,
+                to: grainData.LinkToId
+            });
+        }
+    }
+
     //add client side methods for updates
     $.extend(hub.client, {
         grainActivationChanged: function (diffModel) {
-            $.each(diffModel.NewGrains, function (index,grainData) {
-                nodes.add({
-                    id: i,
-                    label: grainData.GrainName,
-                    color: '#FF0000',
-                    silo: 'C'
-                });
-                i++;
+            $.each(diffModel.NewGrains, function (index, grainData) {
+                addToNodes(grainData);
             });
         }
     });

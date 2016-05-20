@@ -14,7 +14,7 @@ namespace Derivco.Orniscient.TestImplementation
 
             var types = await mngGrain.GetActiveGrainTypes();
 
-            var grnStats= await mngGrain.GetDetailedGrainStatistics(types.Where(p=> p.Contains("Derivco")).ToArray());
+            var grnStats= await mngGrain.GetDetailedGrainStatistics(types.Where(p=> p.Contains("Spinsport")).ToArray());
             return grnStats;
         }
     }

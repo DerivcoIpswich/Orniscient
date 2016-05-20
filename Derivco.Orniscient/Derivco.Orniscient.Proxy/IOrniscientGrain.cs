@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Derivco.Orniscient.Proxy.Attributes;
 using Derivco.Orniscient.Proxy.Extensions;
 using Derivco.Orniscient.Proxy.Observers;
 using Orleans;
@@ -41,12 +42,22 @@ namespace Derivco.Orniscient.Proxy
 
         private static UpdateModel _FromGrainStat(DetailedGrainStatistic grainStatistic)
         {
-            return new UpdateModel()
+            var model = new UpdateModel()
             {
                 Guid = grainStatistic.GrainIdentity.PrimaryKey,
                 Type = grainStatistic.GrainType,
                 Silo = grainStatistic.SiloAddress.ToString()
             };
+
+            //need to check the linktypes
+            var orniscientInfo = OrniscientLinkMap.Instance.GetLinkFromType(model.Type);
+            if (orniscientInfo != null && orniscientInfo.HasLinkFromType)
+            {
+                var mapGuid = orniscientInfo.LinkType == LinkType.SameId ? model.Guid : Guid.Empty;
+                model.LinkToId=  $"{orniscientInfo.LinkFromType.ToString().Split('.').Last()}_{mapGuid}";
+                model.Colour = orniscientInfo.Colour;
+            }
+            return model;
         }
 
         private async Task<List<UpdateModel>> _GetAllFromCluster()
@@ -97,11 +108,40 @@ namespace Derivco.Orniscient.Proxy
 
     public class UpdateModel
     {
+        public string ActivationId { get; set; }
         public string Silo { get; set; }
         public string Type { get; set; }
 
-        public string GrainName => $"{Type.Split('.').Last()} ({Guid.ToInt()})";
+        public string TypeShortName => Type.Split('.').Last();
+
+        public string GrainName => $"{TypeShortName} ({Guid.ToInt()})";
+
+        public string Id => $"{TypeShortName}_{Guid}";
+
         public Guid Guid { get; set; }
+
+        /// <summary>
+        /// This need to be built from some sort of link map or something.
+        /// </summary>
+
+        public string LinkToId { get; set; }
+
+        public string Colour { get; set; }
+
+// => "FirstGrain_00000000-0000-0000-0000-000000000000";
+
+        //{
+        //    get
+        //    {
+        //        var orniscientInfo = OrniscientLinkMap.Instance.GetLinkFromType(Type);
+        //        if (orniscientInfo != null && orniscientInfo.HasLinkFromType)
+        //        {
+        //            var mapGuid = orniscientInfo.LinkType == LinkType.SameId?Guid:Guid.Empty;
+        //            return $"{TypeShortName}_{mapGuid}";
+        //        }
+        //        return "";
+        //    }
+        //}//=> "FirstGrain_00000000-0000-0000-0000-000000000000";
     }
 
     public class DiffModel

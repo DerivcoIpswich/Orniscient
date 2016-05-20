@@ -38,9 +38,9 @@ namespace Derivco.Orniscient.Viewer.Hubs
 
         private OrniscientObserver()
         {
-            var _reportingGrain = GrainClient.GrainFactory.GetGrain<IOrniscientGrain>(Guid.Empty);
+            var orniscientGrain = GrainClient.GrainFactory.GetGrain<IOrniscientGrain>(Guid.Empty);
             observer = GrainClient.GrainFactory.CreateObjectReference<IOrniscientObserver>(this).Result;
-            _reportingGrain.Subscribe(observer);
+            orniscientGrain.Subscribe(observer);
         }
 
         public static OrniscientObserver Instance => _instance.Value;
@@ -48,8 +48,8 @@ namespace Derivco.Orniscient.Viewer.Hubs
         public async Task<List<UpdateModel>> GetCurrentSnapshot()
         {
             var orniscientGrain = GrainClient.GrainFactory.GetGrain<IOrniscientGrain>(Guid.Empty);
-            var rr = (await orniscientGrain.GetAll());
-            return rr;
+            var temp = await orniscientGrain.GetAll();
+            return temp;
         }
 
         public void GrainsUpdated(DiffModel model)

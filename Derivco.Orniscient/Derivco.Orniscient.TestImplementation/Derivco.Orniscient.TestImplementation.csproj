@@ -54,6 +54,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IFooGrain.cs" />
     <Compile Include="OrniscientTraceListener.cs" />
     <Compile Include="FirstGrain.cs" />
     <Compile Include="IFirstGrain.cs" />
@@ -64,6 +65,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Derivco.Orniscient.Proxy\Derivco.Orniscient.Proxy.csproj">
+      <Project>{72287681-2B57-4AFF-9E5A-1016017EB0B1}</Project>
+      <Name>Derivco.Orniscient.Proxy</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Microsoft.Orleans.OrleansCodeGenerator.Build.1.2.0\build\Microsoft.Orleans.OrleansCodeGenerator.Build.targets" Condition="Exists('..\packages\Microsoft.Orleans.OrleansCodeGenerator.Build.1.2.0\build\Microsoft.Orleans.OrleansCodeGenerator.Build.targets')" />
