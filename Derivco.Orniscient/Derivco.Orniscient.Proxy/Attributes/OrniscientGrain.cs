@@ -2,9 +2,9 @@
 
 namespace Derivco.Orniscient.Proxy.Attributes
 {
-    public class Orniscient : Attribute
+    public class OrniscientGrain : Attribute
     {
-        public Orniscient(Type linkFromType=null,LinkType linkType=LinkType.SameId,string colour="")
+        public OrniscientGrain(Type linkFromType=null,LinkType linkType=LinkType.SameId,string colour="")
         {
             LinkFromType = linkFromType;
             LinkType = linkType;
@@ -15,8 +15,6 @@ namespace Derivco.Orniscient.Proxy.Attributes
         public LinkType LinkType { get; private set; }
         public string Colour { get; set; }
         public bool HasLinkFromType => LinkFromType != null;
-
-
     }
 
     public enum LinkType

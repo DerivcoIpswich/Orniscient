@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 
 namespace Derivco.Orniscient.Proxy
 {
     public class OrniscientLinkMap
     {
         private static readonly Lazy<OrniscientLinkMap> _instance = new Lazy<OrniscientLinkMap>(() => new OrniscientLinkMap());
-        private Dictionary<Type, Attributes.Orniscient> _typeMap;
+        private Dictionary<Type, Attributes.OrniscientGrain> _typeMap;
         Dictionary<string, Type> typeCache;
 
         private OrniscientLinkMap()
@@ -21,15 +20,15 @@ namespace Derivco.Orniscient.Proxy
 
         private void createTypeMap()
         {
-            _typeMap = new Dictionary<Type, Attributes.Orniscient>();
+            _typeMap = new Dictionary<Type, Attributes.OrniscientGrain>();
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
                 foreach (var type in assembly.GetTypes())
                 {
-                    var attribs = type.GetCustomAttributes(typeof(Attributes.Orniscient), false);
+                    var attribs = type.GetCustomAttributes(typeof(Attributes.OrniscientGrain), false);
                     if (attribs.Length <= 0) continue;
 
-                    var linkFromType = attribs.First() as Attributes.Orniscient;
+                    var linkFromType = attribs.First() as Attributes.OrniscientGrain;
                     if (linkFromType != null && linkFromType.HasLinkFromType)
                         _typeMap.Add(type, linkFromType);
                 }
@@ -38,12 +37,12 @@ namespace Derivco.Orniscient.Proxy
 
         public static OrniscientLinkMap Instance => _instance.Value;
 
-        public Attributes.Orniscient GetLinkFromType(string type)
+        public Attributes.OrniscientGrain GetLinkFromType(string type)
         {
             return GetLinkFromType(GetType(type));
         }
 
-        public Attributes.Orniscient GetLinkFromType(Type type)
+        public Attributes.OrniscientGrain GetLinkFromType(Type type)
         {
             if (type == null) return null;
             return _typeMap.ContainsKey(type) ? _typeMap[type] : null;

@@ -54,12 +54,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IFooGrain.cs" />
-    <Compile Include="OrniscientTraceListener.cs" />
-    <Compile Include="FirstGrain.cs" />
-    <Compile Include="IFirstGrain.cs" />
-    <Compile Include="ISubGrain.cs" />
-    <Compile Include="OrnManagement.cs" />
+    <Compile Include="Grains\IFooGrain.cs" />
+    <Compile Include="Grains\SubGrain.cs" />
+    <Compile Include="Grains\FirstGrain.cs" />
+    <Compile Include="Grains\IFirstGrain.cs" />
+    <Compile Include="Grains\ISubGrain.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\orleans.codegen.cs" />
   </ItemGroup>

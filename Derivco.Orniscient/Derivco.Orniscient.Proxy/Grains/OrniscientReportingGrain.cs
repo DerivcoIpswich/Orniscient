@@ -1,25 +1,16 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Derivco.Orniscient.Proxy.Attributes;
-using Derivco.Orniscient.Proxy.Extensions;
+using Derivco.Orniscient.Proxy.Grains.Models;
 using Derivco.Orniscient.Proxy.Observers;
 using Orleans;
 using Orleans.Runtime;
 
-namespace Derivco.Orniscient.Proxy
+namespace Derivco.Orniscient.Proxy.Grains
 {
-    public interface IOrniscientGrain : IGrainWithGuidKey 
-    {
-        Task<List<UpdateModel>> GetAll();
-        Task<DiffModel> GetChanges();
-        Task Subscribe(IOrniscientObserver observer);
-        Task UnSubscribe(IOrniscientObserver observer);
-    }
-
-    public class OrniscientGrain : Grain, IOrniscientGrain
+    public class OrniscientReportingGrain : Grain, IOrniscientReportingGrain
     {
         private List<UpdateModel> CurrentStats { get; set; }
         private IManagementGrain _managementGrain;
@@ -104,49 +95,5 @@ namespace Derivco.Orniscient.Proxy
             _subsManager.Unsubscribe(observer);
             return TaskDone.Done;
         }
-    }
-
-    public class UpdateModel
-    {
-        public string ActivationId { get; set; }
-        public string Silo { get; set; }
-        public string Type { get; set; }
-
-        public string TypeShortName => Type.Split('.').Last();
-
-        public string GrainName => $"{TypeShortName} ({Guid.ToInt()})";
-
-        public string Id => $"{TypeShortName}_{Guid}";
-
-        public Guid Guid { get; set; }
-
-        /// <summary>
-        /// This need to be built from some sort of link map or something.
-        /// </summary>
-
-        public string LinkToId { get; set; }
-
-        public string Colour { get; set; }
-
-// => "FirstGrain_00000000-0000-0000-0000-000000000000";
-
-        //{
-        //    get
-        //    {
-        //        var orniscientInfo = OrniscientLinkMap.Instance.GetLinkFromType(Type);
-        //        if (orniscientInfo != null && orniscientInfo.HasLinkFromType)
-        //        {
-        //            var mapGuid = orniscientInfo.LinkType == LinkType.SameId?Guid:Guid.Empty;
-        //            return $"{TypeShortName}_{mapGuid}";
-        //        }
-        //        return "";
-        //    }
-        //}//=> "FirstGrain_00000000-0000-0000-0000-000000000000";
-    }
-
-    public class DiffModel
-    {
-        public List<UpdateModel> NewGrains { get; set; }
-        public List<Guid> RemovedGrains { get; set; }
     }
 }

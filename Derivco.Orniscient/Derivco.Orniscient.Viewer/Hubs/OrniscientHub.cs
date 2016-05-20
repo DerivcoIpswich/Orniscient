@@ -4,6 +4,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Derivco.Orniscient.Proxy;
+using Derivco.Orniscient.Proxy.Grains;
+using Derivco.Orniscient.Proxy.Grains.Models;
 using Derivco.Orniscient.Proxy.Observers;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Hubs;
@@ -38,7 +40,7 @@ namespace Derivco.Orniscient.Viewer.Hubs
 
         private OrniscientObserver()
         {
-            var orniscientGrain = GrainClient.GrainFactory.GetGrain<IOrniscientGrain>(Guid.Empty);
+            var orniscientGrain = GrainClient.GrainFactory.GetGrain<IOrniscientReportingGrain>(Guid.Empty);
             observer = GrainClient.GrainFactory.CreateObjectReference<IOrniscientObserver>(this).Result;
             orniscientGrain.Subscribe(observer);
         }
@@ -47,7 +49,7 @@ namespace Derivco.Orniscient.Viewer.Hubs
 
         public async Task<List<UpdateModel>> GetCurrentSnapshot()
         {
-            var orniscientGrain = GrainClient.GrainFactory.GetGrain<IOrniscientGrain>(Guid.Empty);
+            var orniscientGrain = GrainClient.GrainFactory.GetGrain<IOrniscientReportingGrain>(Guid.Empty);
             var temp = await orniscientGrain.GetAll();
             return temp;
         }

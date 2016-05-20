@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Derivco.Orniscient.Proxy.Attributes;
 using Orleans;
 using Orleans.Streams;
 
-namespace Derivco.Orniscient.TestImplementation
+namespace Derivco.Orniscient.TestImplementation.Grains
 {
-    [Proxy.Attributes.Orniscient]
+    [Proxy.Attributes.OrniscientGrain]
     public class FirstGrain : Grain, IFirstGrain
     {
         private IStreamProvider _streamProvider;
@@ -31,11 +30,5 @@ namespace Derivco.Orniscient.TestImplementation
                 await _streamProvider.GetStream<Guid>(temp, "TestStream").OnNextAsync(temp);
             }
         }
-
-        //public Task<object> Invoke(MethodInfo method, InvokeMethodRequest request, IGrainMethodInvoker invoker)
-        //{
-        //    Debug.WriteLine($".....called method : {method.Name}");
-        //    return invoker.Invoke(this, request);
-        //}
     }
 }
