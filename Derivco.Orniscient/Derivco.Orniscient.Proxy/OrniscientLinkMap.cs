@@ -52,6 +52,7 @@ namespace Derivco.Orniscient.Proxy
         private Type GetType(string typeName)
         {
             var temp = AppDomain.CurrentDomain.GetAssemblies();
+            //TODO : Cache this info somehow
             foreach (var a in temp)
             {
                 var t = a.GetType(typeName);
