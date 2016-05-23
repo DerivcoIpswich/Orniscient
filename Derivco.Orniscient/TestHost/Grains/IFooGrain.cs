@@ -8,12 +8,4 @@ namespace TestHost.Grains
     {
         Task KeepAlive();
     }
-
-    [OrniscientGrain(typeof(SubGrain), LinkType.SameId,"lightblue" )]
-    public class FooGrain : Grain,IFooGrain {
-        public Task KeepAlive()
-        {
-            return TaskDone.Done;
-        }
-    }
 }
