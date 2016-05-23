@@ -22,3 +22,12 @@ select,
 textarea {
     max-width: 280px;
 }
+
+.bigContainer {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+.padding20 {
+    padding: 20px;
+}

@@ -1,11 +1,15 @@
 ﻿@{
     ViewBag.Title = "Orleans Orniscient Dashboard";
 }
-<div id="mynetwork"></div>
+<div id="dashboard"></div>
 @section scripts{
     <script type="text/javascript" src="@Url.Content("~/Scripts/jquery.signalR-2.2.0.min.js")"></script>
     <script src="/signalr/hubs"></script>
     <script type="text/javascript" src="@Url.Content("~/Scripts/orniscient.js")"></script>
+
+    <script src="https://fb.me/react-15.0.1.js"></script>
+    <script src="https://fb.me/react-dom-15.0.1.js"></script>
+    <script src="@Url.Content("~/Scripts/Dashboard/Dashboard.jsx")"></script>
 }
 
 
