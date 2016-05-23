@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Orleans;
 
-namespace Derivco.Orniscient.TestImplementation.Grains
+namespace TestHost.Grains
 {
     public interface IFirstGrain : IGrainWithGuidKey
     {

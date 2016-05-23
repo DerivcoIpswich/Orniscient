@@ -91,6 +91,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Grains\FirstGrain.cs" />
+    <Compile Include="Grains\IFirstGrain.cs" />
+    <Compile Include="Grains\IFooGrain.cs" />
+    <Compile Include="Grains\ISubGrain.cs" />
+    <Compile Include="Grains\SubGrain.cs" />
     <Compile Include="OrleansHostWrapper.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -117,10 +122,6 @@
     <ProjectReference Include="..\Derivco.Orniscient.Proxy\Derivco.Orniscient.Proxy.csproj">
       <Project>{72287681-2b57-4aff-9e5a-1016017eb0b1}</Project>
       <Name>Derivco.Orniscient.Proxy</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Derivco.Orniscient.TestImplementation\Derivco.Orniscient.TestImplementation.csproj">
-      <Project>{761A2E61-425A-4ED4-8845-6317D01BE4C1}</Project>
-      <Name>Derivco.Orniscient.TestImplementation</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

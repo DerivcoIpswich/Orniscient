@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Web.Mvc;
-using Derivco.Orniscient.TestImplementation;
-
 
 namespace Derivco.Orniscient.Viewer.Controllers
 {
@@ -11,16 +9,6 @@ namespace Derivco.Orniscient.Viewer.Controllers
         public async Task<ActionResult> Index()
         {
             return RedirectToAction("Index", "Dashboard");
-
-            //var temp = new OrnManagement();
-            //var stats = await temp.GetGrainStats();
-
-            //foreach (var grnstat in stats)
-            //{
-            //    this.Response.Write($"Grain Type : {grnstat.GrainType }, Grain Id : {grnstat.GrainIdentity.PrimaryKey}, Category : {grnstat.Category}");
-            //}
-
-            //return View();
         }
 
         public ActionResult About()

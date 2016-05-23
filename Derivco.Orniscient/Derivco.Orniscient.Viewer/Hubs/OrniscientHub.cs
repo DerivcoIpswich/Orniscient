@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Derivco.Orniscient.Proxy;
-using Derivco.Orniscient.Proxy.Grains;
 using Derivco.Orniscient.Proxy.Grains.Models;
-using Derivco.Orniscient.Proxy.Observers;
+using Derivco.Orniscient.Viewer.Observers;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Hubs;
-using Orleans;
 
 namespace Derivco.Orniscient.Viewer.Hubs
 {
@@ -30,34 +24,6 @@ namespace Derivco.Orniscient.Viewer.Hubs
         public async Task<List<UpdateModel>> GetCurrentSnapshot()
         {
             return await _orniscientObserver.GetCurrentSnapshot();
-        }
-    }
-
-    public class OrniscientObserver : IOrniscientObserver
-    {
-        private static readonly Lazy<OrniscientObserver> _instance = new Lazy<OrniscientObserver>(() => new OrniscientObserver());
-        private IOrniscientObserver observer;
-
-        private OrniscientObserver()
-        {
-            var orniscientGrain = GrainClient.GrainFactory.GetGrain<IOrniscientReportingGrain>(Guid.Empty);
-            observer = GrainClient.GrainFactory.CreateObjectReference<IOrniscientObserver>(this).Result;
-            orniscientGrain.Subscribe(observer);
-        }
-
-        public static OrniscientObserver Instance => _instance.Value;
-
-        public async Task<List<UpdateModel>> GetCurrentSnapshot()
-        {
-            var orniscientGrain = GrainClient.GrainFactory.GetGrain<IOrniscientReportingGrain>(Guid.Empty);
-            var temp = await orniscientGrain.GetAll();
-            return temp;
-        }
-
-        public void GrainsUpdated(DiffModel model)
-        {
-            Debug.WriteLine($"Pushing down {model.NewGrains.Count} new grains and removing {model.RemovedGrains.Count}");
-            GlobalHost.ConnectionManager.GetHubContext<OrniscientHub>().Clients.All.grainActivationChanged(model);
         }
     }
 }

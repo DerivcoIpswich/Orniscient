@@ -15,6 +15,7 @@ namespace Derivco.Orniscient.Proxy.Grains
         private List<UpdateModel> CurrentStats { get; set; }
         private IManagementGrain _managementGrain;
         private ObserverSubscriptionManager<IOrniscientObserver> _subsManager;
+        private string[] filteredTypes;
 
         public override async Task OnActivateAsync()
         {
@@ -45,7 +46,7 @@ namespace Derivco.Orniscient.Proxy.Grains
             if (orniscientInfo != null && orniscientInfo.HasLinkFromType)
             {
                 var mapGuid = orniscientInfo.LinkType == LinkType.SameId ? model.Guid : Guid.Empty;
-                model.LinkToId=  $"{orniscientInfo.LinkFromType.ToString().Split('.').Last()}_{mapGuid}";
+                model.LinkToId = $"{orniscientInfo.LinkFromType.ToString().Split('.').Last()}_{mapGuid}";
                 model.Colour = orniscientInfo.Colour;
             }
             return model;
@@ -53,11 +54,10 @@ namespace Derivco.Orniscient.Proxy.Grains
 
         private async Task<List<UpdateModel>> _GetAllFromCluster()
         {
-            var types = await _managementGrain.GetActiveGrainTypes();
-            var detailedStats = await _managementGrain.GetDetailedGrainStatistics(types.Where(p => p.Contains("Derivco")).ToArray()); ;
+            var detailedStats = await _managementGrain.GetDetailedGrainStatistics(filteredTypes); ;
             if (detailedStats != null && detailedStats.Any())
             {
-                return detailedStats.Select(_FromGrainStat).ToList();
+                return detailedStats.Where(p=>p.Category.ToLower()=="grain").Select(_FromGrainStat).ToList();
             }
             return null;
         }
@@ -72,8 +72,8 @@ namespace Derivco.Orniscient.Proxy.Grains
             var newStats = await _GetAllFromCluster();
             var diffModel = new DiffModel()
             {
-                RemovedGrains = CurrentStats.Where(p=> newStats.All(n => n.Guid != p.Guid)).Select(p=>p.Guid).ToList(),
-                NewGrains = newStats.Where(p=> CurrentStats.All(c => p.Guid != c.Guid)).ToList()
+                RemovedGrains = CurrentStats.Where(p => newStats.All(n => n.Guid != p.Guid)).Select(p => p.Guid).ToList(),
+                NewGrains = newStats.Where(p => CurrentStats.All(c => p.Guid != c.Guid)).ToList()
             };
 
             //push the diffmodel to the observer..
@@ -94,6 +94,17 @@ namespace Derivco.Orniscient.Proxy.Grains
         {
             _subsManager.Unsubscribe(observer);
             return TaskDone.Done;
+        }
+
+        public async Task SetTypeFilter(string[] types)
+        {
+            this.filteredTypes = types;
+            await _Hydrate();
+        }
+
+        public async Task<string[]> GetGrainTypes()
+        {
+            return await _managementGrain.GetActiveGrainTypes();
         }
     }
 }

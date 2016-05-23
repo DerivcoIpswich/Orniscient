@@ -177,6 +177,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Hubs\OrniscientHub.cs" />
+    <Compile Include="Observers\OrniscientObserver.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
@@ -261,10 +262,6 @@
     <ProjectReference Include="..\Derivco.Orniscient.Proxy\Derivco.Orniscient.Proxy.csproj">
       <Project>{72287681-2b57-4aff-9e5a-1016017eb0b1}</Project>
       <Name>Derivco.Orniscient.Proxy</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Derivco.Orniscient.TestImplementation\Derivco.Orniscient.TestImplementation.csproj">
-      <Project>{761A2E61-425A-4ED4-8845-6317D01BE4C1}</Project>
-      <Name>Derivco.Orniscient.TestImplementation</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

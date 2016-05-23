@@ -2,7 +2,7 @@
 using Derivco.Orniscient.Proxy.Attributes;
 using Orleans;
 
-namespace Derivco.Orniscient.TestImplementation.Grains
+namespace TestHost.Grains
 {
     public interface IFooGrain : IGrainWithGuidKey
     {

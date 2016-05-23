@@ -4,11 +4,11 @@ using Derivco.Orniscient.Proxy.Attributes;
 using Orleans;
 using Orleans.Streams;
 
-namespace Derivco.Orniscient.TestImplementation.Grains
+namespace TestHost.Grains
 {
     [ImplicitStreamSubscription("TestStream")]
-    [Proxy.Attributes.OrniscientGrain(linkFromType: typeof(FirstGrain),linkType:LinkType.SingleInstance,colour:"yellow")]
-    public class SubGrain : Grain, ISubGrain, IAsyncObserver<Guid> 
+    [Derivco.Orniscient.Proxy.Attributes.OrniscientGrain(linkFromType: typeof(TestHost.Grains.FirstGrain),linkType:LinkType.SingleInstance,colour:"yellow")]
+    public class SubGrain : Grain, TestHost.Grains.ISubGrain, IAsyncObserver<Guid> 
     {
         private StreamSubscriptionHandle<Guid> _subscriptionHandle;
 
@@ -31,7 +31,7 @@ namespace Derivco.Orniscient.TestImplementation.Grains
             var msg = $"Hallo from Grain : {this.GetPrimaryKey()}";
             Console.WriteLine(msg);
 
-            var t = GrainFactory.GetGrain<IFooGrain>(item);
+            var t = GrainFactory.GetGrain<TestHost.Grains.IFooGrain>(item);
             await t.KeepAlive();
 
             await Task.FromResult(msg);

@@ -3,9 +3,9 @@ using System.Threading.Tasks;
 using Orleans;
 using Orleans.Streams;
 
-namespace Derivco.Orniscient.TestImplementation.Grains
+namespace TestHost.Grains
 {
-    [Proxy.Attributes.OrniscientGrain]
+    [Derivco.Orniscient.Proxy.Attributes.OrniscientGrain]
     public class FirstGrain : Grain, IFirstGrain
     {
         private IStreamProvider _streamProvider;
