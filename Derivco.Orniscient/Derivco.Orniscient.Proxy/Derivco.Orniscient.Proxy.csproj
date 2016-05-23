@@ -65,7 +65,8 @@
     <Compile Include="Attributes\OrniscientGrain.cs" />
     <Compile Include="Extensions\GuidExtensions.cs" />
     <Compile Include="Grains\Models\DiffModel.cs" />
-    <Compile Include="Grains\IOrniscientGrain.cs" />
+    <Compile Include="Grains\IOrniscientReportingGrain.cs" />
+    <Compile Include="Grains\OrniscientFiltersGrain.cs" />
     <Compile Include="Grains\OrniscientReportingGrain.cs" />
     <Compile Include="Grains\Models\UpdateModel.cs" />
     <Compile Include="Observers\IOrniscientObserver.cs" />
