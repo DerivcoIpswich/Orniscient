@@ -23,9 +23,15 @@ namespace Derivco.Orniscient.Viewer
                       "~/Scripts/bootstrap.js",
                       "~/Scripts/respond.js"));
 
+            bundles.Add(new ScriptBundle("~/bundles/vis").Include(
+                     "~/Scripts/vis.js"));
+
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/bootstrap.css",
                       "~/Content/site.css"));
+
+            bundles.Add(new StyleBundle("~/Content/vis").Include(
+                     "~/Content/vis.css"));
         }
     }
 }

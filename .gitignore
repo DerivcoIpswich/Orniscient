@@ -6,6 +6,7 @@
 *.user
 *.userosscache
 *.sln.docstates
+*.ncrunchsolution
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
@@ -234,3 +235,4 @@ _Pvt_Extensions
 
 # FAKE - F# Make
 .fake/
+/Derivco.Orniscient/*.ncrunchsolution

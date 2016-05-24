@@ -9,6 +9,11 @@
     padding-right: 15px;
 }
 
+/*Override bootstrap styles  */
+.navbar-inverse {
+    background-color: rgba(13,38,55,1) !important;
+}
+
 /* Override the default bootstrap behavior where horizontal description lists 
    will truncate terms that are too long to fit in the left column 
 */
@@ -16,9 +21,26 @@
     white-space: normal;
 }
 
-/* Set width on the form input elements since they're 100% wide by default */
-input,
-select,
-textarea {
-    max-width: 280px;
+.bigContainer {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+.width100 {
+    max-width: 100% !important;
+    width: 100% !important;
+}
+
+.padding20 {
+    padding: 20px;
+}
+
+.form-control.inline {
+    display: inline !important;
+}
+
+.textbutton {
+    margin-left: -5px;
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
 }
