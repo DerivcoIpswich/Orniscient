@@ -64,6 +64,7 @@
   <ItemGroup>
     <Compile Include="Attributes\OrniscientGrain.cs" />
     <Compile Include="Extensions\GuidExtensions.cs" />
+    <Compile Include="Grains\IOrniscientDashboardGrain.cs" />
     <Compile Include="Grains\Models\DiffModel.cs" />
     <Compile Include="Grains\IOrniscientReportingGrain.cs" />
     <Compile Include="Grains\OrniscientReportingGrain.cs" />

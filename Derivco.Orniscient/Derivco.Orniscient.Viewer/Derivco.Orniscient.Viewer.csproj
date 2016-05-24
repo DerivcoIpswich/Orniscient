@@ -231,6 +231,7 @@
   <ItemGroup>
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\img\derivco.png" />
     <Content Include="Content\img\network\acceptDeleteIcon.png" />
     <Content Include="Content\img\network\addNodeIcon.png" />
     <Content Include="Content\img\network\backIcon.png" />
@@ -293,6 +294,7 @@
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Scripts\vis.map" />
     <Content Include="Views\Dashboard\Index.cshtml" />
+    <Content Include="Views\Dashboard\IndexTemp.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

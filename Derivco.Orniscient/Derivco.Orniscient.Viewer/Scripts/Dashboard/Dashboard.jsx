@@ -7,12 +7,12 @@
 
             //need to remove all the edges where this grain was the from grain.
             var affectedEdges = orniscient.data.edges.get({
-                filter: function(item) {
-                    return item.from === grainData.id || item.to===grainData.id;
+                filter: function (item) {
+                    return item.from === grainData.id || item.to === grainData.id;
                 }
             });
 
-            $.each(affectedEdges, function(index, edge) {
+            $.each(affectedEdges, function (index, edge) {
                 edge.hidden = grainData.hidden;
             });
             orniscient.data.edges.update(affectedEdges);
@@ -27,9 +27,25 @@
                 <div className="row">
                     <div className="col-md-3 padding20">
                         <div className="row">
+                             <div className="form-group">
+                                    <label for="silo">Cluster</label>
+                                     <select className="form-control width100" id="silo">
+                                         <option>United Kingdom</option>
+                                         <option>South Africa</option>
+                                     </select>
+                             </div>
+                            <button type="submit" className="btn btn-default pull-right btn-success">Go</button>
+                        </div>
+                        <div className="row">
                             <h3>Filter options</h3>
                             <hr />
                             <form>
+                                 <div className="form-group">
+                                    <label for="silo">Silo</label>
+                                     <select className="form-control width100" id="silo">
+                                         <option selected="">LocalHost</option>
+                                     </select>
+                                 </div>
                                  <div className="form-group">
                                     <label for="grainType">Grain Type</label>
                                     <input type="text" className="form-control width100" id="grainType" placeholder="Grain Type" />
@@ -38,6 +54,8 @@
                                     <label for="grainid">Grain Id</label>
                                     <input type="text" className="form-control width100" id="grainid" placeholder="Grain Id" onChange={this.filterByGrainId} />
                                 </div>
+
+                                 <button type="submit" className="btn btn-default pull-right btn-success">Search</button>
                             </form>
 
                         </div>
