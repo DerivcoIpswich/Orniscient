@@ -35,8 +35,6 @@ namespace Derivco.Orniscient.Viewer.Observers
             }
         }
 
-
-
         public static OrniscientObserver Instance => _instance.Value;
 
         public async Task<List<UpdateModel>> GetCurrentSnapshot()

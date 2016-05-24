@@ -9,5 +9,10 @@ namespace Derivco.Orniscient.Viewer.Controllers
         {
             return View();
         }
+
+        public ActionResult IndexTemp()
+        {
+            return View();
+        }
     }
 }
