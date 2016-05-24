@@ -28,6 +28,11 @@ textarea {
     max-width: 100% !important;
 }
 
+.width100 {
+    max-width: 100% !important;
+    width: 100% !important;
+}
+
 .padding20 {
     padding: 20px;
 }

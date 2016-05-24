@@ -12,19 +12,20 @@ namespace TestHost.Grains
         public override Task OnActivateAsync()
         {
             _streamProvider = GetStreamProvider("SMSProvider");
-            RegisterTimer(p => AddGrains() ,null, TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(15));
+           // RegisterTimer(p => AddGrains() ,null, TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(15));
             return base.OnActivateAsync();
         }
 
-        public Task KeepAlive()
+        public async Task KeepAlive()
         {
             Console.WriteLine("Hi, I am your first Grain");
-            return TaskDone.Done;
+            await AddGrains();
+            //return TaskDone.Done;
         }
 
         private async Task AddGrains()
         {
-            for (var i = 0; i < 15; i++)
+            for (var i = 0; i < 50; i++)
             {
                 var temp = Guid.NewGuid();
                 await _streamProvider.GetStream<Guid>(temp, "TestStream").OnNextAsync(temp);
