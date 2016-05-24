@@ -28,7 +28,7 @@
                     <div className="col-md-3 padding20">
                         <div className="row">
                              <div className="form-group">
-                                    <label for="silo">Cluster</label>
+                                    <h4>Cluster</h4>
                                      <select className="form-control width100" id="silo">
                                          <option>United Kingdom</option>
                                          <option>South Africa</option>
@@ -37,13 +37,13 @@
                             <button type="submit" className="btn btn-default pull-right btn-success">Go</button>
                         </div>
                         <div className="row">
-                            <h3>Filter options</h3>
+                            <h4>Filter options</h4>
                             <hr />
                             <form>
                                  <div className="form-group">
                                     <label for="silo">Silo</label>
                                      <select className="form-control width100" id="silo">
-                                         <option selected="">LocalHost</option>
+                                         <option selected="selected">LocalHost</option>
                                      </select>
                                  </div>
                                  <div className="form-group">
