@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Derivco.Orniscient.Proxy.Attributes;
+using Derivco.Orniscient.Proxy.Filters;
+using Derivco.Orniscient.Proxy.Grains.Filters;
 using Orleans;
 using Orleans.Streams;
 
 namespace TestHost.Grains
 {
-    [Derivco.Orniscient.Proxy.Attributes.OrniscientGrain]
-    public class FirstGrain : Grain, IFirstGrain
+    [OrniscientGrain]
+    public class FirstGrain : Grain, IFirstGrain, IFilterableGrain
     {
         private IStreamProvider _streamProvider;
         public override Task OnActivateAsync()
@@ -30,6 +33,11 @@ namespace TestHost.Grains
                 var temp = Guid.NewGuid();
                 await _streamProvider.GetStream<Guid>(temp, "TestStream").OnNextAsync(temp);
             }
+        }
+
+        public Task<FilterRow[]> GetFilters()
+        {
+            return null;
         }
     }
 }

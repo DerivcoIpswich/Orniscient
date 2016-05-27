@@ -10,9 +10,6 @@ namespace Derivco.Orniscient.Proxy.Grains
       The following will be required from this grain.
       1 . Need to observe the changes from the IOrniscientReporting Grain
       2 . Need to maintain state for the current user, so that he/she can view and apply changes to their dashboard.
-      3 . Needs to return details about the
-      
-
     */
     public interface IOrniscientDashboardGrain : IGrainWithStringKey
     {

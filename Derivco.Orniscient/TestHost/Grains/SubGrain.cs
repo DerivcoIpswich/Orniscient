@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Derivco.Orniscient.Proxy.Attributes;
+using Derivco.Orniscient.Proxy.Filters;
 using Orleans;
 using Orleans.Streams;
 
@@ -45,6 +46,11 @@ namespace TestHost.Grains
         public Task OnErrorAsync(Exception ex)
         {
             return TaskDone.Done;
+        }
+
+        public Task<FilterRow[]> GetFilters()
+        {
+            return null;
         }
     }
 }

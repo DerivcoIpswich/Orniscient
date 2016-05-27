@@ -1,4 +1,6 @@
-﻿var Dashboard = React.createClass({
+﻿
+
+var Dashboard = React.createClass({
     filterByGrainId: function (event) {
         $.each(orniscient.data.nodes.get(), function (index, grainData) {
 
@@ -18,6 +20,44 @@
             orniscient.data.edges.update(affectedEdges);
         });
     },
+    siloSelected(val) {
+        console.log("Selected Silo: " + val);
+        this.setState({ selectedSilos: val });
+    },
+    typeSelected(val) {
+        this.setState({ selectedTypes: val });
+        console.log("Selected Type : " + val);
+    },
+    stringArrToSelectOptions(arr) {
+        return arr.map(function (obj) {
+            return {
+                value: obj,
+                label: obj
+            }
+        });
+    },
+    getInitialState: function () {
+        return {
+            data: {
+                Silos: [],
+                AvailableTypes : []
+            }
+        };
+    },
+    componentWillMount: function () {
+        var xhr = new XMLHttpRequest();
+        xhr.open('get', this.props.url, true);
+        xhr.onload = function () {
+            var data = JSON.parse(xhr.responseText);
+            this.setState({
+                data: {
+                    Silos: this.stringArrToSelectOptions(data.Silos),
+                    AvailableTypes: this.stringArrToSelectOptions(data.AvailableTypes)
+                }
+            });
+        }.bind(this);
+        xhr.send();
+    },
     componentDidMount: function () {
         orniscient.init();
     },
@@ -25,6 +65,7 @@
         return (
             <div className="container bigContainer ">
                 <div className="row">
+
                     <div className="col-md-3 padding20">
                         <div className="row">
                              <div className="form-group">
@@ -42,13 +83,11 @@
                             <form>
                                  <div className="form-group">
                                     <label for="silo">Silo</label>
-                                     <select className="form-control width100" id="silo">
-                                         <option selected="">LocalHost</option>
-                                     </select>
+                                    <Select name="form-field-name" options={this.state.data.Silos} multi={true} onChange={this.siloSelected} disabled={false} value={ this.state.selectedSilos } />
                                  </div>
                                  <div className="form-group">
                                     <label for="grainType">Grain Type</label>
-                                    <input type="text" className="form-control width100" id="grainType" placeholder="Grain Type" />
+                                    <Select name="form-field-name" options={this.state.data.AvailableTypes} multi={true} onChange={this.typeSelected} disabled={false} value={ this.state.selectedTypes } />
                                  </div>
                                 <div className="form-group">
                                     <label for="grainid">Grain Id</label>
@@ -70,6 +109,6 @@
 });
 
 ReactDOM.render(
-        <Dashboard />,
+        <Dashboard url="GetDashboardInfo" />,
         document.getElementById('dashboard')
     )

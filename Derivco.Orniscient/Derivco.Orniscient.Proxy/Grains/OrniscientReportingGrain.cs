@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Derivco.Orniscient.Proxy.Attributes;
+using Derivco.Orniscient.Proxy.Filters;
+using Derivco.Orniscient.Proxy.Grains.Filters;
 using Derivco.Orniscient.Proxy.Grains.Models;
 using Derivco.Orniscient.Proxy.Observers;
 using Orleans;
@@ -57,7 +60,7 @@ namespace Derivco.Orniscient.Proxy.Grains
             var detailedStats = await _managementGrain.GetDetailedGrainStatistics(filteredTypes); ;
             if (detailedStats != null && detailedStats.Any())
             {
-                return detailedStats.Where(p=>p.Category.ToLower()=="grain").Select(_FromGrainStat).ToList();
+                return detailedStats.Where(p => p.Category.ToLower() == "grain").Select(_FromGrainStat).ToList();
             }
             return null;
         }
@@ -65,6 +68,16 @@ namespace Derivco.Orniscient.Proxy.Grains
         public Task<List<UpdateModel>> GetAll()
         {
             return Task.FromResult(CurrentStats);
+        }
+
+        public Task<List<UpdateModel>> GetAll(string type)
+        {
+            if (CurrentStats != null)
+            {
+                var filteredStats = CurrentStats.Where(x => x.Type == type);
+                return Task.FromResult(filteredStats.ToList());
+            }
+            return null;
         }
 
         public async Task<DiffModel> GetChanges()
@@ -102,9 +115,35 @@ namespace Derivco.Orniscient.Proxy.Grains
             await _Hydrate();
         }
 
+        public async Task<string[]> GetSilos()
+        {
+            var silos = await _managementGrain.GetHosts(true);
+            return silos.Keys.Select(p => p.ToString()).ToArray();
+        }
+
         public async Task<string[]> GetGrainTypes()
         {
             return await _managementGrain.GetActiveGrainTypes();
+        }
+
+        public async Task<Dictionary<string, FilterRow[]>> GetFilters(string[] types)
+        {
+            //TODO : This should happen every x minutes since the data can change then the filter data will be out of sync.
+
+            var filters = new Dictionary<string, FilterRow[]>();
+
+            foreach (var type in types)
+            {
+                var orniscientInfo = OrniscientLinkMap.Instance.GetLinkFromType(type);
+                if (orniscientInfo != null)
+                {
+                    var filterGrain = GrainFactory.GetGrain<IFilterGrain>(type);
+                    var grainFilters = await filterGrain.GetFilters();
+                    if(grainFilters!=null)
+                        filters.Add(type,grainFilters.ToArray());
+                }
+            }
+            return filters;
         }
     }
 }
