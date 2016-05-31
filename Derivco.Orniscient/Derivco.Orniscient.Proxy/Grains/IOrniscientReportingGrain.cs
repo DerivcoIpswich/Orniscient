@@ -22,6 +22,6 @@ namespace Derivco.Orniscient.Proxy.Grains
 
         Task<string[]> GetGrainTypes();
 
-        Task<Dictionary<string, FilterRow[]>> GetFilters(string[] types);
+        Task<Dictionary<string, FilterRow[]>> GetFilters(string[] types, string[] silos);
     }
 }

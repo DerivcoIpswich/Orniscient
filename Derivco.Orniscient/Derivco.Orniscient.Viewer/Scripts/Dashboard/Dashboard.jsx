@@ -25,23 +25,35 @@ var Dashboard = React.createClass({
         this.setState({ selectedSilos: val });
     },
     typeSelected(val) {
-        this.setState({ selectedTypes: val });
-        console.log("Selected Type : " + val);
+        this.getFilters(val);
     },
-    stringArrToSelectOptions(arr) {
-        return arr.map(function (obj) {
-            return {
-                value: obj,
-                label: obj
+    getFilters: function (selectedTypes) {
+
+        var requestData = {
+            Types:selectedTypes!=null && selectedTypes.length>0?selectedTypes.map(function (a) { return a.value; }):{}
+        };
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('post', 'Dashboard/GetFilters', true);
+        xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+        xhr.onload = function () {
+            var filters =[];
+            if (xhr.responseText != null && xhr.responseText!=="") {
+                filters = JSON.parse(xhr.responseText);
             }
-        });
+
+            this.setState({
+                availableFilters: filters,
+                selectedTypes: selectedTypes
+            });
+        }.bind(this);
+        xhr.send(JSON.stringify(requestData));
     },
     getInitialState: function () {
         return {
-            data: {
-                Silos: [],
-                AvailableTypes : []
-            }
+                silos: [],
+                availableTypes: [],
+                availableFilters: []
         };
     },
     componentWillMount: function () {
@@ -50,10 +62,8 @@ var Dashboard = React.createClass({
         xhr.onload = function () {
             var data = JSON.parse(xhr.responseText);
             this.setState({
-                data: {
-                    Silos: this.stringArrToSelectOptions(data.Silos),
-                    AvailableTypes: this.stringArrToSelectOptions(data.AvailableTypes)
-                }
+                silos: orniscientutils.stringArrToSelectOptions(data.Silos),
+                availableTypes: orniscientutils.stringArrToSelectOptions(data.AvailableTypes)
             });
         }.bind(this);
         xhr.send();
@@ -83,18 +93,19 @@ var Dashboard = React.createClass({
                             <form>
                                  <div className="form-group">
                                     <label for="silo">Silo</label>
-                                    <Select name="form-field-name" options={this.state.data.Silos} multi={true} onChange={this.siloSelected} disabled={false} value={ this.state.selectedSilos } />
+                                    <Select name="form-field-name" options={this.state.silos} multi={true} onChange={this.siloSelected} disabled={false} value={ this.state.selectedSilos } />
                                  </div>
                                  <div className="form-group">
                                     <label for="grainType">Grain Type</label>
-                                    <Select name="form-field-name" options={this.state.data.AvailableTypes} multi={true} onChange={this.typeSelected} disabled={false} value={ this.state.selectedTypes } />
+                                    <Select name="form-field-name" options={this.state.availableTypes} multi={true} onChange={this.typeSelected} disabled={false} value={ this.state.selectedTypes } />
                                  </div>
                                 <div className="form-group">
                                     <label for="grainid">Grain Id</label>
                                     <input type="text" className="form-control width100" id="grainid" placeholder="Grain Id" onChange={this.filterByGrainId} />
                                 </div>
 
-                                 <button type="submit" className="btn btn-default pull-right btn-success">Search</button>
+                                <DashboardTypeFilterList data={this.state.availableFilters}/>
+                                <button type="submit" className="btn btn-default pull-right btn-success">Search</button>
                             </form>
 
                         </div>
@@ -109,6 +120,6 @@ var Dashboard = React.createClass({
 });
 
 ReactDOM.render(
-        <Dashboard url="GetDashboardInfo" />,
+        <Dashboard url="Dashboard/GetDashboardInfo" />,
         document.getElementById('dashboard')
     )

@@ -270,6 +270,8 @@
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="Scripts\Dashboard\Dashboard.jsx" />
+    <Content Include="Scripts\Dashboard\DashboardTypeFilter.jsx" />
+    <Content Include="Scripts\Dashboard\DashboardTypeFilterList.jsx" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\index.js" />
     <Content Include="Scripts\jquery-1.10.2.js" />
@@ -309,6 +311,7 @@
     <Content Include="Scripts\vis.map" />
     <Content Include="Views\Dashboard\Index.cshtml" />
     <Content Include="Views\Dashboard\IndexTemp.cshtml" />
+    <Content Include="Scripts\orniscientutils.js" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

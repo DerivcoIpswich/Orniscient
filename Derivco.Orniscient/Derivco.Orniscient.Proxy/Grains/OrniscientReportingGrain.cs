@@ -126,9 +126,10 @@ namespace Derivco.Orniscient.Proxy.Grains
             return await _managementGrain.GetActiveGrainTypes();
         }
 
-        public async Task<Dictionary<string, FilterRow[]>> GetFilters(string[] types)
+        public async Task<Dictionary<string, FilterRow[]>> GetFilters(string[] types,string[] silos)
         {
             //TODO : This should happen every x minutes since the data can change then the filter data will be out of sync.
+            //TODO : Filter by silos as well. 
 
             var filters = new Dictionary<string, FilterRow[]>();
 
