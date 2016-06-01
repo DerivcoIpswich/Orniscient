@@ -1,6 +1,6 @@
 {
   "name": "Orniscient",
   "tagline": "A visualisation tool for debugging and monitoring Microsoft Orleans applications.",
-  "body": "### Overview\r\nOrniscient provides an interface for visualising user grains in an Orleans cluster or meta-cluster. Grains can be filtered based on defined properties or identifiers such as GUIDs or integer keys.\r\n\r\n### Status\r\nOrniscient is still in early development and requires a post 1.2 version of Orleans to use, as it relies on a PR submitted to enable the introspection of grain data.\r\n\r\n### Support or Contact\r\nStop by [gitter](http://www.gitter.io/DerivcoIpswich/Orniscient) to discuss the tool.",
+  "body": "### Overview\r\nOrniscient provides an interface for visualising user grains in an Orleans cluster or meta-cluster. Grains can be filtered based on pre-defined public properties, or identifiers such as GUIDs or integer keys, in addition to concrete type definitions.\r\n\r\n### Status\r\nOrniscient is still in early development and requires a post-1.2 version of Orleans to use, as it relies on a PR submitted to enable the introspection of grain data. From Orleans 1.3 onwards, Orniscient will work with any Orleans cluster.\r\n\r\n### Support or Contact\r\nStop by [gitter](http://www.gitter.im/DerivcoIpswich/Orniscient) to discuss the tool.",
   "note": "Don't delete this file! It's used internally to help with page regeneration."
 }
