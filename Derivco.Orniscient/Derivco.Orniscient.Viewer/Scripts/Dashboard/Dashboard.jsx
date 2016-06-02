@@ -1,6 +1,7 @@
 ﻿
 
 var Dashboard = React.createClass({
+    
     filterByGrainId: function (event) {
         $.each(orniscient.data.nodes.get(), function (index, grainData) {
 
@@ -24,23 +25,25 @@ var Dashboard = React.createClass({
         console.log("Selected Silo: " + val);
         this.setState({ selectedSilos: val });
     },
-    typeSelected(val) {
-        this.getFilters(val);
-    },
     getFilters: function (selectedTypes) {
 
         var requestData = {
-            Types:selectedTypes!=null && selectedTypes.length>0?selectedTypes.map(function (a) { return a.value; }):{}
+            Types: selectedTypes != null && selectedTypes.length > 0 ? selectedTypes.map(function (a) { return a.value; }) : {}
         };
 
         var xhr = new XMLHttpRequest();
         xhr.open('post', 'Dashboard/GetFilters', true);
         xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
         xhr.onload = function () {
-            var filters =[];
-            if (xhr.responseText != null && xhr.responseText!=="") {
+            var filters = [];
+            if (xhr.responseText != null && xhr.responseText !== "") {
                 filters = JSON.parse(xhr.responseText);
             }
+
+
+            //TODO L  delete all the types from the selectedFilters so that state is not maintained
+
+
 
             this.setState({
                 availableFilters: filters,
@@ -49,11 +52,38 @@ var Dashboard = React.createClass({
         }.bind(this);
         xhr.send(JSON.stringify(requestData));
     },
+    filterSelected: function (type,filterName, selected) {
+
+        var selectedFilters = this.state.selectedFilters;
+        var filterid = filterName.replace(/[^\w]/gi, '.'); //remove special characters
+
+        if (selectedFilters[type] === undefined) {
+            selectedFilters[type] = {};
+        }
+
+        if (selectedFilters[type][filterid] === undefined) {
+            selectedFilters[type][filterid] = {};
+        }
+
+        selectedFilters[type][filterid] = selected;
+        this.setState({ selectedFilters: selectedFilters });
+    },
+    searchClicked : function() {
+        
+    },
+    //React methods
+    childContextTypes: {
+        selectedFilters: React.PropTypes.object
+    },
+    getChildContext: function () {
+        return { selectedFilters: this.state.selectedFilters };
+    },
     getInitialState: function () {
         return {
-                silos: [],
-                availableTypes: [],
-                availableFilters: []
+            silos: [],
+            availableTypes: [],
+            availableFilters: [],
+            selectedFilters:{}
         };
     },
     componentWillMount: function () {
@@ -97,15 +127,15 @@ var Dashboard = React.createClass({
                                  </div>
                                  <div className="form-group">
                                     <label for="grainType">Grain Type</label>
-                                    <Select name="form-field-name" options={this.state.availableTypes} multi={true} onChange={this.typeSelected} disabled={false} value={ this.state.selectedTypes } />
+                                    <Select name="form-field-name" options={this.state.availableTypes} multi={true} onChange={this.getFilters} disabled={false} value={ this.state.selectedTypes } />
                                  </div>
                                 <div className="form-group">
                                     <label for="grainid">Grain Id</label>
                                     <input type="text" className="form-control width100" id="grainid" placeholder="Grain Id" onChange={this.filterByGrainId} />
                                 </div>
 
-                                <DashboardTypeFilterList data={this.state.availableFilters}/>
-                                <button type="submit" className="btn btn-default pull-right btn-success">Search</button>
+                                <DashboardTypeFilterList data={this.state.availableFilters} filterSelected={this.filterSelected} />
+                                <button type="submit" className="btn btn-default pull-right btn-success" onClick={this.searchClicked}>Search</button>
                             </form>
 
                         </div>

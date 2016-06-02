@@ -14,8 +14,7 @@ namespace Derivco.Orniscient.Viewer
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
-            GrainClient.Initialize(Server.MapPath("~/DevTestClientConfiguration.xml"));
-            OrniscientObserver.Instance.SetTypeFilter(p => p.Contains("TestHost.Grains")).Wait();
+
         }
     }
 }

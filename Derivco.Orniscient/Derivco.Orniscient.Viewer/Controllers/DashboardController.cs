@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection.Emit;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using Derivco.Orniscient.Proxy.Filters;
 using Derivco.Orniscient.Proxy.Grains;
+using Derivco.Orniscient.Viewer.Observers;
 using Microsoft.Owin.Security;
 using Orleans;
 using Orleans.Runtime;
@@ -16,6 +18,13 @@ namespace Derivco.Orniscient.Viewer.Controllers
         // GET: Dashboard
         public ActionResult Index()
         {
+            if (!GrainClient.IsInitialized)
+            {
+                GrainClient.Initialize(Server.MapPath("~/DevTestClientConfiguration.xml"));
+                OrniscientObserver.Instance.SetTypeFilter(p => p.Contains("TestHost.Grains")).Wait();
+            }
+
+
             return View();
         }
 
@@ -27,10 +36,14 @@ namespace Derivco.Orniscient.Viewer.Controllers
         public async Task<ActionResult> GetDashboardInfo()
         {
             var reportingGrain = GrainClient.GrainFactory.GetGrain<IOrniscientReportingGrain>(Guid.Empty);
+
+            var types = await reportingGrain.GetGrainTypes();
+
+
             var dashboardInfo = new DashboardInfo
             {
                 Silos = await reportingGrain.GetSilos(),
-                AvailableTypes = await reportingGrain.GetGrainTypes()
+                AvailableTypes = types
             };
 
             return Json(dashboardInfo, JsonRequestBehavior.AllowGet);
@@ -58,8 +71,8 @@ namespace Derivco.Orniscient.Viewer.Controllers
                     TypeName = type,
                     Filters = new List<AggregatedFilterRow>()
                     {
-                        new AggregatedFilterRow() {FilterName = "Filter One",Values = new List<string>() {"Item1","Item2","Item3"} },
-                        new AggregatedFilterRow() {FilterName = "Filter Two",Values = new List<string>() {"Item1","Item2","Item3"} }
+                        new AggregatedFilterRow() {Type=type,FilterName = "Filter One",Values = new List<string>() {"Item1","Item2","Item3"} },
+                        new AggregatedFilterRow() {Type=type,FilterName = "Filter Two",Values = new List<string>() {"Item1","Item2","Item3"} }
                     }
                 });
             }
@@ -97,6 +110,7 @@ namespace Derivco.Orniscient.Viewer.Controllers
 
     public class AggregatedFilterRow
     {
+        public string Type { get; set; }
         public string FilterName { get; set; }
         public List<string> Values { get; set; }
     }
