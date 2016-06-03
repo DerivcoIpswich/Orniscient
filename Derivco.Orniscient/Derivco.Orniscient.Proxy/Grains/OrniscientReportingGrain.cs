@@ -22,6 +22,7 @@ namespace Derivco.Orniscient.Proxy.Grains
 
         public override async Task OnActivateAsync()
         {
+            CurrentStats = new List<UpdateModel>();
             _managementGrain = GrainFactory.GetGrain<IManagementGrain>(0);
             //Timer to send the changes down to the dashboard every x minutes....
             await _Hydrate();
@@ -112,6 +113,14 @@ namespace Derivco.Orniscient.Proxy.Grains
         public async Task SetTypeFilter(string[] types)
         {
             this.filteredTypes = types;
+
+            //call all the filter grains keep alive to get there timers started.
+            foreach (var type in filteredTypes)
+            {
+                var typeGrain = GrainFactory.GetGrain<ITypeFilterGrain>(type);
+                await typeGrain.KeepAlive();
+            }
+
             await _Hydrate();
         }
 
@@ -124,27 +133,6 @@ namespace Derivco.Orniscient.Proxy.Grains
         public async Task<string[]> GetGrainTypes()
         {
             return await _managementGrain.GetActiveGrainTypes();
-        }
-
-        public async Task<Dictionary<string, FilterRow[]>> GetFilters(string[] types,string[] silos)
-        {
-            //TODO : This should happen every x minutes since the data can change then the filter data will be out of sync.
-            //TODO : Filter by silos as well. 
-
-            var filters = new Dictionary<string, FilterRow[]>();
-
-            foreach (var type in types)
-            {
-                var orniscientInfo = OrniscientLinkMap.Instance.GetLinkFromType(type);
-                if (orniscientInfo != null)
-                {
-                    var filterGrain = GrainFactory.GetGrain<IFilterGrain>(type);
-                    var grainFilters = await filterGrain.GetFilters();
-                    if(grainFilters!=null)
-                        filters.Add(type,grainFilters.ToArray());
-                }
-            }
-            return filters;
         }
     }
 }

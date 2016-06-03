@@ -310,7 +310,6 @@
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Scripts\vis.map" />
     <Content Include="Views\Dashboard\Index.cshtml" />
-    <Content Include="Views\Dashboard\IndexTemp.cshtml" />
     <Content Include="Scripts\orniscientutils.js" />
   </ItemGroup>
   <ItemGroup>

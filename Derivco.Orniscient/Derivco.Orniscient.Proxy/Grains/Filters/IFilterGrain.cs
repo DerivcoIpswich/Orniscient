@@ -1,12 +1,12 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Derivco.Orniscient.Proxy.Filters;
 using Orleans;
 
 namespace Derivco.Orniscient.Proxy.Grains.Filters
 {
-    public interface IFilterGrain : IGrainWithStringKey
+    public interface IFilterGrain : IGrainWithGuidKey
     {
-        Task<FilterRow[]> GetFilters();
-        Task UpdateModels();
+        Task<List<TypeFilter>> GetFilters(string[] types);
     }
 }

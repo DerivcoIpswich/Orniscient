@@ -1,35 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Emit;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using Derivco.Orniscient.Proxy.Filters;
 using Derivco.Orniscient.Proxy.Grains;
+using Derivco.Orniscient.Proxy.Grains.Filters;
 using Derivco.Orniscient.Viewer.Observers;
-using Microsoft.Owin.Security;
 using Orleans;
-using Orleans.Runtime;
+using React.Exceptions;
 
 namespace Derivco.Orniscient.Viewer.Controllers
 {
     public class DashboardController : Controller
     {
         // GET: Dashboard
-        public ActionResult Index()
+        public async Task<ActionResult> Index()
         {
             if (!GrainClient.IsInitialized)
             {
                 GrainClient.Initialize(Server.MapPath("~/DevTestClientConfiguration.xml"));
-                OrniscientObserver.Instance.SetTypeFilter(p => p.Contains("TestHost.Grains")).Wait();
+                //await OrniscientObserver.Instance.SetTypeFilter(p => p.Contains("TestHost.Grains"));
             }
 
-
-            return View();
-        }
-
-        public ActionResult IndexTemp()
-        {
             return View();
         }
 
@@ -51,46 +43,28 @@ namespace Derivco.Orniscient.Viewer.Controllers
 
         public async Task<ActionResult> GetFilters(GetFiltersRequest filtersRequest)
         {
-            if(filtersRequest?.Types == null)
+            if (filtersRequest?.Types == null)
                 return null;
-            
-            //TODO : Implement this method and return the filters for all the selected types.
-            //Should return 
 
-            var reportingGrain = GrainClient.GrainFactory.GetGrain<IOrniscientReportingGrain>(Guid.Empty);
-            var filter = await reportingGrain.GetFilters(new[] { "TestHost.Grains.FooGrain" },null);
-
-
-
-            //going to mock the return data now so that we can just draw the form to show the filters.
-            var result = new List<TypeFilter>();
-            foreach (var type in filtersRequest.Types)
-            {
-                result.Add(new TypeFilter()
-                {
-                    TypeName = type,
-                    Filters = new List<AggregatedFilterRow>()
-                    {
-                        new AggregatedFilterRow() {Type=type,FilterName = "Filter One",Values = new List<string>() {"Item1","Item2","Item3"} },
-                        new AggregatedFilterRow() {Type=type,FilterName = "Filter Two",Values = new List<string>() {"Item1","Item2","Item3"} }
-                    }
-                });
-            }
-
-            return Json(result, JsonRequestBehavior.AllowGet);
+            var filterGrain = GrainClient.GrainFactory.GetGrain<IFilterGrain>(Guid.Empty);
+            var filters = await filterGrain.GetFilters(filtersRequest.Types);
+            return Json(filters, JsonRequestBehavior.AllowGet);
         }
 
-        public async Task<ActionResult> Type()
+        public async Task<ActionResult> Search(SearchRequest request)
         {
-            var reportingGrain = GrainClient.GrainFactory.GetGrain<IOrniscientReportingGrain>(Guid.Empty);
-            var filter = await reportingGrain.GetFilters(new[] {"TestHost.Grains.FooGrain"},null);
+            //the filter will need to be stored on the server temporarily, so that the push service can honour it.
+            //we need to return the grains, then we will consolidate on the client, add new grains / remove old ones.
+            //clear search should just pull the entire dashboard again
 
-            //var tpes = managementGrain.GetFilters()
-            return Json(filter, JsonRequestBehavior.AllowGet);
+
+
+            return Json(null, JsonRequestBehavior.AllowGet);
         }
     }
 
-    public class DashboardInfo
+
+public class DashboardInfo
     {
         public string[] Silos { get; set; }
         public string[] AvailableTypes { get; set; } 
@@ -101,17 +75,19 @@ namespace Derivco.Orniscient.Viewer.Controllers
         public string[] Types { get; set; }
     }
 
-    public class TypeFilter
+    
+
+   
+
+    public class SearchRequest
     {
-        public string TypeName { get; set; }
-        public List<AggregatedFilterRow> Filters { get; set; }
-        
+        public List<SearchRequestFilter> Filters { get; set; }
     }
 
-    public class AggregatedFilterRow
+    public class SearchRequestFilter
     {
-        public string Type { get; set; }
+        public string FilterType { get; set; }
         public string FilterName { get; set; }
-        public List<string> Values { get; set; }
+        public string[] Values { get; set; }
     }
 }

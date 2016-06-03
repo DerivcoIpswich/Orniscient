@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Derivco.Orniscient.Proxy.Attributes;
@@ -10,8 +11,8 @@ namespace TestHost.Grains
     [OrniscientGrain(typeof(SubGrain), LinkType.SameId, "lightblue")]
     public class FooGrain : Grain, IFooGrain, IFilterableGrain
     {
-        private string _sport;
-        private string _league;
+        
+
 
         public Task KeepAlive()
         {
@@ -20,10 +21,12 @@ namespace TestHost.Grains
 
         public Task<FilterRow[]> GetFilters()
         {
+            string[] _sports = new[] { "Rugby", "Soccer", "Pool", "Darts", "Formula 1", "Horse Racing" };
+            var rand = new Random();
             return Task.FromResult(new[]
             {
-                new FilterRow() {Name = "sport", Value = "rugby"},
-                new FilterRow() {Name = "league", Value = $"rugby world cup"} //include the id here, just to see the difference
+                new FilterRow() {Name = "sport", Value =_sports[rand.Next(0,5)]},
+                new FilterRow() {Name = "league", Value = $"some league name"} //include the id here, just to see the difference
             });
         }
     }
