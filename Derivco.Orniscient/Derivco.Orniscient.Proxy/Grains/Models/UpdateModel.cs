@@ -12,7 +12,7 @@ namespace Derivco.Orniscient.Proxy.Grains.Models
         public string TypeShortName => Type.Split('.').Last();
         public string GrainName => $"{TypeShortName} ({Guid.ToInt()})";
         public string Id => $"{TypeShortName}_{Guid}";
-        public Guid Guid { get; set; }
+        public Guid Guid { get; set; } //TODO : Change this, might not always be a GUID.
         public string LinkToId { get; set; }
         public string Colour { get; set; }
     }

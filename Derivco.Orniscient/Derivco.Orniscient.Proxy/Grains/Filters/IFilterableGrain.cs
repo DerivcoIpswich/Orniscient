@@ -4,7 +4,7 @@ using Orleans;
 
 namespace Derivco.Orniscient.Proxy.Grains.Filters
 {
-    public interface IFilterableGrain : IGrainWithGuidKey
+    public interface IFilterableGrain : IGrainWithGuidKey 
     {
         Task<FilterRow[]> GetFilters();
     }

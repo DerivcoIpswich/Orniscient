@@ -10,10 +10,4 @@ namespace Derivco.Orniscient.Proxy.Grains.Models
 
         public List<TypeCounter> TypeCounts { get; set; }
     }
-
-    public class TypeCounter
-    {
-        public string TypeName { get; set; }
-        public int Total { get; set; }
-    }
 }

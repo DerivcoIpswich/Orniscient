@@ -15,20 +15,20 @@ namespace TestHost.Grains
         public override Task OnActivateAsync()
         {
             _streamProvider = GetStreamProvider("SMSProvider");
-           // RegisterTimer(p => AddGrains() ,null, TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(15));
+            //RegisterTimer(p => AddGrains(10) ,null, TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(15));
             return base.OnActivateAsync();
         }
 
         public async Task KeepAlive()
         {
             Console.WriteLine("Hi, I am your first Grain");
-            await AddGrains();
+            await AddGrains(20);
             //return TaskDone.Done;
         }
 
-        private async Task AddGrains()
+        private async Task AddGrains(int grainCountToAdd=10)
         {
-            for (var i = 0; i < 400; i++)
+            for (var i = 0; i < grainCountToAdd; i++)
             {
                 var temp = Guid.NewGuid();
                 await _streamProvider.GetStream<Guid>(temp, "TestStream").OnNextAsync(temp);
@@ -37,7 +37,11 @@ namespace TestHost.Grains
 
         public Task<FilterRow[]> GetFilters()
         {
-            return null;
+            return Task.FromResult(new FilterRow[]
+            {
+                new FilterRow() {Name = "test", Value = "test"}
+            });
+
         }
     }
 }

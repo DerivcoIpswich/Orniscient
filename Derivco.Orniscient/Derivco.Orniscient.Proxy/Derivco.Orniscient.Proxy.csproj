@@ -69,9 +69,11 @@
     <Compile Include="Grains\Filters\IFilterableGrain.cs" />
     <Compile Include="Grains\Filters\IFilterGrain.cs" />
     <Compile Include="Grains\Filters\ITypeFilterGrain.cs" />
+    <Compile Include="Grains\Filters\TypeFilterGrain.cs" />
     <Compile Include="Grains\IOrniscientDashboardGrain.cs" />
     <Compile Include="Grains\Models\DiffModel.cs" />
     <Compile Include="Grains\IOrniscientReportingGrain.cs" />
+    <Compile Include="Grains\Models\TypeCounter.cs" />
     <Compile Include="Grains\OrniscientReportingGrain.cs" />
     <Compile Include="Grains\Models\UpdateModel.cs" />
     <Compile Include="Observers\IOrniscientObserver.cs" />

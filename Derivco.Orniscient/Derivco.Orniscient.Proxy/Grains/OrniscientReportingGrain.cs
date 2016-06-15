@@ -115,7 +115,7 @@ namespace Derivco.Orniscient.Proxy.Grains
             {
                 RemovedGrains = CurrentStats.Where(p => newStats.All(n => n.Guid != p.Guid)).Select(p => p.Guid).ToList(),
                 NewGrains = newStats.Where(p => CurrentStats.All(c => p.Guid != c.Guid)).ToList(),
-                TypeCounts = newStats.GroupBy(p => p.TypeShortName).Select(p => new TypeCounter() { TypeName = p.Key, Total = p.Count() }).ToList()
+                TypeCounts = newStats.GroupBy(p => p.TypeShortName).Select(p => new TypeCounter() { TypeName = p.Key, Total = p.Count()}).ToList()
             };
 
             //push the diffmodel to the observer..
@@ -142,14 +142,6 @@ namespace Derivco.Orniscient.Proxy.Grains
         public async Task SetTypeFilter(string[] types)
         {
             this.filteredTypes = types;
-
-            //call all the filter grains keep alive to get there timers started.
-            //foreach (var type in filteredTypes)
-            //{
-            //    var typeGrain = GrainFactory.GetGrain<ITypeFilterGrain>(type);
-            //    await typeGrain.KeepAlive();
-            //}
-
             await _Hydrate();
         }
 
