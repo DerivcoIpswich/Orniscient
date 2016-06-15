@@ -24,7 +24,7 @@
   </Globals>
   <Defaults>
     <Networking Address="localhost" Port="11111" />
-    <ProxyingGateway Address="localhost" Port="30000" />
+    <ProxyingGateway Address="localhost" Port="40000" />
     <Tracing DefaultTraceLevel="Info" TraceToConsole="true" TraceToFile="{0}-{1}.log">
       <TraceLevelOverride LogPrefix="Application" TraceLevel="Info" />
     </Tracing>

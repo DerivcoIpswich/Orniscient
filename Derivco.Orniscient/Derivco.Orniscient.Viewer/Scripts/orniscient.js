@@ -4,6 +4,7 @@
     var hub = $.connection.orniscientHub,
         nodes = new vis.DataSet([]),
         edges = new vis.DataSet([]),
+        typeCounts = [],
         container,
         arrows = { to: { scaleFactor: 1 } };
 
@@ -36,7 +37,10 @@
         edges: edges
     };
 
+
+
     orniscient.init = function () {
+        console.log('orniscient.init was called');
         container = document.getElementById('mynetwork');
         var network = new vis.Network(container, orniscient.data, options);
         network.on("selectNode", function (params) {
@@ -47,20 +51,25 @@
             }
         });
 
-        $.connection.hub.start().then(init);
-
-        //add client side methods for updates
         $.extend(hub.client, {
             grainActivationChanged: function (diffModel) {
+                console.log('changes sent from server');
+                window.dispatchEvent(new CustomEvent('orniscientUpdated', { detail: diffModel.TypeCounts }));
                 $.each(diffModel.NewGrains, function (index, grainData) {
                     addToNodes(grainData);
                 });
             }
         });
+        $.connection.hub.logging = true;
+        $.connection.hub.error(function (error) {
+            console.log('SignalR error: ' + error);
+        });
+        $.connection.hub.start().then(init);
+        
     }
 
     function init() {
-        return hub.server.getCurrentSnapshot()
+        return hub.server.GetCurrentSnapshot()
             .done(function (data) {
                 $.each(data, function (index, grainData) {
                     addToNodes(grainData);

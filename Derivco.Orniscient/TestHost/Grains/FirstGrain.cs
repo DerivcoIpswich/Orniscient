@@ -28,7 +28,7 @@ namespace TestHost.Grains
 
         private async Task AddGrains()
         {
-            for (var i = 0; i < 50; i++)
+            for (var i = 0; i < 400; i++)
             {
                 var temp = Guid.NewGuid();
                 await _streamProvider.GetStream<Guid>(temp, "TestStream").OnNextAsync(temp);

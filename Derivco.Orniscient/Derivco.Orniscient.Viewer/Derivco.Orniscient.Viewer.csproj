@@ -272,6 +272,9 @@
     <Content Include="Scripts\Dashboard\Dashboard.jsx" />
     <Content Include="Scripts\Dashboard\DashboardTypeFilter.jsx" />
     <Content Include="Scripts\Dashboard\DashboardTypeFilterList.jsx" />
+    <None Include="Properties\PublishProfiles\FileDeploy.pubxml" />
+    <None Include="Properties\PublishProfiles\FileDeploy_Front.pubxml" />
+    <Content Include="Scripts\Dashboard\DashboardTypeCounts.jsx" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\index.js" />
     <Content Include="Scripts\jquery-1.10.2.js" />
@@ -311,6 +314,7 @@
     <Content Include="Scripts\vis.map" />
     <Content Include="Views\Dashboard\Index.cshtml" />
     <Content Include="Scripts\orniscientutils.js" />
+    <Content Include="Views\Shared\_GlobalUrls.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

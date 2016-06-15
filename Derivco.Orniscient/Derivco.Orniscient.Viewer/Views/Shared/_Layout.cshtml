@@ -18,6 +18,7 @@
         }
     </style>
     @Scripts.Render("~/bundles/modernizr")
+   
 </head>
 <body>
     <div class="navbar navbar-inverse navbar-fixed-top">
@@ -51,6 +52,7 @@
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
     @Scripts.Render("~/bundles/vis")
+    @Html.Partial("_GlobalUrls")
     @RenderSection("scripts", required: false)
 </body>
 </html>

@@ -32,7 +32,7 @@ var Dashboard = React.createClass({
         };
 
         var xhr = new XMLHttpRequest();
-        xhr.open('post', 'Dashboard/GetFilters', true);
+        xhr.open('post', orniscienturls.getFilters, true);
         xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
         xhr.onload = function () {
             var filters = [];
@@ -40,11 +40,7 @@ var Dashboard = React.createClass({
                 filters = JSON.parse(xhr.responseText);
             }
 
-
-            //TODO L  delete all the types from the selectedFilters so that state is not maintained
-
-
-
+            //TODO :  delete all the types from the selectedFilters so that state is not maintained
             this.setState({
                 availableFilters: filters,
                 selectedTypes: selectedTypes
@@ -83,12 +79,14 @@ var Dashboard = React.createClass({
             silos: [],
             availableTypes: [],
             availableFilters: [],
-            selectedFilters:{}
+            selectedFilters: {},
+            typeCounts: []
         };
     },
     componentWillMount: function () {
+        console.log('componentWillMount is callled');
         var xhr = new XMLHttpRequest();
-        xhr.open('get', this.props.url, true);
+        xhr.open('get', orniscienturls.dashboardInfo, true);
         xhr.onload = function () {
             var data = JSON.parse(xhr.responseText);
             this.setState({
@@ -98,9 +96,16 @@ var Dashboard = React.createClass({
         }.bind(this);
         xhr.send();
     },
+    orniscientUpdated: function (typeCounts,a,b) {
+        console.log('orniscientUpdated was called, need to re-render the form now......');
+        this.setState({ typeCounts: typeCounts.detail });
+    },
     componentDidMount: function () {
+        console.log('componentDidMount is called.');
+        window.addEventListener('orniscientUpdated', this.orniscientUpdated);
         orniscient.init();
     },
+    
     render: function () {
         return (
             <div className="container bigContainer ">
@@ -135,7 +140,9 @@ var Dashboard = React.createClass({
                                 </div>
 
                                 <DashboardTypeFilterList data={this.state.availableFilters} filterSelected={this.filterSelected} />
-                                <button type="submit" className="btn btn-default pull-right btn-success" onClick={this.searchClicked}>Search</button>
+                                <button type="submit" className="btn btn-default  btn-success" onClick={this.searchClicked}>Search</button>
+
+                                <DashboardTypeCounts data={this.state.typeCounts}/>
                             </form>
 
                         </div>
@@ -150,6 +157,6 @@ var Dashboard = React.createClass({
 });
 
 ReactDOM.render(
-        <Dashboard url="Dashboard/GetDashboardInfo" />,
+        <Dashboard />,
         document.getElementById('dashboard')
     )

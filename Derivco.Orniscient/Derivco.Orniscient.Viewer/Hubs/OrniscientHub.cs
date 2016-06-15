@@ -20,7 +20,7 @@ namespace Derivco.Orniscient.Viewer.Hubs
         public OrniscientHub()
             :this(OrniscientObserver.Instance)
         {}
-
+        [HubMethodName("GetCurrentSnapshot")]
         public async Task<List<UpdateModel>> GetCurrentSnapshot()
         {
             return await _orniscientObserver.GetCurrentSnapshot();
