@@ -37,8 +37,6 @@
         edges: edges
     };
 
-
-
     orniscient.init = function () {
         console.log('orniscient.init was called');
         container = document.getElementById('mynetwork');
@@ -65,11 +63,25 @@
             console.log('SignalR error: ' + error);
         });
         $.connection.hub.start().then(init);
-        
+
     }
 
+
     function init() {
-        return hub.server.GetCurrentSnapshot()
+        return orniscient.getServerData();
+    }
+
+    orniscient.getServerData = function getServerData(filter) {
+        console.log('getting server data');
+        if (filter === null)
+            filter = {};
+
+        //TODO : Might need to merge these changes, otherwise it could be to busy for the user.....test to seee.
+
+        orniscient.data.nodes.clear();
+        orniscient.data.edges.clear();
+
+        return hub.server.GetCurrentSnapshot(filter)
             .done(function (data) {
                 $.each(data, function (index, grainData) {
                     addToNodes(grainData);
@@ -88,13 +100,13 @@
             label: grainData.GrainName,
             color: grainData.Colour,
             silo: 'C',
-            linkToId:grainData.LinkToId
+            linkToId: grainData.LinkToId
         });
 
         //add the edge (link)
         if (grainData.LinkToId !== '') {
             orniscient.data.edges.add({
-                id:grainData.Id,
+                id: grainData.Id,
                 from: grainData.Id,
                 to: grainData.LinkToId
             });

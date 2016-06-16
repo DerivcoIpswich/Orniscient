@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Derivco.Orniscient.Proxy.Filters;
 using Derivco.Orniscient.Proxy.Grains.Models;
 using Derivco.Orniscient.Viewer.Observers;
 using Microsoft.AspNet.SignalR;
@@ -20,10 +21,11 @@ namespace Derivco.Orniscient.Viewer.Hubs
         public OrniscientHub()
             :this(OrniscientObserver.Instance)
         {}
+
         [HubMethodName("GetCurrentSnapshot")]
-        public async Task<List<UpdateModel>> GetCurrentSnapshot()
+        public async Task<List<UpdateModel>> GetCurrentSnapshot(AppliedFilter filter=null)
         {
-            return await _orniscientObserver.GetCurrentSnapshot();
+            return await _orniscientObserver.GetCurrentSnapshot(filter);
         }
     }
 }

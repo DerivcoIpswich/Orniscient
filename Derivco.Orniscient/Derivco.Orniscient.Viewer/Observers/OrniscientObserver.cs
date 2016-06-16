@@ -2,8 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Derivco.Orniscient.Proxy.Filters;
 using Derivco.Orniscient.Proxy.Grains;
+using Derivco.Orniscient.Proxy.Grains.Filters;
 using Derivco.Orniscient.Proxy.Grains.Models;
 using Derivco.Orniscient.Proxy.Observers;
 using Derivco.Orniscient.Viewer.Hubs;
@@ -25,7 +28,7 @@ namespace Derivco.Orniscient.Viewer.Observers
             orniscientGrain.Subscribe(observer);
         }
 
-        public async Task SetTypeFilter(Func<string,bool> filter)
+        public async Task SetTypeFilter(Func<string, bool> filter)
         {
             if (filter != null)
             {
@@ -37,11 +40,48 @@ namespace Derivco.Orniscient.Viewer.Observers
 
         public static OrniscientObserver Instance => _instance.Value;
 
-        public async Task<List<UpdateModel>> GetCurrentSnapshot()
+        public async Task<List<UpdateModel>> GetCurrentSnapshot(AppliedFilter filter = null)
         {
             var orniscientGrain = GrainClient.GrainFactory.GetGrain<IOrniscientReportingGrain>(Guid.Empty);
-            var temp = await orniscientGrain.GetAll();
-            return temp;
+            var grains = await orniscientGrain.GetAll();
+            if (filter == null)
+                return grains;
+
+            //order of filtering applies here.
+            //1. Grain Id
+            if (!string.IsNullOrEmpty(filter.GrainId))
+            {
+                return grains.Where(p => p.Guid.ToString().Contains(filter.GrainId)).ToList();
+            }
+
+            //2. Silo
+            var grainQuery = grains.Where(p => filter.SelectedSilos == null || filter.SelectedSilos.Length==0 || filter.SelectedSilos.Contains(p.Silo));
+
+            //3. Apply Type Filters
+
+            if (filter.TypeFilters != null && filter.TypeFilters.Any())
+            {
+                //we need to dynamically build up the expression tree here
+                
+
+
+                grainQuery = grainQuery.Where(p => filter.TypeFilters.Any(t => t.TypeName == p.Type));
+
+                var grainIdsToFilter = new List<string>();
+                foreach (var appliedTypeFilter in filter.TypeFilters)
+                {
+                    if (appliedTypeFilter.SelectedValues != null)
+                    {
+                        var typeFilterGrain = GrainClient.GrainFactory.GetGrain<ITypeFilterGrain>(appliedTypeFilter.TypeName);
+                        grainIdsToFilter.AddRange(await typeFilterGrain.GetGrainIdsForFilter(appliedTypeFilter));
+                    }
+                }
+                if (grainIdsToFilter.Any())
+                {
+                    grainQuery = grainQuery.Where(p => grainIdsToFilter.Contains(p.Guid.ToString()));
+                }
+            }
+            return grainQuery.ToList();
         }
 
         public void GrainsUpdated(DiffModel model)

@@ -12,6 +12,7 @@ namespace Derivco.Orniscient.Proxy.Grains.Filters
     public interface ITypeFilterGrain : IGrainWithStringKey
     {
         Task<List<AggregatedFilterRow>> GetFilters();
+        Task<List<string>> GetGrainIdsForFilter(AppliedTypeFilter typeFilter);
         Task KeepAlive();
     }
 }

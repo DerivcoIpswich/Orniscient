@@ -22,7 +22,7 @@ namespace TestHost.Grains
         public async Task KeepAlive()
         {
             Console.WriteLine("Hi, I am your first Grain");
-            await AddGrains(20);
+            await AddGrains(50);
             //return TaskDone.Done;
         }
 

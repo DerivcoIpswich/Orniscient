@@ -50,7 +50,7 @@ namespace TestHost.Grains
 
         public Task<FilterRow[]> GetFilters()
         {
-            return null;
+            return Task.FromResult(new FilterRow[] {});
         }
     }
 }

@@ -61,7 +61,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes\OrniscientGrain.cs" />
-    <Compile Include="Extensions\GuidExtensions.cs" />
+    <Compile Include="Filters\ApplyFilterRequest.cs" />
+    <Compile Include="Filters\Extensions\GuidExtensions.cs" />
     <Compile Include="Filters\AggregatedFilterRow.cs" />
     <Compile Include="Filters\FilterRow.cs" />
     <Compile Include="Filters\TypeFilter.cs" />

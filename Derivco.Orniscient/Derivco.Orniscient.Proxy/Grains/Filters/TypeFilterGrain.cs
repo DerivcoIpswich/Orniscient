@@ -40,7 +40,10 @@ namespace Derivco.Orniscient.Proxy.Grains.Filters
                     }
                     else
                     {
-                        filterRow.GrainsWithValue.Add(model.Guid.ToString());    
+                        if (!filterRow.GrainsWithValue.Contains(model.Guid.ToString()))
+                        {
+                            filterRow.GrainsWithValue.Add(model.Guid.ToString());
+                        }
                     }
                 }
                 return TaskDone.Done;
@@ -63,6 +66,22 @@ namespace Derivco.Orniscient.Proxy.Grains.Filters
             }).ToList();
 
             return Task.FromResult(result);
+        }
+
+        public Task<List<FilterRowSummary>> GetFiltersWithIds()
+        {
+            return Task.FromResult(_filters);
+        }
+
+        public Task<List<string>> GetGrainIdsForFilter(AppliedTypeFilter typeFilter)
+        {
+            var grainIdsToReturn = new List<string>();
+            foreach (var key in typeFilter.SelectedValues.Keys)
+            {
+                var appliedFilter = typeFilter.SelectedValues[key];
+                grainIdsToReturn.AddRange(_filters.Where(p => p.Name == key && appliedFilter.Contains(p.Value)).SelectMany(p=>p.GrainsWithValue));
+            }
+            return Task.FromResult(grainIdsToReturn);
         }
 
         public Task KeepAlive()
