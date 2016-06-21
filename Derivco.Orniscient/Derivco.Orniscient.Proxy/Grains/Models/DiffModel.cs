@@ -7,7 +7,6 @@ namespace Derivco.Orniscient.Proxy.Grains.Models
     {
         public List<UpdateModel> NewGrains { get; set; }
         public List<Guid> RemovedGrains { get; set; }
-
         public List<TypeCounter> TypeCounts { get; set; }
     }
 }

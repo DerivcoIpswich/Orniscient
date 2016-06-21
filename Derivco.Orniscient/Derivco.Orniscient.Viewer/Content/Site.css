@@ -45,3 +45,29 @@
     border-bottom-left-radius: 0px;
 }
 
+.vis-network-tooltip > table {
+    width: 400px;
+    max-width: 400px;
+    table-layout: fixed;
+    margin-bottom: 0px !important;
+}
+
+.vis-network-tooltip td {
+    -moz-word-break: break-all;
+    -o-word-break: break-all;
+    word-break: break-all;
+    padding: 4px !important;
+    white-space: normal !important;
+    font-size: 70% !important;
+}
+
+div.Select-value {
+    -moz-word-break: break-all;
+    -o-word-break: break-all;
+    word-break: break-all;
+    
+}
+
+span.Select-value-label {
+    max-width: 90% !important;
+}

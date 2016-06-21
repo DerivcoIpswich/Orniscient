@@ -11,6 +11,7 @@
     var options = {
         autoResize: true,
         height: '100%',
+        hover: true,
         nodes: {
             shape: 'dot',
             scaling: {
@@ -47,7 +48,44 @@
                     network.openCluster(params.nodes[0]);
                 }
             }
-        });
+        }).
+            on("hoverNode", function (params) {
+                //get the node's information from the server.
+                var node = nodes.get(params.node);
+                if (node.ServerCalled !== true) {
+
+                    var requestData = {
+                        GrainType: node.graintype,
+                        GrainId: node.Guid
+                    };
+
+                    var xhr = new XMLHttpRequest();
+                    xhr.open('post', orniscienturls.getGrainInfo, true);
+                    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+                    xhr.onload = function () {
+                        var grainInfo = [];
+                        if (xhr.responseText != null && xhr.responseText !== "") {
+                            grainInfo = JSON.parse(xhr.responseText);
+
+                            var infoRows = "";
+
+                            //add the info we can for the grain
+                            infoRows = infoRows + "<tr><td><strong>Grain Type</strong></td><td>" + node.graintype + "</td></tr>";
+                            infoRows = infoRows + "<tr><td><strong>Grain Id</strong></td><td>" + node.Guid + "</td></tr>";
+
+                            for (var i = 0; i < grainInfo.length; i++) {
+                                infoRows = infoRows + "<tr><td><strong>" + grainInfo[i].Name + "<strong></td><td>" + grainInfo[i].Value + "</td></tr>";
+                            }
+
+                            node.title = "<h5>" + node.label + "</h5><table class='table'>" + infoRows + "</table>";
+                        } 
+                        node.ServerCalled = true;
+                        orniscient.data.nodes.update(node);
+                    }
+                    xhr.send(JSON.stringify(requestData));
+                }
+            });
+
 
         $.extend(hub.client, {
             grainActivationChanged: function (diffModel) {
@@ -100,7 +138,9 @@
             label: grainData.GrainName,
             color: grainData.Colour,
             silo: 'C',
-            linkToId: grainData.LinkToId
+            linkToId: grainData.LinkToId,
+            graintype: grainData.Type,
+            Guid: grainData.Guid
         });
 
         //add the edge (link)

@@ -2,13 +2,15 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Derivco.Orniscient.Proxy.Filters;
 using Orleans;
+using Orleans.CodeGeneration;
 
 namespace Derivco.Orniscient.Proxy.Grains.Filters
 {
-    public class TypeFilterGrain : Grain,ITypeFilterGrain
+    public class TypeFilterGrain : Grain, ITypeFilterGrain
     {
         private List<FilterRowSummary> _filters;
 
@@ -56,13 +58,13 @@ namespace Derivco.Orniscient.Proxy.Grains.Filters
         public Task<List<AggregatedFilterRow>> GetFilters()
         {
             if (_filters == null)
-                return null;
+                return Task.FromResult< List<AggregatedFilterRow>>(null);
 
             var result = _filters.GroupBy(p => p.Name).Select(p => new AggregatedFilterRow()
             {
                 FilterName = p.Key,
                 Type = this.GetPrimaryKeyString(),
-                Values = _filters.Where(f => f.Name == p.Key).Select(f=>f.Value).ToList()
+                Values = _filters.Where(f => f.Name == p.Key).Select(f => f.Value).ToList()
             }).ToList();
 
             return Task.FromResult(result);
@@ -79,15 +81,30 @@ namespace Derivco.Orniscient.Proxy.Grains.Filters
             foreach (var key in typeFilter.SelectedValues.Keys)
             {
                 var appliedFilter = typeFilter.SelectedValues[key];
-                grainIdsToReturn.AddRange(_filters.Where(p => p.Name == key && appliedFilter.Contains(p.Value)).SelectMany(p=>p.GrainsWithValue));
+                grainIdsToReturn.AddRange(_filters.Where(p => p.Name == key && appliedFilter.Contains(p.Value)).SelectMany(p => p.GrainsWithValue));
             }
             return Task.FromResult(grainIdsToReturn);
         }
 
         public Task KeepAlive()
         {
-            Debug.WriteLine($"....KeepAlive for ITypeFilter<{this.GetPrimaryKeyString()}> called.");
             return TaskDone.Done;
+        }
+
+        public Task<List<FilterRow>> Getfilters(string grainId)
+        {
+            if (_filters == null)
+                return Task.FromResult<List<FilterRow>>(null);
+
+            var filters = _filters
+                .Where(p => p.GrainsWithValue.Contains(grainId))
+                .Select(p => new FilterRow()
+                {
+                    Name = p.Name,
+                    Value = p.Value
+                }).ToList();
+
+            return Task.FromResult(filters);
         }
     }
 }

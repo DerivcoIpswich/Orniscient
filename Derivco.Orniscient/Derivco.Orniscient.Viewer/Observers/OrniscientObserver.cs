@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Derivco.Orniscient.Proxy.Filters;
 using Derivco.Orniscient.Proxy.Grains;
@@ -61,9 +60,7 @@ namespace Derivco.Orniscient.Viewer.Observers
 
             if (filter.TypeFilters != null && filter.TypeFilters.Any())
             {
-                //we need to dynamically build up the expression tree here
-                
-
+                //TODO : we need to dynamically build up the expression tree here
 
                 grainQuery = grainQuery.Where(p => filter.TypeFilters.Any(t => t.TypeName == p.Type));
 

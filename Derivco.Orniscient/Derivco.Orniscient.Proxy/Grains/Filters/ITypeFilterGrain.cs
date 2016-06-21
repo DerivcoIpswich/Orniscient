@@ -13,6 +13,7 @@ namespace Derivco.Orniscient.Proxy.Grains.Filters
     {
         Task<List<AggregatedFilterRow>> GetFilters();
         Task<List<string>> GetGrainIdsForFilter(AppliedTypeFilter typeFilter);
+        Task<List<FilterRow>> Getfilters(string grainId);
         Task KeepAlive();
     }
 }

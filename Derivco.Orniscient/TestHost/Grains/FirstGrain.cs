@@ -9,7 +9,7 @@ using Orleans.Streams;
 namespace TestHost.Grains
 {
     [OrniscientGrain]
-    public class FirstGrain : Grain, IFirstGrain, IFilterableGrain
+    public class FirstGrain : Grain, IFirstGrain
     {
         private IStreamProvider _streamProvider;
         public override Task OnActivateAsync()
@@ -35,13 +35,13 @@ namespace TestHost.Grains
             }
         }
 
-        public Task<FilterRow[]> GetFilters()
-        {
-            return Task.FromResult(new FilterRow[]
-            {
-                new FilterRow() {Name = "test", Value = "test"}
-            });
+        //public Task<FilterRow[]> GetFilters()
+        //{
+        //    return Task.FromResult(new FilterRow[]
+        //    {
+        //        new FilterRow() {Name = "test", Value = "test"}
+        //    });
 
-        }
+        //}
     }
 }

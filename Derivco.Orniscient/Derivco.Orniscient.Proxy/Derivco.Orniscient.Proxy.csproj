@@ -61,9 +61,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes\OrniscientGrain.cs" />
-    <Compile Include="Filters\ApplyFilterRequest.cs" />
-    <Compile Include="Filters\Extensions\GuidExtensions.cs" />
+    <Compile Include="Filters\AppliedFilter.cs" />
+    <Compile Include="Extensions\GuidExtensions.cs" />
     <Compile Include="Filters\AggregatedFilterRow.cs" />
+    <Compile Include="Filters\AppliedTypeFilter.cs" />
     <Compile Include="Filters\FilterRow.cs" />
     <Compile Include="Filters\TypeFilter.cs" />
     <Compile Include="Grains\Filters\FilterGrain.cs" />
@@ -71,7 +72,6 @@
     <Compile Include="Grains\Filters\IFilterGrain.cs" />
     <Compile Include="Grains\Filters\ITypeFilterGrain.cs" />
     <Compile Include="Grains\Filters\TypeFilterGrain.cs" />
-    <Compile Include="Grains\IOrniscientDashboardGrain.cs" />
     <Compile Include="Grains\Models\DiffModel.cs" />
     <Compile Include="Grains\IOrniscientReportingGrain.cs" />
     <Compile Include="Grains\Models\TypeCounter.cs" />

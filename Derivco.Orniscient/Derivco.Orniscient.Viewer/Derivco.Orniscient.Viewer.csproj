@@ -231,7 +231,9 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Hubs\OrniscientHub.cs" />
-    <Compile Include="Models\Dashboard\DashboardVM.cs" />
+    <Compile Include="Models\Dashboard\DashboardInfo.cs" />
+    <Compile Include="Models\Dashboard\GetFiltersRequest.cs" />
+    <Compile Include="Models\Dashboard\GetGrainInfoRequest.cs" />
     <Compile Include="Observers\OrniscientObserver.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />

@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Mvc;
-using Derivco.Orniscient.Proxy.Filters;
 using Derivco.Orniscient.Proxy.Grains;
 using Derivco.Orniscient.Proxy.Grains.Filters;
-using Derivco.Orniscient.Viewer.Observers;
+using Derivco.Orniscient.Viewer.Models.Dashboard;
 using Orleans;
-using React.Exceptions;
 
 namespace Derivco.Orniscient.Viewer.Controllers
 {
@@ -47,17 +44,13 @@ namespace Derivco.Orniscient.Viewer.Controllers
             var filters = await filterGrain.GetFilters(filtersRequest.Types);
             return Json(filters, JsonRequestBehavior.AllowGet);
         }
-    }
 
-
-public class DashboardInfo
-    {
-        public string[] Silos { get; set; }
-        public string[] AvailableTypes { get; set; } 
-    }
-
-    public class GetFiltersRequest
-    {
-        public string[] Types { get; set; }
+        [HttpPost]
+        public async Task<ActionResult> GetGrainInfo(GetGrainInfoRequest grainInfoRequest)
+        {
+            var typeFilterGrain = GrainClient.GrainFactory.GetGrain<ITypeFilterGrain>(grainInfoRequest.GrainType);
+            var filters = await typeFilterGrain.Getfilters(grainInfoRequest.GrainId);
+            return Json(filters);
+        }
     }
 }
