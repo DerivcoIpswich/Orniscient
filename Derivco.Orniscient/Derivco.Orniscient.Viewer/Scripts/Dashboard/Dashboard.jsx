@@ -115,7 +115,7 @@ var Dashboard = React.createClass({
             var data = JSON.parse(xhr.responseText);
             this.setState({
                 silos: orniscientutils.stringArrToSelectOptions(data.Silos),
-                availableTypes: orniscientutils.stringArrToSelectOptions(data.AvailableTypes)
+                availableTypes: orniscientutils.stringArrToFilterNames(data.AvailableTypes)
             });
         }.bind(this);
         xhr.send();

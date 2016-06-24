@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Derivco.Orniscient.Proxy.Filters;
 using Orleans;
@@ -18,7 +19,7 @@ namespace Derivco.Orniscient.Proxy.Grains.Filters
                 {
                     result.Add(new TypeFilter()
                     {
-                        TypeName = type,
+                        TypeName = type.Split('.').LastOrDefault(),
                         Filters = typeFilters
                     });
                 }

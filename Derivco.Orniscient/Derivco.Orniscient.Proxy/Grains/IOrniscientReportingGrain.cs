@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Derivco.Orniscient.Proxy.Filters;
 using Derivco.Orniscient.Proxy.Grains.Models;
@@ -16,10 +17,22 @@ namespace Derivco.Orniscient.Proxy.Grains
         Task Subscribe(IOrniscientObserver observer);
         Task UnSubscribe(IOrniscientObserver observer);
 
-        Task SetTypeFilter(string[] types);
+        Task SetTypeFilter(GrainType[] types);
 
         Task<string[]> GetSilos();
 
-        Task<string[]> GetGrainTypes();
+        Task<GrainType[]> GetGrainTypes();
+    }
+
+    public class GrainType
+    {
+        public GrainType(string fullName)
+        {
+            FullName = fullName;
+        }
+
+        public string  FullName { get; set; }
+
+        public string ShortName => !string.IsNullOrEmpty(FullName) ? FullName.Split('.').LastOrDefault() : "";
     }
 }

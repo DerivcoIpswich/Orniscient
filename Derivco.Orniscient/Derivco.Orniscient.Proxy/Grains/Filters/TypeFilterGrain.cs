@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Derivco.Orniscient.Proxy.Filters;
+using Derivco.Orniscient.Proxy.Grains.Models;
 using Orleans;
 using Orleans.CodeGeneration;
 
@@ -27,43 +28,61 @@ namespace Derivco.Orniscient.Proxy.Grains.Filters
             var orniscientReportingGrain = GrainFactory.GetGrain<IOrniscientReportingGrain>(Guid.Empty);
             var grains = await orniscientReportingGrain.GetAll(this.GetPrimaryKeyString());
 
-            var getFilterTasks = grains.Select(async model =>
+            var filterTasks = grains.Select(async model =>
             {
-                var filterableGrain = GrainFactory.GetGrain<IFilterableGrain>(model.Guid, model.Type);
-                if (filterableGrain == null)
-                    return TaskDone.Done;
-                var filters = await filterableGrain?.GetFilters();
-                foreach (var row in filters)
+                IFilterableGrain filterableGrain = null;
+                try
                 {
-                    var filterRow = _filters.FirstOrDefault(p => p.Name == row.Name && p.Value == row.Value);
-                    if (filterRow == null)
+                    filterableGrain = GrainFactory.GetGrain<IFilterableGrain>(model.Guid, model.Type);
+                }
+                catch (Exception ex)
+                {
+                    if (!ex.Message.Contains("IFilterableGrain"))
                     {
-                        _filters.Add(new FilterRowSummary(row, model.Guid.ToString()));
+                        Console.WriteLine("Not a valid filterable grain.");
+                        throw;
                     }
                     else
                     {
-                        if (!filterRow.GrainsWithValue.Contains(model.Guid.ToString()))
+                        Console.WriteLine("Not a valid filterable grain.");
+                    }
+                }
+
+                if (filterableGrain != null)
+                {
+                    var filters = await filterableGrain.GetFilters();
+                    if (filters != null)
+                    {
+                        foreach (var row in filters)
                         {
-                            filterRow.GrainsWithValue.Add(model.Guid.ToString());
+                            var filterRow = _filters.FirstOrDefault(p => p.Name == row.Name && p.Value == row.Value);
+                            if (filterRow == null)
+                            {
+                                _filters.Add(new FilterRowSummary(row, model.Guid.ToString()));
+                            }
+                            else
+                            {
+                                if (!filterRow.GrainsWithValue.Contains(model.Guid.ToString()))
+                                {
+                                    filterRow.GrainsWithValue.Add(model.Guid.ToString());
+                                }
+                            }
                         }
                     }
                 }
-                return TaskDone.Done;
             });
-
-            await Task.WhenAll(getFilterTasks);
-            Debug.WriteLine($"Finished updating filter for ITypeFilter<{this.GetPrimaryKeyString()}>");
+            await Task.WhenAll(filterTasks);
         }
 
         public Task<List<AggregatedFilterRow>> GetFilters()
         {
             if (_filters == null)
-                return Task.FromResult< List<AggregatedFilterRow>>(null);
+                return Task.FromResult<List<AggregatedFilterRow>>(null);
 
             var result = _filters.GroupBy(p => p.Name).Select(p => new AggregatedFilterRow()
             {
                 FilterName = p.Key,
-                Type = this.GetPrimaryKeyString(),
+                Type = this.GetPrimaryKeyString().Split('.').LastOrDefault(),
                 Values = _filters.Where(f => f.Name == p.Key).Select(f => f.Value).ToList()
             }).ToList();
 

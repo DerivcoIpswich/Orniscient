@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Derivco.Orniscient.Proxy.Attributes;
-using Derivco.Orniscient.Proxy.Filters;
-using Derivco.Orniscient.Proxy.Grains.Filters;
 using Orleans;
 using Orleans.Streams;
 
@@ -15,33 +13,22 @@ namespace TestHost.Grains
         public override Task OnActivateAsync()
         {
             _streamProvider = GetStreamProvider("SMSProvider");
-            //RegisterTimer(p => AddGrains(10) ,null, TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(15));
+            RegisterTimer(p => AddGrains(10) ,null, TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(15));
             return base.OnActivateAsync();
         }
 
         public async Task KeepAlive()
         {
-            Console.WriteLine("Hi, I am your first Grain");
-            await AddGrains(50);
-            //return TaskDone.Done;
+            await AddGrains(100);
         }
 
-        private async Task AddGrains(int grainCountToAdd=10)
+        private async Task AddGrains(int grainCountToAdd = 10)
         {
             for (var i = 0; i < grainCountToAdd; i++)
             {
-                var temp = Guid.NewGuid();
-                await _streamProvider.GetStream<Guid>(temp, "TestStream").OnNextAsync(temp);
+                var grainId = Guid.NewGuid();
+                await _streamProvider.GetStream<Guid>(grainId, "TestStream").OnNextAsync(grainId);
             }
         }
-
-        //public Task<FilterRow[]> GetFilters()
-        //{
-        //    return Task.FromResult(new FilterRow[]
-        //    {
-        //        new FilterRow() {Name = "test", Value = "test"}
-        //    });
-
-        //}
     }
 }

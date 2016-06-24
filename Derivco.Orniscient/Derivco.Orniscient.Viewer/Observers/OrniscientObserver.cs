@@ -27,7 +27,7 @@ namespace Derivco.Orniscient.Viewer.Observers
             orniscientGrain.Subscribe(observer);
         }
 
-        public async Task SetTypeFilter(Func<string, bool> filter)
+        public async Task SetTypeFilter(Func<GrainType, bool> filter)
         {
             if (filter != null)
             {
@@ -43,6 +43,17 @@ namespace Derivco.Orniscient.Viewer.Observers
         {
             var orniscientGrain = GrainClient.GrainFactory.GetGrain<IOrniscientReportingGrain>(Guid.Empty);
             var grains = await orniscientGrain.GetAll();
+            return await ApplyFilter(grains, filter);
+        }
+
+        public void GrainsUpdated(DiffModel model)
+        {
+            Debug.WriteLine($"Pushing down {model.NewGrains.Count} new grains and removing {model.RemovedGrains.Count}");
+            GlobalHost.ConnectionManager.GetHubContext<OrniscientHub>().Clients.All.grainActivationChanged(model);
+        }
+
+        private static async Task<List<UpdateModel>> ApplyFilter(List<UpdateModel> grains, AppliedFilter filter = null)
+        {
             if (filter == null)
                 return grains;
 
@@ -54,7 +65,7 @@ namespace Derivco.Orniscient.Viewer.Observers
             }
 
             //2. Silo
-            var grainQuery = grains.Where(p => filter.SelectedSilos == null || filter.SelectedSilos.Length==0 || filter.SelectedSilos.Contains(p.Silo));
+            var grainQuery = grains.Where(p => filter.SelectedSilos == null || filter.SelectedSilos.Length == 0 || filter.SelectedSilos.Contains(p.Silo));
 
             //3. Apply Type Filters
 
@@ -81,10 +92,5 @@ namespace Derivco.Orniscient.Viewer.Observers
             return grainQuery.ToList();
         }
 
-        public void GrainsUpdated(DiffModel model)
-        {
-            Debug.WriteLine($"Pushing down {model.NewGrains.Count} new grains and removing {model.RemovedGrains.Count}");
-            GlobalHost.ConnectionManager.GetHubContext<OrniscientHub>().Clients.All.grainActivationChanged(model);
-        }
     }
 }

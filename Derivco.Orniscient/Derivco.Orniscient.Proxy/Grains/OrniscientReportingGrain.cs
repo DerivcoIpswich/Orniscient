@@ -20,19 +20,20 @@ namespace Derivco.Orniscient.Proxy.Grains
         private List<UpdateModel> CurrentStats { get; set; }
         private IManagementGrain _managementGrain;
         private ObserverSubscriptionManager<IOrniscientObserver> _subsManager;
-        private string[] filteredTypes;
+        private GrainType[] _filteredTypes = null;
+        private Orleans.Runtime.Logger _logger;
 
-        Orleans.Runtime.Logger logger;
         public override async Task OnActivateAsync()
         {
-            logger = GetLogger();
+            await base.OnActivateAsync();
+            _logger = GetLogger();
             CurrentStats = new List<UpdateModel>();
             _managementGrain = GrainFactory.GetGrain<IManagementGrain>(0);
             //Timer to send the changes down to the dashboard every x minutes....
             await _Hydrate();
-            RegisterTimer(p => GetChanges(), null, TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(5));
+            RegisterTimer(p => GetChanges(), null, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(6));
             _subsManager = new ObserverSubscriptionManager<IOrniscientObserver>();
-            await base.OnActivateAsync();
+            
         }
 
         private async Task _Hydrate()
@@ -74,14 +75,13 @@ namespace Derivco.Orniscient.Proxy.Grains
 
         private async Task<List<UpdateModel>> _GetAllFromCluster()
         {
-            logger.Info("_GetAllFromCluster called");
-            var detailedStats = await _managementGrain.GetDetailedGrainStatistics(filteredTypes); ;
+            _logger.Info("_GetAllFromCluster called");
+            var detailedStats = await _managementGrain.GetDetailedGrainStatistics(_filteredTypes?.Select(p=>p.FullName).ToArray()); ;
             if (detailedStats != null && detailedStats.Any())
             {
-                logger.Info($"_GetAllFromCluster called [{detailedStats.Length} items returned from ManagementGrain]");
+                _logger.Info($"_GetAllFromCluster called [{detailedStats.Length} items returned from ManagementGrain]");
                 return detailedStats.Where(p => p.Category.ToLower() == "grain").Select(_FromGrainStat).ToList();
             }
-
             return null;
         }
 
@@ -92,10 +92,10 @@ namespace Derivco.Orniscient.Proxy.Grains
 
         public Task<List<UpdateModel>> GetAll(string type)
         {
-            if (CurrentStats == null) return Task.FromResult<List<UpdateModel>>(null);
-
+            if (CurrentStats == null)
+                return Task.FromResult<List<UpdateModel>>(null);
             var filteredStats = CurrentStats.Where(x => x.Type == type);
-            return Task.FromResult(filteredStats.ToList());
+            return Task.FromResult(filteredStats?.ToList());
         }
 
         public async Task<DiffModel> GetChanges()
@@ -117,7 +117,7 @@ namespace Derivco.Orniscient.Proxy.Grains
             };
 
             //push the diffmodel to the observer..
-            logger.Info($"Sending changes [{diffModel.NewGrains.Count} new grains]");
+            _logger.Info($"Sending changes [{diffModel.NewGrains.Count} new grains]");
             _subsManager.Notify(s => s.GrainsUpdated(diffModel));
 
             //Update the CurrentStats with the latest.
@@ -137,9 +137,9 @@ namespace Derivco.Orniscient.Proxy.Grains
             return TaskDone.Done;
         }
 
-        public async Task SetTypeFilter(string[] types)
+        public async Task SetTypeFilter(GrainType[] types)
         {
-            this.filteredTypes = types;
+            this._filteredTypes = types;
             await _Hydrate();
         }
 
@@ -149,10 +149,10 @@ namespace Derivco.Orniscient.Proxy.Grains
             return silos.Keys.Select(p => p.ToString()).ToArray();
         }
 
-        public async Task<string[]> GetGrainTypes()
+        public async Task<GrainType[]> GetGrainTypes()
         {
             var types = await _managementGrain.GetActiveGrainTypes();
-            return types;
+            return types?.Select(p => new GrainType(p)).ToArray();
         }
     }
 }
