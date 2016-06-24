@@ -18,9 +18,11 @@ namespace Derivco.Orniscient.Viewer.Observers
     {
         private static readonly Lazy<OrniscientObserver> _instance = new Lazy<OrniscientObserver>(() => new OrniscientObserver());
         private IOrniscientObserver observer;
+        private AppliedFilter _currentFilter ;
 
         private OrniscientObserver()
         {
+            
             //Proper async code needed ?????????
             var orniscientGrain = GrainClient.GrainFactory.GetGrain<IOrniscientReportingGrain>(Guid.Empty);
             observer = GrainClient.GrainFactory.CreateObjectReference<IOrniscientObserver>(this).Result;
@@ -43,40 +45,49 @@ namespace Derivco.Orniscient.Viewer.Observers
         {
             var orniscientGrain = GrainClient.GrainFactory.GetGrain<IOrniscientReportingGrain>(Guid.Empty);
             var grains = await orniscientGrain.GetAll();
-            return await ApplyFilter(grains, filter);
+            _currentFilter = filter;
+            return await ApplyFilter(grains);
         }
 
         public void GrainsUpdated(DiffModel model)
         {
-            Debug.WriteLine($"Pushing down {model.NewGrains.Count} new grains and removing {model.RemovedGrains.Count}");
-            GlobalHost.ConnectionManager.GetHubContext<OrniscientHub>().Clients.All.grainActivationChanged(model);
+            if (model != null)
+            {
+                ////apply the filter here.
+                //if (model.NewGrains.Any())
+                //{
+                //    model.NewGrains = await ApplyFilter(model.NewGrains);
+                //}
+                Debug.WriteLine($"Pushing down {model.NewGrains.Count} new grains and removing {model.RemovedGrains.Count}");
+                GlobalHost.ConnectionManager.GetHubContext<OrniscientHub>().Clients.All.grainActivationChanged(model);
+            }
         }
 
-        private static async Task<List<UpdateModel>> ApplyFilter(List<UpdateModel> grains, AppliedFilter filter = null)
+        private async Task<List<UpdateModel>> ApplyFilter(List<UpdateModel> grains)
         {
-            if (filter == null)
+            if (_currentFilter== null)
                 return grains;
 
             //order of filtering applies here.
             //1. Grain Id
-            if (!string.IsNullOrEmpty(filter.GrainId))
+            if (!string.IsNullOrEmpty(_currentFilter.GrainId))
             {
-                return grains.Where(p => p.Guid.ToString().Contains(filter.GrainId)).ToList();
+                return grains.Where(p => p.Guid.ToString().Contains(_currentFilter.GrainId)).ToList();
             }
 
             //2. Silo
-            var grainQuery = grains.Where(p => filter.SelectedSilos == null || filter.SelectedSilos.Length == 0 || filter.SelectedSilos.Contains(p.Silo));
+            var grainQuery = grains.Where(p => _currentFilter.SelectedSilos == null || _currentFilter.SelectedSilos.Length == 0 || _currentFilter.SelectedSilos.Contains(p.Silo));
 
             //3. Apply Type Filters
 
-            if (filter.TypeFilters != null && filter.TypeFilters.Any())
+            if (_currentFilter.TypeFilters != null && _currentFilter.TypeFilters.Any())
             {
                 //TODO : we need to dynamically build up the expression tree here
 
-                grainQuery = grainQuery.Where(p => filter.TypeFilters.Any(t => t.TypeName == p.Type));
+                grainQuery = grainQuery.Where(p => _currentFilter.TypeFilters.Any(t => t.TypeName == p.Type));
 
                 var grainIdsToFilter = new List<string>();
-                foreach (var appliedTypeFilter in filter.TypeFilters)
+                foreach (var appliedTypeFilter in _currentFilter.TypeFilters)
                 {
                     if (appliedTypeFilter.SelectedValues != null)
                     {

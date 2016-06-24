@@ -31,24 +31,11 @@
             <a class="navbar-brand" href="#">
                 <img alt="Brand" src="@Url.Content("~/Content/img/derivco.png")">
             </a>
-            @Html.ActionLink("Derivco - Orniscient", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+            @Html.ActionLink("Derivco - Orniscient", "Index", "Home", new {area = ""}, new {@class = "navbar-brand"})
         </div>
-        <div class="navbar-collapse collapse">
-            <ul class="nav navbar-nav">
-                @*<li>@Html.ActionLink("Home", "Index", "Home")</li>
-                <li>@Html.ActionLink("About", "About", "Home")</li>
-                <li>@Html.ActionLink("Contact", "Contact", "Home")</li>*@
-            </ul>
-        </div>
-    </div>
-    @*<div class="container body-content">*@
-    @RenderBody()
-    <hr />
-    <footer>
-        <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>
-    </footer>
-    @*</div>*@
 
+    </div>
+    @RenderBody()
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
     @Scripts.Render("~/bundles/vis")

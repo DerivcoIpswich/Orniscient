@@ -1,6 +1,7 @@
 ﻿body {
     padding-top: 50px;
     padding-bottom: 20px;
+    overflow-y: hidden;
 }
 
 /* Set padding to keep content from hitting the edges */
@@ -65,9 +66,66 @@ div.Select-value {
     -moz-word-break: break-all;
     -o-word-break: break-all;
     word-break: break-all;
-    
 }
 
 span.Select-value-label {
     max-width: 90% !important;
+}
+
+
+/*filtermenu*/
+
+.filterFlyout {
+    float: left;
+    width: 400px;
+    position: absolute;
+    top: 60px;
+    left: -400px;
+    background-color: #efefef;
+    height: 94vh;
+    overflow-y: scroll;
+    transition: left 0.5s ease;
+}
+
+
+    .filterFlyout.shown {
+        transition: left 0.5s ease;
+        left: 0px;
+    }
+
+.floatButton {
+    float: left;
+    margin-top: 117px;
+    margin-left: 384px;
+    position: fixed;
+    margin-top: -40px;
+    top: 100px;
+    height: 100%;
+
+}
+
+    .floatButton button {
+        width: 41px;
+        height: 100%;
+        border-radius: 0px 4px 4px 0px !important;
+        border-left: 0px;
+        outline:none !important;
+        background-color: #efefef !important;
+    }
+
+/*vis overrides*/
+.vis-left {
+    left: 55px !important;
+}
+
+.vis-down {
+    left: 95px !important;
+}
+
+.vis-up {
+    left: 95px !important;
+}
+
+.vis-right {
+    left: 135px !important;
 }

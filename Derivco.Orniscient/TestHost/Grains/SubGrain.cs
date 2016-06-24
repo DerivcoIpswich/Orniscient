@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Derivco.Orniscient.Proxy.Attributes;
 using Derivco.Orniscient.Proxy.Filters;
+using Derivco.Orniscient.Proxy.Grains.Filters;
 using Orleans;
 using Orleans.Streams;
 
@@ -9,7 +10,7 @@ namespace TestHost.Grains
 {
     [ImplicitStreamSubscription("TestStream")]
     [OrniscientGrain(linkFromType: typeof(FirstGrain),linkType:LinkType.SingleInstance,colour:"yellow")]
-    public class SubGrain : Grain, ISubGrain , IAsyncObserver<Guid> 
+    public class SubGrain : Grain, ISubGrain , IAsyncObserver<Guid> ,IFilterableGrain
     {
         private StreamSubscriptionHandle<Guid> _subscriptionHandle;
 
@@ -45,7 +46,7 @@ namespace TestHost.Grains
 
         public Task<FilterRow[]> GetFilters()
         {
-            return Task.FromResult(new FilterRow[] {});
+            return Task.FromResult(new FilterRow[] {new FilterRow() {Name = "Sub Filter",Value = "Test"}});
         }
     }
 }

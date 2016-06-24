@@ -10,11 +10,11 @@ namespace TestHost.Grains
     public class FirstGrain : Grain, IFirstGrain
     {
         private IStreamProvider _streamProvider;
-        public override Task OnActivateAsync()
+        public override async Task OnActivateAsync()
         {
             _streamProvider = GetStreamProvider("SMSProvider");
-            RegisterTimer(p => AddGrains(10) ,null, TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(15));
-            return base.OnActivateAsync();
+            //RegisterTimer(p => AddGrains(10) ,null, TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(15));
+            await base.OnActivateAsync();
         }
 
         public async Task KeepAlive()
