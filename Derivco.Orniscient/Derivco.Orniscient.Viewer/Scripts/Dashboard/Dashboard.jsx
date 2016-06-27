@@ -145,18 +145,12 @@ var Dashboard = React.createClass({
                         </div>
                          <div className="row">
                             <div className="col-md-12">
-                            <div className="form-group">
-                                <label for="silo">Cluster</label>
-                                <select className="form-control width100" id="silo">
-                                    <option>United Kingdom</option>
-                                    <option>South Africa</option>
-                                </select>
-                            </div>
-                            <button type="submit" className="btn btn-default pull-right btn-success">Go</button>
-
-                            <h3>Filter options</h3>
-                            <hr />
+                            <h4>Filter options</h4>
                             <form>
+                                <div className="form-group">
+                                    <label for="grainid">Grain Id</label>
+                                    <input type="text" className="form-control width100" id="grainid" placeholder="Grain Id" onChange={this.filterByGrainId} />
+                                </div>
                                 <div className="form-group">
                                     <label for="silo">Silo</label>
                                     <Select name="form-field-name" options={this.state.silos} multi={true} onChange={this.siloSelected} disabled={false} value={ this.state.selectedSilos } />
@@ -165,12 +159,12 @@ var Dashboard = React.createClass({
                                     <label for="grainType">Grain Type</label>
                                     <Select name="form-field-name" options={this.state.availableTypes} multi={true} onChange={this.getFilters} disabled={false} value={ this.state.selectedTypes } />
                                 </div>
-                                <div className="form-group">
-                                    <label for="grainid">Grain Id</label>
-                                    <input type="text" className="form-control width100" id="grainid" placeholder="Grain Id" onChange={this.filterByGrainId} />
-                                </div>
                                 <DashboardTypeFilterList data={this.state.availableFilters} filterSelected={this.filterSelected} />
-                                <button type="submit" className="btn btn-default  btn-success" onClick={this.searchClicked}>Search</button>
+                                <div className="row">
+                                    <div className="col-md-12">
+                                        <button type="submit" className="btn btn-default  btn-success pull-right" onClick={this.searchClicked}>Search</button>
+                                    </div>
+                                </div>
                                 <DashboardTypeCounts data={this.state.typeCounts} />
                             </form>
                             </div>

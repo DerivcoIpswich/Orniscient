@@ -53,10 +53,10 @@ namespace Derivco.Orniscient.Viewer.Observers
         {
             if (model != null)
             {
-                ////apply the filter here.
+                //////This is will be blocking the thread until execution is finished, but that is ok for now, we do not expect allot of users on the dashboard :-)
                 //if (model.NewGrains.Any())
                 //{
-                //    model.NewGrains = await ApplyFilter(model.NewGrains);
+                //    model.NewGrains = ApplyFilter(model.NewGrains).Result;
                 //}
                 Debug.WriteLine($"Pushing down {model.NewGrains.Count} new grains and removing {model.RemovedGrains.Count}");
                 GlobalHost.ConnectionManager.GetHubContext<OrniscientHub>().Clients.All.grainActivationChanged(model);

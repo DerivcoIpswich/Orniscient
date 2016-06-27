@@ -17,8 +17,7 @@ var DashboardTypeFilter = React.createClass({
 
         return (
             <div>
-                <h4>{this.props.data.TypeName}</h4>
-                <hr />
+                <h5>{this.props.data.TypeName}</h5>
                 {filters}
             </div>
         );
