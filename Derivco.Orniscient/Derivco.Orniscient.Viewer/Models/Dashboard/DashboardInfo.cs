@@ -1,4 +1,4 @@
-﻿using Derivco.Orniscient.Proxy.Grains;
+﻿using Derivco.Orniscient.Proxy.Grains.Models;
 
 namespace Derivco.Orniscient.Viewer.Models.Dashboard
 {

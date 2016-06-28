@@ -3,26 +3,9 @@
 var Dashboard = React.createClass({
     filterByGrainId: function (event) {
         this.setState({ grainIdFilter: event.target.value });
-        //$.each(orniscient.data.nodes.get(), function (index, grainData) {
-
-        //    grainData.hidden = grainData.label.indexOf(event.target.value) === -1;
-        //    orniscient.data.nodes.update(grainData);
-
-        //    //need to remove all the edges where this grain was the from grain.
-        //    var affectedEdges = orniscient.data.edges.get({
-        //        filter: function (item) {
-        //            return item.from === grainData.id || item.to === grainData.id;
-        //        }
-        //    });
-
-        //    $.each(affectedEdges, function (index, edge) {
-        //        edge.hidden = grainData.hidden;
-        //    });
-        //    orniscient.data.edges.update(affectedEdges);
-        //});
     },
     siloSelected(val) {
-        console.log("Selected Silo: " + val);
+        //console.log("Selected Silo: " + val);
         this.setState({ selectedSilos: val });
     },
     getFilters: function (selectedTypes) {
@@ -76,7 +59,7 @@ var Dashboard = React.createClass({
         if (this.state.selectedTypes != undefined) {
             filter.TypeFilters = this.state.selectedTypes.map(function (type) {
                 var selectedValues = {};
-                var selectedValuesForType = selectedFilters[type.value];
+                var selectedValuesForType = selectedFilters[type.label];
                 for (var key in selectedValuesForType) {
                     selectedValues[key] = selectedValuesForType[key].map(function (i) { return i.value });
                 }
@@ -120,12 +103,13 @@ var Dashboard = React.createClass({
         xhr.send();
     },
     orniscientUpdated: function (typeCounts, a, b) {
-        console.log('orniscientUpdated was called, need to re-render the form now......');
+        //console.log('orniscientUpdated was called, need to re-render the form now......');
         this.setState({ typeCounts: typeCounts.detail });
     },
     componentDidMount: function () {
-        console.log('componentDidMount is called.');
+        //console.log('componentDidMount is called.');
         window.addEventListener('orniscientUpdated', this.orniscientUpdated);
+        console.log('Init orniscient now');
         orniscient.init();
     },
 

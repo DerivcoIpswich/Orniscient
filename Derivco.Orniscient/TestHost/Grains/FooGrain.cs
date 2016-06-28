@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Derivco.Orniscient.Proxy.Attributes;
 using Derivco.Orniscient.Proxy.Filters;
 using Derivco.Orniscient.Proxy.Grains.Filters;
+using Microsoft.CodeAnalysis.CSharp;
 using Orleans;
 
 namespace TestHost.Grains
@@ -13,18 +14,24 @@ namespace TestHost.Grains
     {
         private FilterRow[] filters;
 
-        public override Task OnActivateAsync()
+        public override async Task OnActivateAsync()
         {
             //creating dummy filters for testing
-            string[] _sports = new[] { "Rugby", "Soccer", "Pool", "Darts", "Formula 1", "Horse Racing" };
+            string[] _sports = new[] {"Rugby", "Soccer", "Pool" };//, "Pool", "Darts", "Formula 1", "Horse Racing" };
             var rand = new Random();
             this.filters = new[]
             {
-                new FilterRow() {Name = "sport", Value =_sports[rand.Next(0,5)]},
+                new FilterRow() {Name = "sport", Value =_sports[rand.Next(0,2)]},
                 new FilterRow() {Name = "league", Value = $"some league name"} //include the id here, just to see the difference
             };
 
-            return base.OnActivateAsync();
+
+            //
+            //var typeFilterGrain = GrainFactory.GetGrain<ITypeFilterGrain>(this.GetType().FullName);
+            //await typeFilterGrain.RegisterFilter(await GetFilters(), this.GetPrimaryKey());
+
+
+            await base.OnActivateAsync();
         }
 
         public Task KeepAlive()

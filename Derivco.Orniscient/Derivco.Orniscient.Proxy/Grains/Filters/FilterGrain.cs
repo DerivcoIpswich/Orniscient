@@ -26,5 +26,10 @@ namespace Derivco.Orniscient.Proxy.Grains.Filters
             }
             return result;
         }
+
+        public Task KeepAlive()
+        {
+            return TaskDone.Done;
+        }
     }
 }

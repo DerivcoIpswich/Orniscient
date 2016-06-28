@@ -3,68 +3,78 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Derivco.Orniscient.Proxy.Filters;
 using Derivco.Orniscient.Proxy.Grains.Models;
 using Orleans;
 using Orleans.CodeGeneration;
+using Orleans.Runtime;
 
 namespace Derivco.Orniscient.Proxy.Grains.Filters
 {
     public class TypeFilterGrain : Grain, ITypeFilterGrain
     {
         private List<FilterRowSummary> _filters;
+        
+        //private Logger _logger;
 
         public override Task OnActivateAsync()
         {
+            //_logger = GetLogger();
             _filters = new List<FilterRowSummary>();
-            RegisterTimer(UpdateFilters, null, TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(20));
+            RegisterTimer(UpdateFilters, null, TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(10));
             return base.OnActivateAsync();
         }
 
         private async Task UpdateFilters(object o)
         {
+
+
+            //_logger.Info("Starting the filter update now.");
             //get all grains of this type.
-            var orniscientReportingGrain = GrainFactory.GetGrain<IOrniscientReportingGrain>(Guid.Empty);
-            var grains = await orniscientReportingGrain.GetAll(this.GetPrimaryKeyString());
+            var dashboardCollectorGrain = GrainFactory.GetGrain<IDashboardCollectorGrain>(Guid.Empty);
+            var grains = await dashboardCollectorGrain.GetAll(this.GetPrimaryKeyString());
 
             var filterTasks = grains.Select(async model =>
             {
                 IFilterableGrain filterableGrain = null;
-                try
-                {
-                    filterableGrain = GrainFactory.GetGrain<IFilterableGrain>(model.Guid, model.Type);
-                }
-                catch (Exception ex)
-                {
-                    if (!ex.Message.Contains("IFilterableGrain"))
-                    {
-                        Console.WriteLine("Not a valid filterable grain.");
-                        throw;
-                    }
-                    else
-                    {
-                        Console.WriteLine("Not a valid filterable grain.");
-                    }
-                }
 
-                if (filterableGrain != null)
+                if (model.Type.ToLower().Contains("foo"))
                 {
-                    var filters = await filterableGrain.GetFilters();
-                    if (filters != null)
+
+
+                    try
                     {
-                        foreach (var row in filters)
+                        filterableGrain = GrainFactory.GetGrain<IFilterableGrain>(model.Guid, model.Type);
+                    }
+                    catch (Exception ex)
+                    {
+                        if (!ex.Message.Contains("IFilterableGrain"))
                         {
-                            var filterRow = _filters.FirstOrDefault(p => p.Name == row.Name && p.Value == row.Value);
-                            if (filterRow == null)
+                            //_logger.Info($"Not a valid filterable grain.[Id : {model.Id}]");
+                        }
+                    }
+
+                    if (filterableGrain != null)
+                    {
+                        var filters = await filterableGrain.GetFilters();
+                        if (filters != null)
+                        {
+                            //_logger.Info($"Added filters for [Grain : {model.Id}]");
+                            foreach (var row in filters)
                             {
-                                _filters.Add(new FilterRowSummary(row, model.Guid.ToString()));
-                            }
-                            else
-                            {
-                                if (!filterRow.GrainsWithValue.Contains(model.Guid.ToString()))
+                                var filterRow = _filters.FirstOrDefault(p => p.Name == row.Name && p.Value == row.Value);
+                                if (filterRow == null)
                                 {
-                                    filterRow.GrainsWithValue.Add(model.Guid.ToString());
+                                    _filters.Add(new FilterRowSummary(row, model.Guid.ToString()));
+                                }
+                                else
+                                {
+                                    if (!filterRow.GrainsWithValue.Contains(model.Guid.ToString()))
+                                    {
+                                        filterRow.GrainsWithValue.Add(model.Guid.ToString());
+                                    }
                                 }
                             }
                         }
@@ -110,6 +120,27 @@ namespace Derivco.Orniscient.Proxy.Grains.Filters
             return TaskDone.Done;
         }
 
+        public Task RegisterFilter(FilterRow[] filters, Guid grainId)
+        {
+            //_logger.Info($"Registering filters");
+            foreach (var row in filters)
+            {
+                var filterRow = _filters.FirstOrDefault(p => p.Name == row.Name && p.Value == row.Value);
+                if (filterRow == null)
+                {
+                    _filters.Add(new FilterRowSummary(row, grainId.ToString()));
+                }
+                else
+                {
+                    if (!filterRow.GrainsWithValue.Contains(grainId.ToString()))
+                    {
+                        filterRow.GrainsWithValue.Add(grainId.ToString());
+                    }
+                }
+            }
+            return TaskDone.Done;
+        }
+
         public Task<List<FilterRow>> Getfilters(string grainId)
         {
             if (_filters == null)
@@ -125,5 +156,7 @@ namespace Derivco.Orniscient.Proxy.Grains.Filters
 
             return Task.FromResult(filters);
         }
+
+
     }
 }

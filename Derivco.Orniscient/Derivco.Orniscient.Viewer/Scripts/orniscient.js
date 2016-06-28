@@ -11,7 +11,6 @@
     var options = {
         autoResize: true,
         height: '100%',
-        hover: true,
         nodes: {
             shape: 'dot',
             scaling: {
@@ -90,6 +89,7 @@
         $.extend(hub.client, {
             grainActivationChanged: function (diffModel) {
                 console.log('changes sent from server');
+                console.log(diffModel);
                 window.dispatchEvent(new CustomEvent('orniscientUpdated', { detail: diffModel.TypeCounts }));
                 $.each(diffModel.NewGrains, function (index, grainData) {
                     addToNodes(grainData);
@@ -113,8 +113,6 @@
         console.log('getting server data');
         if (filter === null)
             filter = {};
-
-        //TODO : Might need to merge these changes, otherwise it could be to busy for the user.....test to seee.
 
         orniscient.data.nodes.clear();
         orniscient.data.edges.clear();

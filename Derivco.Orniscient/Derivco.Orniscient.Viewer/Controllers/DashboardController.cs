@@ -11,7 +11,7 @@ namespace Derivco.Orniscient.Viewer.Controllers
     public class DashboardController : Controller
     {
         // GET: Dashboard
-        public async Task<ActionResult> Index()
+        public async Task<ActionResult> Index(int id=0)
         {
             if (!GrainClient.IsInitialized)
             {
@@ -23,12 +23,12 @@ namespace Derivco.Orniscient.Viewer.Controllers
 
         public async Task<ActionResult> GetDashboardInfo()
         {
-            var reportingGrain = GrainClient.GrainFactory.GetGrain<IOrniscientReportingGrain>(Guid.Empty);
+            var dashboardCollectorGrain = GrainClient.GrainFactory.GetGrain<IDashboardCollectorGrain>(Guid.Empty);
 
-            var types = await reportingGrain.GetGrainTypes();
+            var types = await dashboardCollectorGrain.GetGrainTypes();
             var dashboardInfo = new DashboardInfo
             {
-                Silos = await reportingGrain.GetSilos(),
+                Silos = await dashboardCollectorGrain.GetSilos(),
                 AvailableTypes = types
             };
 

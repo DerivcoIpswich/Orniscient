@@ -8,5 +8,6 @@ namespace Derivco.Orniscient.Proxy.Grains.Filters
     public interface IFilterGrain : IGrainWithGuidKey
     {
         Task<List<TypeFilter>> GetFilters(string[] types);
+        Task KeepAlive();
     }
 }

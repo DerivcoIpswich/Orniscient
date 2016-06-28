@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using Derivco.Orniscient.Proxy.Filters;
@@ -15,5 +16,9 @@ namespace Derivco.Orniscient.Proxy.Grains.Filters
         Task<List<string>> GetGrainIdsForFilter(AppliedTypeFilter typeFilter);
         Task<List<FilterRow>> Getfilters(string grainId);
         Task KeepAlive();
+
+        Task RegisterFilter(FilterRow[] filters, Guid grainId);
+
+
     }
 }

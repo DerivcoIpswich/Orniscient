@@ -35,6 +35,10 @@ namespace Derivco.Orniscient.Proxy.BootstrapProviders
                         if (result != null)
                         {
                             //Now we just need to send the filters up to some grain that will aggregate them....??????HOW BEST WE DO THAT.............
+                            //var typeFilterGrain =providerRuntime.GrainFactory.GetGrain<ITypeFilterGrain>(grainType.FullName);
+                            //await typeFilterGrain.RegisterFilter(result,grain.GetPrimaryKey());
+
+                            //TODO : This can be removed.
                             var filterString = string.Join(",", result.Select(p => $"{p.Name} : {p.Value}"));
                             Debug.WriteLine($"Filters for grain [Type : {grainType.FullName}][Id : {grain.GetPrimaryKey().ToInt()}][filter : {filterString}]");
                         }

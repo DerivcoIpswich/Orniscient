@@ -35,9 +35,8 @@ var DashboardTypeFilterRow = React.createClass({
     getselectedfilters() {
 
         var selectedFilters = this.context.selectedFilters;
-
-        console.log('getting the filters');
-        console.log(selectedFilters);
+        //console.log('getting the filters');
+        //console.log(selectedFilters);
 
         if (selectedFilters === undefined) {
             return null;

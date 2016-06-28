@@ -8,7 +8,7 @@
     },
     render: function () {
         var filterNodes = this.props.data.map(function (filter) {
-            console.log(filter);
+            //console.log(filter);
             return (<DashboardTypeFilter data={filter} key={filter.TypeName} filterSelected={this.filterSelected} />);
         },this);
         return (
