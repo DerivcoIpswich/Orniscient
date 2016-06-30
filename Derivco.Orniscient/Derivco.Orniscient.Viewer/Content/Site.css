@@ -1,12 +1,27 @@
-﻿body {
+﻿html, body {
+    height: 100%;
+}
+
+body {
     padding-top: 50px;
     padding-bottom: 20px;
+    overflow-y: hidden;
+}
+
+#mynetwork {
+    height: 900px;
+    /*border: 1px solid lightgray;*/
 }
 
 /* Set padding to keep content from hitting the edges */
 .body-content {
     padding-left: 15px;
     padding-right: 15px;
+}
+
+/*Override bootstrap styles  */
+.navbar-inverse {
+    background-color: rgba(13,38,55,1) !important;
 }
 
 /* Override the default bootstrap behavior where horizontal description lists 
@@ -16,9 +31,133 @@
     white-space: normal;
 }
 
-/* Set width on the form input elements since they're 100% wide by default */
-input,
-select,
-textarea {
-    max-width: 280px;
+.bigContainer {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+.width100 {
+    max-width: 100% !important;
+    width: 100% !important;
+}
+
+.padding20 {
+    padding: 20px;
+}
+
+.form-control.inline {
+    display: inline !important;
+}
+
+.textbutton {
+    margin-left: -5px;
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+}
+
+.vis-network-tooltip > table {
+    width: 400px;
+    max-width: 400px;
+    table-layout: fixed;
+    margin-bottom: 0px !important;
+}
+
+.vis-network-tooltip td {
+    -moz-word-break: break-all;
+    -o-word-break: break-all;
+    word-break: break-all;
+    padding: 4px !important;
+    white-space: normal !important;
+    font-size: 70% !important;
+}
+
+div.Select-value {
+    -moz-word-break: break-all;
+    -o-word-break: break-all;
+    word-break: break-all;
+}
+
+span.Select-value-label {
+    max-width: 99% !important;
+}
+
+
+/*filtermenu*/
+
+.filterFlyout {
+    float: left;
+    width: 400px;
+    position: absolute;
+    top: 60px;
+    left: -400px;
+    background-color: #efefef;
+    height: 94vh;
+    overflow-y: scroll;
+    transition: left 0.5s ease;
+}
+
+
+    .filterFlyout.shown {
+        transition: left 0.5s ease;
+        left: 0px;
+    }
+
+    .filterFlyout h4 {
+        color: #00c0ff;
+        border-bottom: 2px solid lightgray;
+        padding-bottom: 5px;
+    }
+
+    .filterFlyout h5 {
+        padding-top: 14px;
+        color: #00c0ff;
+        font-weight: bold;
+        border-bottom: 1px solid lightgray;
+        padding-bottom: 5px;
+    }
+
+    .filterFlyout label {
+        font-weight: bolder;
+        font-size: 9pt;
+    }
+
+    .filterFlyout div.form-group {
+        padding-left:8px;
+        padding-right: 5px;
+    }
+
+.floatButton {
+    float: left;
+    margin-top: 117px;
+    margin-left: 384px;
+    position: fixed;
+    margin-top: -40px;
+    top: 97px;
+    height: 100%;
+}
+
+    .floatButton button {
+        width: 41px;
+        height: 100%;
+        border-radius: 0px 4px 4px 0px !important;
+        border-left: 0px;
+        outline: none !important;
+        background-color: #efefef !important;
+    }
+
+/*vis overrides*/
+.vis-left {
+    left: 55px !important;
+}
+
+.vis-down {
+    left: 95px !important;
+}
+
+.vis-up {
+    left: 95px !important;
+}
+
+.vis-right {
+    left: 135px !important;
 }

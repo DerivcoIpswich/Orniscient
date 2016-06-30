@@ -1,5 +1,4 @@
-﻿using Derivco.Orniscient.Proxy.Grains;
-using Derivco.Orniscient.Proxy.Grains.Models;
+﻿using Derivco.Orniscient.Proxy.Grains.Models;
 using Orleans;
 
 namespace Derivco.Orniscient.Proxy.Observers

@@ -1,14 +1,16 @@
 using System;
 using System.Threading.Tasks;
 using Derivco.Orniscient.Proxy.Attributes;
+using Derivco.Orniscient.Proxy.Filters;
+using Derivco.Orniscient.Proxy.Grains.Filters;
 using Orleans;
 using Orleans.Streams;
 
 namespace TestHost.Grains
 {
     [ImplicitStreamSubscription("TestStream")]
-    [Derivco.Orniscient.Proxy.Attributes.OrniscientGrain(linkFromType: typeof(TestHost.Grains.FirstGrain),linkType:LinkType.SingleInstance,colour:"yellow")]
-    public class SubGrain : Grain, TestHost.Grains.ISubGrain, IAsyncObserver<Guid> 
+    [OrniscientGrain(linkFromType: typeof(FirstGrain),linkType:LinkType.SingleInstance,colour:"yellow")]
+    public class SubGrain : Grain, ISubGrain , IAsyncObserver<Guid> 
     {
         private StreamSubscriptionHandle<Guid> _subscriptionHandle;
 
@@ -20,7 +22,6 @@ namespace TestHost.Grains
             await base.OnActivateAsync();
         }
 
-
         public Task SayHallo()
         {
             return TaskDone.Done;
@@ -28,13 +29,9 @@ namespace TestHost.Grains
 
         public async Task OnNextAsync(Guid item, StreamSequenceToken token = null)
         {
-            var msg = $"Hallo from Grain : {this.GetPrimaryKey()}";
-            Console.WriteLine(msg);
-
+            Console.WriteLine($"Grain started : {this.GetPrimaryKey()}");
             var t = GrainFactory.GetGrain<TestHost.Grains.IFooGrain>(item);
             await t.KeepAlive();
-
-            await Task.FromResult(msg);
         }
 
         public Task OnCompletedAsync()
@@ -43,6 +40,16 @@ namespace TestHost.Grains
         }
 
         public Task OnErrorAsync(Exception ex)
+        {
+            return TaskDone.Done;
+        }
+
+        public Task<FilterRow[]> GetFilters()
+        {
+            return Task.FromResult(new FilterRow[] {new FilterRow() { FilterName = "Sub Filter",Value = "Test"}});
+        }
+
+        public Task KeepAlive()
         {
             return TaskDone.Done;
         }

@@ -1,33 +1,33 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Derivco.Orniscient.Proxy.Attributes;
 using Orleans;
 using Orleans.Streams;
 
 namespace TestHost.Grains
 {
-    [Derivco.Orniscient.Proxy.Attributes.OrniscientGrain]
+    [OrniscientGrain]
     public class FirstGrain : Grain, IFirstGrain
     {
         private IStreamProvider _streamProvider;
-        public override Task OnActivateAsync()
+        public override async Task OnActivateAsync()
         {
             _streamProvider = GetStreamProvider("SMSProvider");
-            RegisterTimer(p => AddGrains() ,null, TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(15));
-            return base.OnActivateAsync();
+            RegisterTimer(p => AddGrains(10) ,null, TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(10));
+            await base.OnActivateAsync();
         }
 
-        public Task KeepAlive()
+        public async Task KeepAlive()
         {
-            Console.WriteLine("Hi, I am your first Grain");
-            return TaskDone.Done;
+            await AddGrains(5);
         }
 
-        private async Task AddGrains()
+        private async Task AddGrains(int grainCountToAdd = 10)
         {
-            for (var i = 0; i < 15; i++)
+            for (var i = 0; i < grainCountToAdd; i++)
             {
-                var temp = Guid.NewGuid();
-                await _streamProvider.GetStream<Guid>(temp, "TestStream").OnNextAsync(temp);
+                var grainId = Guid.NewGuid();
+                await _streamProvider.GetStream<Guid>(grainId, "TestStream").OnNextAsync(grainId);
             }
         }
     }

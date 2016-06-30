@@ -14,17 +14,17 @@
       <Provider Type="Orleans.Providers.Streams.SimpleMessageStream.SimpleMessageStreamProvider" Name="SMSProvider" FireAndForgetDelivery="false"/>
       <!--<Provider Type="Orleans.Providers.Streams.Persistent.AzureQueueStreamProvider" Name="AzureQueueProvider" DataConnectionString=""/> -->
     </StreamProviders>
-    <!--<BootstrapProviders>
-      <Provider Type="Derivco.Orniscient.TestImplementation.SomeBootstrapper" Name="SomeBootstrapper" />
-    </BootstrapProviders>-->
     <LogViewProviders>
       <Provider Type="Orleans.Providers.LogViews.CustomStorageProvider" Name="CustomStorage" />
     </LogViewProviders>
     <SeedNode Address="localhost" Port="11111" />
+    <BootstrapProviders>
+      <Provider Type="Derivco.Orniscient.Proxy.BootstrapProviders.OrniscientFilterInterceptor" Name="OrniscientFilterInterceptor" />
+    </BootstrapProviders>
   </Globals>
   <Defaults>
     <Networking Address="localhost" Port="11111" />
-    <ProxyingGateway Address="localhost" Port="30000" />
+    <ProxyingGateway Address="localhost" Port="40000" />
     <Tracing DefaultTraceLevel="Info" TraceToConsole="true" TraceToFile="{0}-{1}.log">
       <TraceLevelOverride LogPrefix="Application" TraceLevel="Info" />
     </Tracing>
