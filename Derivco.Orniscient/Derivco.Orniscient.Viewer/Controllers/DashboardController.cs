@@ -13,12 +13,19 @@ namespace Derivco.Orniscient.Viewer.Controllers
         // GET: Dashboard
         public async Task<ActionResult> Index(int id=0)
         {
-            if (!GrainClient.IsInitialized)
+            try
             {
-                GrainClient.Initialize(Server.MapPath("~/DevTestClientConfiguration.xml"));
-                //await OrniscientObserver.Instance.SetTypeFilter(p => p.Contains("SpinSport"));
+                if (!GrainClient.IsInitialized)
+                {
+                    GrainClient.Initialize(Server.MapPath("~/DevTestClientConfiguration.xml"));
+                    //await OrniscientObserver.Instance.SetTypeFilter(p => p.Contains("SpinSport"));
+                }
+                return View();
             }
-            return View();
+            catch (Exception)
+            {
+                return View("InitError");
+            }
         }
 
         public async Task<ActionResult> GetDashboardInfo()
