@@ -17,7 +17,6 @@
     <LogViewProviders>
       <Provider Type="Orleans.Providers.LogViews.CustomStorageProvider" Name="CustomStorage" />
     </LogViewProviders>
-    <SeedNode Address="localhost" Port="11111" />
     <BootstrapProviders>
       <Provider Type="Derivco.Orniscient.Proxy.BootstrapProviders.OrniscientFilterInterceptor" Name="OrniscientFilterInterceptor" />
     </BootstrapProviders>
@@ -25,8 +24,8 @@
                  DataConnectionString="Data Source=.;Initial Catalog=Orleans;Integrated Security=True;Pooling=False;Max Pool Size=200;Asynchronous Processing=True;MultipleActiveResultSets=True" AdoInvariant="System.Data.SqlClient" />
   </Globals>
   <Defaults>
-    <Networking Address="localhost" Port="11111" />
-    <ProxyingGateway Address="localhost" Port="40000" />
+    <Networking Address="localhost" Port="11112" />
+    <ProxyingGateway Address="localhost" Port="40001" />
     <Tracing DefaultTraceLevel="Info" TraceToConsole="true" TraceToFile="{0}-{1}.log">
       <TraceLevelOverride LogPrefix="Application" TraceLevel="Info" />
     </Tracing>

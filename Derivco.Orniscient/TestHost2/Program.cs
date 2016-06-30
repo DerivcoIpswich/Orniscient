@@ -1,8 +1,7 @@
 ﻿using System;
 using Orleans;
-using IFirstGrain = TestHost.Grains.IFirstGrain;
 
-namespace TestHost
+namespace TestHost2
 {
     class Program
     {
@@ -13,7 +12,7 @@ namespace TestHost
             // The Orleans silo environment is initialized in its own app domain in order to more
             // closely emulate the distributed situation, when the client and the server cannot
             // pass data via shared memory.
-            var hostDomain = AppDomain.CreateDomain("OrleansHost", null, new AppDomainSetup
+            var hostDomain = AppDomain.CreateDomain("OrleansHost22", null, new AppDomainSetup
             {
                 AppDomainInitializer = InitSilo,
                 AppDomainInitializerArguments = args
@@ -24,8 +23,8 @@ namespace TestHost
 
 
             //Now we need some test classes....
-            var firstGrain = GrainClient.GrainFactory.GetGrain<IFirstGrain>(Guid.Empty);
-            firstGrain.KeepAlive();
+            //var firstGrain = GrainClient.GrainFactory.GetGrain<IFirstGrain>(Guid.Empty);
+            //firstGrain.KeepAlive();
 
             Console.ReadLine();
 
