@@ -4,7 +4,7 @@ using Derivco.Orniscient.Proxy.Attributes;
 using Orleans;
 using Orleans.Streams;
 
-namespace TestHost.Grains
+namespace TestGrains.Grains
 {
     [OrniscientGrain]
     public class FirstGrain : Grain, IFirstGrain
@@ -13,7 +13,7 @@ namespace TestHost.Grains
         public override async Task OnActivateAsync()
         {
             _streamProvider = GetStreamProvider("SMSProvider");
-            RegisterTimer(p => AddGrains(10) ,null, TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(10));
+            RegisterTimer(p => AddGrains(10) ,null, TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(30));
             await base.OnActivateAsync();
         }
 

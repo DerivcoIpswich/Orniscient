@@ -9,6 +9,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Derivco.Orniscient.Viewer",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestHost", "TestHost\TestHost.csproj", "{6EAD1C75-0E17-4806-B855-DC0328A2E5D8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestHost2", "TestHost2\TestHost2.csproj", "{3991FFEC-88D1-453A-99B6-CC1B15271EC4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestGrains", "TestGrains\TestGrains.csproj", "{CF967DF5-6019-4996-8AF9-F47E530DF021}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,8 +31,19 @@ Global
 		{6EAD1C75-0E17-4806-B855-DC0328A2E5D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6EAD1C75-0E17-4806-B855-DC0328A2E5D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6EAD1C75-0E17-4806-B855-DC0328A2E5D8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3991FFEC-88D1-453A-99B6-CC1B15271EC4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3991FFEC-88D1-453A-99B6-CC1B15271EC4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3991FFEC-88D1-453A-99B6-CC1B15271EC4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3991FFEC-88D1-453A-99B6-CC1B15271EC4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF967DF5-6019-4996-8AF9-F47E530DF021}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF967DF5-6019-4996-8AF9-F47E530DF021}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF967DF5-6019-4996-8AF9-F47E530DF021}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF967DF5-6019-4996-8AF9-F47E530DF021}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		EnterpriseLibraryConfigurationToolBinariesPathV6 = packages\EnterpriseLibrary.TransientFaultHandling.6.0.1304.0\lib\portable-net45+win+wp8
 	EndGlobalSection
 EndGlobal

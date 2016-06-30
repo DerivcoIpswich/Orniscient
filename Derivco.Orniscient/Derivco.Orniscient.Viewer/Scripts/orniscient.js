@@ -12,6 +12,7 @@
         autoResize: true,
         height: '100%',
         nodes: {
+            borderWidth: 3,
             shape: 'dot',
             scaling: {
                 min: 10,
@@ -68,9 +69,10 @@
 
                             var infoRows = "";
 
-                            //add the info we can for the grain
-                            infoRows = infoRows + "<tr><td><strong>Grain Type</strong></td><td>" + node.graintype + "</td></tr>";
+                            //add the info we can for the grain. As per Spencer....
                             infoRows = infoRows + "<tr><td><strong>Grain Id</strong></td><td>" + node.Guid + "</td></tr>";
+                            infoRows = infoRows + "<tr><td><strong>Silo</strong></td><td>" + node.silo + "</td></tr>";
+                            infoRows = infoRows + "<tr><td><strong>Grain Type</strong></td><td>" + node.graintype + "</td></tr>";
 
                             for (var i = 0; i < grainInfo.length; i++) {
                                 infoRows = infoRows + "<tr><td><strong>" + grainInfo[i].FilterName + "<strong></td><td>" + grainInfo[i].Value + "</td></tr>";
@@ -134,11 +136,16 @@
         orniscient.data.nodes.add({
             id: grainData.Id,
             label: grainData.GrainName,
-            color: grainData.Colour,
-            silo: 'C',
+            color: {
+                border :grainData.Colour
+                
+            },
+            //border: grainData.Colour,
+            silo: grainData.Silo,
             linkToId: grainData.LinkToId,
             graintype: grainData.Type,
-            Guid: grainData.Guid
+            Guid: grainData.Guid,
+            group: grainData.Silo
         });
 
         //add the edge (link)
