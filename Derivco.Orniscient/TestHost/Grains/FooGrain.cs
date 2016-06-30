@@ -1,10 +1,9 @@
 using System;
-using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Derivco.Orniscient.Proxy.Attributes;
 using Derivco.Orniscient.Proxy.Filters;
 using Derivco.Orniscient.Proxy.Grains.Filters;
-using Microsoft.CodeAnalysis.CSharp;
 using Orleans;
 
 namespace TestHost.Grains
@@ -21,21 +20,31 @@ namespace TestHost.Grains
             var rand = new Random();
             this.filters = new[]
             {
-                new FilterRow() {Name = "sport", Value =_sports[rand.Next(0,2)]},
-                new FilterRow() {Name = "league", Value = $"some league name"} //include the id here, just to see the difference
+                new FilterRow() {FilterName = "sport", Value =_sports[rand.Next(0,2)]},
+                new FilterRow() {FilterName = "league", Value = $"some league name"} //include the id here, just to see the difference
             };
 
+            //temp
+            //var filterGrain = GrainFactory.GetGrain<IFilterGrain>(Guid.Empty);
+            //await filterGrain.RegisterFilter(this.GetType().FullName, this.GetPrimaryKey().ToString(), filters);
 
-            //
-            //var typeFilterGrain = GrainFactory.GetGrain<ITypeFilterGrain>(this.GetType().FullName);
-            //await typeFilterGrain.RegisterFilter(await GetFilters(), this.GetPrimaryKey());
-
+            //RegisterTimer(SetFilters, null, TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(30));
 
             await base.OnActivateAsync();
         }
 
+
+        //private async Task SetFilters(object o)
+        //{
+        //    var filterGrain = GrainFactory.GetGrain<IFilterGrain>(Guid.Empty);
+        //    await filterGrain.RegisterFilter(this.GetType().FullName, this.GetPrimaryKey().ToString(), filters);
+        //}
+
+
+
         public Task KeepAlive()
         {
+            Debug.WriteLine("Keep alive called on foograin");
             return TaskDone.Done;
         }
 

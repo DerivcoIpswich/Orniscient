@@ -73,7 +73,7 @@
                             infoRows = infoRows + "<tr><td><strong>Grain Id</strong></td><td>" + node.Guid + "</td></tr>";
 
                             for (var i = 0; i < grainInfo.length; i++) {
-                                infoRows = infoRows + "<tr><td><strong>" + grainInfo[i].Name + "<strong></td><td>" + grainInfo[i].Value + "</td></tr>";
+                                infoRows = infoRows + "<tr><td><strong>" + grainInfo[i].FilterName + "<strong></td><td>" + grainInfo[i].Value + "</td></tr>";
                             }
 
                             node.title = "<h5>" + node.label + "</h5><table class='table'>" + infoRows + "</table>";

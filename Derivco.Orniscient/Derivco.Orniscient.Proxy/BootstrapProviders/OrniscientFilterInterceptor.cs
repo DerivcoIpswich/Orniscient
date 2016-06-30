@@ -16,55 +16,56 @@ namespace Derivco.Orniscient.Proxy.BootstrapProviders
         private readonly List<string> _grainsWhereTimerWasRegistered = new List<string>();
         public Task Init(string name, IProviderRuntime providerRuntime, IProviderConfiguration config)
         {
+
             providerRuntime.SetInvokeInterceptor((method, request, grain, invoker) =>
             {
-
-                //TODO : REALLY DO NOT WANT THIS TO HAPPEN EVERY TIME A GRAIN EVENT IS CALLED....... Awaiting feedback from Gitter....
-
-                if (!(grain is IFilterableGrain)) return invoker.Invoke(grain, request);
-                //we need to add property to IFilterablegrain that is Reminder Created, then over here if that property is true for the grain, then we do not create the reminder again.
-
-                if (!_grainsWhereTimerWasRegistered.Contains(((Orleans.Grain)grain).IdentityString))
+                if (!(grain is IFilterableGrain) ||
+                    _grainsWhereTimerWasRegistered.Contains(((Orleans.Grain) grain).IdentityString))
                 {
-                    var grainType = grain.GetType();
-
-                    Func<object, Task> timerFunc = async o =>
-                    {
-                        var filterGrain = grain.AsReference<IFilterableGrain>();
-                        var result = await filterGrain.GetFilters();
-                        if (result != null)
-                        {
-                            //Now we just need to send the filters up to some grain that will aggregate them....??????HOW BEST WE DO THAT.............
-                            //var typeFilterGrain =providerRuntime.GrainFactory.GetGrain<ITypeFilterGrain>(grainType.FullName);
-                            //await typeFilterGrain.RegisterFilter(result,grain.GetPrimaryKey());
-
-                            //TODO : This can be removed.
-                            var filterString = string.Join(",", result.Select(p => $"{p.Name} : {p.Value}"));
-                            Debug.WriteLine($"Filters for grain [Type : {grainType.FullName}][Id : {grain.GetPrimaryKey().ToInt()}][filter : {filterString}]");
-                        }
-                        else
-                        {
-                            Debug.WriteLine("Filter was not set yet");
-                        }
-                    };
-
-                    var dynamicMethod = grainType.GetMethod("RegisterTimer",
-                        BindingFlags.Instance | BindingFlags.NonPublic);
-                    dynamicMethod.Invoke(grain, new object[]
-                    {
-                            timerFunc,
-                            null,
-                            TimeSpan.FromSeconds(20),
-                            TimeSpan.FromSeconds(500)
-                    });
-
-                    _grainsWhereTimerWasRegistered.Add(((Orleans.Grain)grain).IdentityString);
-                    Debug.WriteLine($"........................Currently we have {_grainsWhereTimerWasRegistered.Count} grains where timer was registered");
+                    return invoker.Invoke(grain, request);
                 }
+
+                var grainType = grain.GetType();
+                var dynamicMethod = grainType.GetMethod("RegisterTimer",
+                    BindingFlags.Instance | BindingFlags.NonPublic);
+                dynamicMethod.Invoke(grain, new object[]
+                {
+                    getTimerFunc(providerRuntime,grain),
+                    null,
+                    TimeSpan.FromSeconds(0),
+                    TimeSpan.FromSeconds(500)
+                });
+
+                _grainsWhereTimerWasRegistered.Add(((Orleans.Grain)grain).IdentityString);
+                Debug.WriteLine($"........................Currently we have {_grainsWhereTimerWasRegistered.Count} grains where timer was registered");
                 return invoker.Invoke(grain, request);
 
             });
             return Task.FromResult(0);
+        }
+
+        private Func<object, Task> getTimerFunc(IProviderRuntime providerRuntime, IGrain grain)
+        {
+            var grainName = grain.GetType().FullName;
+            return async o =>
+            {
+                var filterableGrain = grain.AsReference<IFilterableGrain>();
+                var result = await filterableGrain.GetFilters();
+                if (result != null)
+                {
+                    //Now we just need to send the filters up to some grain that will aggregate them....??????HOW BEST WE DO THAT.............
+                    var filterGrain = providerRuntime.GrainFactory.GetGrain<IFilterGrain>(Guid.Empty);
+                    await filterGrain.RegisterFilter(grainName, filterableGrain.GetPrimaryKey().ToString(), result);
+
+                    var filterString = string.Join(",", result.Select(p => $"{p.FilterName} : {p.Value}"));
+                    Debug.WriteLine(
+                        $"Filters for grain [Type : {grainName}][Id : {grain.GetPrimaryKey().ToInt()}][filter : {filterString}]");
+                }
+                else
+                {
+                    Debug.WriteLine("Filter was not set yet");
+                }
+            };
         }
 
         public Task Close()
@@ -74,8 +75,4 @@ namespace Derivco.Orniscient.Proxy.BootstrapProviders
 
         public string Name => "OrniscientFilterInterceptor";
     }
-
-
-
-
 }

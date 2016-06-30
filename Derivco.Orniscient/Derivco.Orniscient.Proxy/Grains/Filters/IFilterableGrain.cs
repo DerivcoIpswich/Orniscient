@@ -10,6 +10,5 @@ namespace Derivco.Orniscient.Proxy.Grains.Filters
     public interface IFilterableGrain : IGrainWithGuidKey 
     {
         Task<FilterRow[]> GetFilters();
-
     }
 }

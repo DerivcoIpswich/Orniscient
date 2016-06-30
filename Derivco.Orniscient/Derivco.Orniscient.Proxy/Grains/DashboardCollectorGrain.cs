@@ -27,9 +27,7 @@ namespace Derivco.Orniscient.Proxy.Grains
             //Timer to send the changes down to the dashboard every x minutes....
             await _Hydrate();
             RegisterTimer(p => GetChanges(), null, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(5));
-
             await GrainFactory.GetGrain<IFilterGrain>(Guid.Empty).KeepAlive();
-
         }
 
         private async Task _Hydrate()
@@ -96,12 +94,7 @@ namespace Derivco.Orniscient.Proxy.Grains
 
         private async Task<DiffModel> GetChanges()
         {
-            var newStats = await _GetAllFromCluster();
-            if (CurrentStats == null)
-                CurrentStats = new List<UpdateModel>();
-
-            if (newStats == null)
-                newStats = new List<UpdateModel>();
+            var newStats = await _GetAllFromCluster()??new List<UpdateModel>();
 
             var diffModel = new DiffModel()
             {
@@ -109,15 +102,15 @@ namespace Derivco.Orniscient.Proxy.Grains
                 NewGrains = newStats.Where(n=> CurrentStats.Any(c=>c.Id == n.Id)==false).ToList(),
                 TypeCounts = newStats.GroupBy(p => p.TypeShortName).Select(p => new TypeCounter() { TypeName = p.Key, Total = p.Count()}).ToList()
             };
-            
+
             //Update the CurrentStats with the latest.
             CurrentStats = newStats;
 
             Debug.WriteLine($"Sending {diffModel.NewGrains} changes from DashboardCollectorGrain");
+
             var streamProvider = GetStreamProvider(StreamKeys.StreamProvider);
             var stream = streamProvider.GetStream<DiffModel>(Guid.Empty, StreamKeys.OrniscientChanges);
             await stream.OnNextAsync(diffModel);
-
             return diffModel;
         }
 

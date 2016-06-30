@@ -1,8 +1,6 @@
 ﻿using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
-using Derivco.Orniscient.Viewer.Observers;
-using Orleans;
 
 namespace Derivco.Orniscient.Viewer
 {

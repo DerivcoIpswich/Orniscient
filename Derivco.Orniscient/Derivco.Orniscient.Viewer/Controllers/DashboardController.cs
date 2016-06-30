@@ -41,15 +41,15 @@ namespace Derivco.Orniscient.Viewer.Controllers
                 return null;
 
             var filterGrain = GrainClient.GrainFactory.GetGrain<IFilterGrain>(Guid.Empty);
-            var filters = await filterGrain.GetFilters(filtersRequest.Types);
+            var filters = await filterGrain.GetGroupedFilterValues(filtersRequest.Types);
             return Json(filters, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
         public async Task<ActionResult> GetGrainInfo(GetGrainInfoRequest grainInfoRequest)
         {
-            var typeFilterGrain = GrainClient.GrainFactory.GetGrain<ITypeFilterGrain>(grainInfoRequest.GrainType);
-            var filters = await typeFilterGrain.Getfilters(grainInfoRequest.GrainId);
+            var typeFilterGrain = GrainClient.GrainFactory.GetGrain<IFilterGrain>(Guid.Empty);
+            var filters = await typeFilterGrain.GetFilters(grainInfoRequest.GrainType,grainInfoRequest.GrainId);
             return Json(filters);
         }
     }

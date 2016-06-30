@@ -59,7 +59,7 @@ var Dashboard = React.createClass({
         if (this.state.selectedTypes != undefined) {
             filter.TypeFilters = this.state.selectedTypes.map(function (type) {
                 var selectedValues = {};
-                var selectedValuesForType = selectedFilters[type.label];
+                var selectedValuesForType = selectedFilters[type.value];
                 for (var key in selectedValuesForType) {
                     selectedValues[key] = selectedValuesForType[key].map(function (i) { return i.value });
                 }

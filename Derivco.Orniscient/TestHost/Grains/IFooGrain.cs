@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using Derivco.Orniscient.Proxy.Attributes;
 using Orleans;
 
 namespace TestHost.Grains

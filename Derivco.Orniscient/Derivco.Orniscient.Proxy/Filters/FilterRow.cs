@@ -1,22 +1,17 @@
-﻿using System.Collections.Generic;
-
-namespace Derivco.Orniscient.Proxy.Filters
+﻿namespace Derivco.Orniscient.Proxy.Filters
 {
     public class FilterRow
     {
-        public string Name { get; set; }
-        public string Value { get; set; }
-    }
-
-    public class FilterRowSummary : FilterRow
-    {
-        public FilterRowSummary(FilterRow filterRow, string grainId)
+        public FilterRow()
+        {}
+        public FilterRow(string name,string value)
         {
-            Name = filterRow.Name;
-            Value = filterRow.Value;
-            GrainsWithValue = new List<string>() { grainId };
+            FilterName = name;
+            Value = value;
         }
 
-        public List<string> GrainsWithValue { get; set; }
+        public string FilterName { get; set; }
+        public string Value { get; set; }
+        public string GrainId { get; set; }
     }
 }

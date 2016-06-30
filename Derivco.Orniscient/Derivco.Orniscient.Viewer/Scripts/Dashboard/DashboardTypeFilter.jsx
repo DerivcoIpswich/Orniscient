@@ -12,12 +12,12 @@ var DashboardTypeFilter = React.createClass({
     },
     render: function() {
         var filters = this.props.data.Filters.map(function (filter) {
-            return (<DashboardTypeFilterRow data={filter} filterSelected={this.filterSelected} key={filter.FilterName }/>);
+            return (<DashboardTypeFilterRow data={filter} filterSelected={this.filterSelected} key={filter.FilterName } typeName={this.props.data.TypeName}/>);
         },this);
 
         return (
             <div>
-                <h5>{this.props.data.TypeName}</h5>
+                <h5>{this.props.data.TypeNameShort}</h5>
                 {filters}
             </div>
         );
@@ -42,15 +42,15 @@ var DashboardTypeFilterRow = React.createClass({
             return null;
         }
 
-        if (selectedFilters[this.props.data.Type] === undefined) {
+        if (selectedFilters[this.props.typeName] === undefined) {
             return null;
         }
         var filterid = this.props.data.FilterName.replace(/[^\w]/gi, '.'); //remove special characters
-        if (selectedFilters[this.props.data.Type][filterid] === undefined) {
+        if (selectedFilters[this.props.typeName][filterid] === undefined) {
             return null;
         }
 
-        return selectedFilters[this.props.data.Type][filterid];
+        return selectedFilters[this.props.typeName][filterid];
     },
     filterSelected : function(val) {
         this.props.filterSelected(this.props.data.FilterName,val);
