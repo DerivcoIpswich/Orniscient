@@ -79,37 +79,48 @@ namespace Derivco.Orniscient.Proxy.Grains
             }
 
             //2. Silo
-            var grainQuery = grains.Where(p => _currentFilter.SelectedSilos == null || _currentFilter.SelectedSilos.Length == 0 || _currentFilter.SelectedSilos.Contains(p.Silo));
+            var grainQuery =
+                grains.Where(
+                    p =>
+                        _currentFilter.SelectedSilos == null || _currentFilter.SelectedSilos.Length == 0 ||
+                        _currentFilter.SelectedSilos.Contains(p.Silo));
 
             //3. Type filters
-            var filterList = new Dictionary<string,List<string>>();
-            var sourceGrainTypes = grains.Where(p=>_currentFilter.TypeFilters.Any(cf=>cf.TypeName==p.Type)).Select(p => p.Type).Distinct().ToList();
-            foreach (var sourceGrainType in sourceGrainTypes)
+            if (_currentFilter.TypeFilters != null)
             {
-                var appliedTypeFilter = _currentFilter.TypeFilters.FirstOrDefault(p => p.TypeName == sourceGrainType);
-                List<string> grainIdsGrainType = null;
-
-                if (appliedTypeFilter?.SelectedValues != null && appliedTypeFilter.SelectedValues.Any())
+                var filterList = new Dictionary<string, List<string>>();
+                var sourceGrainTypes =
+                    grains.Where(p => _currentFilter.TypeFilters.Any(cf => cf.TypeName == p.Type))
+                        .Select(p => p.Type)
+                        .Distinct()
+                        .ToList();
+                foreach (var sourceGrainType in sourceGrainTypes)
                 {
-                    //fetch the filters
-                    var filterGrain = GrainFactory.GetGrain<IFilterGrain>(Guid.Empty);
-                    var currentTypeFilters =
-                        await filterGrain.GetFilters(_currentFilter.TypeFilters.Select(p => p.TypeName).ToArray());
+                    var appliedTypeFilter = _currentFilter.TypeFilters.FirstOrDefault(p => p.TypeName == sourceGrainType);
+                    List<string> grainIdsGrainType = null;
 
-                    foreach (var currentTypeFilter in currentTypeFilters)
+                    if (appliedTypeFilter?.SelectedValues != null && appliedTypeFilter.SelectedValues.Any())
                     {
-                        grainIdsGrainType = currentTypeFilter.Filters.
-                            Where(
-                                p =>
-                                    appliedTypeFilter.SelectedValues.ContainsKey(p.FilterName) &&
-                                    appliedTypeFilter.SelectedValues[p.FilterName].Contains(p.Value)
-                            ).Select(p => p.GrainId).ToList();
+                        //fetch the filters
+                        var filterGrain = GrainFactory.GetGrain<IFilterGrain>(Guid.Empty);
+                        var currentTypeFilters =
+                            await filterGrain.GetFilters(_currentFilter.TypeFilters.Select(p => p.TypeName).ToArray());
+
+                        foreach (var currentTypeFilter in currentTypeFilters)
+                        {
+                            grainIdsGrainType = currentTypeFilter.Filters.
+                                Where(
+                                    p =>
+                                        appliedTypeFilter.SelectedValues.ContainsKey(p.FilterName) &&
+                                        appliedTypeFilter.SelectedValues[p.FilterName].Contains(p.Value)
+                                ).Select(p => p.GrainId).ToList();
+                        }
                     }
+                    filterList.Add(sourceGrainType, grainIdsGrainType);
                 }
-                filterList.Add(sourceGrainType, grainIdsGrainType);
+                grainQuery = grainQuery.Where(p => filterList.ContainsKey(p.Type) && (filterList[p.Type] == null || filterList[p.Type].Contains(p.Guid.ToString())));
             }
 
-            grainQuery = grainQuery.Where(p =>filterList.ContainsKey(p.Type) && (filterList[p.Type] == null || filterList[p.Type].Contains(p.Guid.ToString())));
             return grainQuery.ToList();
         }
 

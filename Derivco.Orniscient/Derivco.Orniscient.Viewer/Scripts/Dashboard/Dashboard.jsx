@@ -57,11 +57,11 @@ var Dashboard = React.createClass({
             
         }
 
-        if (this.state.selectedSilos != undefined) {
+        if (this.state.selectedSilos != null) {
             filter.SelectedSilos= this.state.selectedSilos.map(function(silo) { return silo.value });
         }
 
-        if (this.state.selectedTypes != undefined) {
+        if (this.state.selectedTypes != null) {
             filter.TypeFilters = this.state.selectedTypes.map(function (type) {
                 var selectedValues = {};
                 var selectedValuesForType = selectedFilters[type.value];
@@ -75,8 +75,20 @@ var Dashboard = React.createClass({
             });
         }
 
-        //TODO : Add the silo filter here as well.
         orniscient.getServerData(filter);
+    },
+    clearFiltersClicked :function(e) {
+        e.preventDefault();
+        //clear everything that was set with this.setState({})
+        this.setState({
+            grainIdFilter: '',
+            selectedSilos: null,            
+            selectedTypes: null,
+            availableFilters: [],
+            selectedFilters: {}
+    });
+
+        orniscient.getServerData();
     },
     //React methods
     childContextTypes: {
@@ -87,6 +99,9 @@ var Dashboard = React.createClass({
     },
     getInitialState: function () {
         return {
+            grainIdFilter: '',
+            selectedSilos: null,
+            selectedTypes: null,
             silos: [],
             availableTypes: [],
             availableFilters: [],
@@ -138,7 +153,7 @@ var Dashboard = React.createClass({
                             <form>
                                 <div className="form-group">
                                     <label for="grainid">Grain Id</label>
-                                    <input type="text" className="form-control width100" id="grainid" placeholder="Grain Id" onChange={this.filterByGrainId} />
+                                    <input type="text" className="form-control width100" id="grainid" placeholder="Grain Id" onChange={this.filterByGrainId} value={this.state.grainIdFilter}/>
                                 </div>
                                 <div className="form-group">
                                     <label for="silo">Silo</label>
@@ -151,8 +166,11 @@ var Dashboard = React.createClass({
                                 <DashboardTypeFilterList data={this.state.availableFilters} filterSelected={this.filterSelected} />
                                 <div className="row">
                                     <div className="col-md-12">
-                                        <button type="submit" className="btn btn-default  btn-success pull-right" onClick={this.searchClicked}>Search</button>
+                                        <button type="submit" className="btn btn-success pull-right" onClick={this.searchClicked}>Search</button>
                                     </div>
+                                    <div className="col-md-12">
+                                        <button type="submit" className="btn btn-danger pull-left" onClick={this.clearFiltersClicked}>Clear Filters</button>
+                                     </div>
                                 </div>
                                 <DashboardTypeCounts data={this.state.typeCounts} />
                             </form>
