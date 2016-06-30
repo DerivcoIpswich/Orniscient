@@ -81,9 +81,8 @@ namespace Derivco.Orniscient.Proxy.Grains
             //2. Silo
             var grainQuery = grains.Where(p => _currentFilter.SelectedSilos == null || _currentFilter.SelectedSilos.Length == 0 || _currentFilter.SelectedSilos.Contains(p.Silo));
 
-
+            //3. Type filters
             var filterList = new Dictionary<string,List<string>>();
-
             var sourceGrainTypes = grains.Where(p=>_currentFilter.TypeFilters.Any(cf=>cf.TypeName==p.Type)).Select(p => p.Type).Distinct().ToList();
             foreach (var sourceGrainType in sourceGrainTypes)
             {
