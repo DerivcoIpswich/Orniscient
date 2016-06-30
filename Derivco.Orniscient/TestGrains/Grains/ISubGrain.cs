@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Derivco.Orniscient.Proxy.Grains.Filters;
 
-namespace TestHost.Grains
+namespace TestGrains.Grains
 {
     public interface ISubGrain : IFilterableGrain
     {

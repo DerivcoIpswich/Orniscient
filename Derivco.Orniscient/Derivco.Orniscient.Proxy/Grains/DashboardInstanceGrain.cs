@@ -81,14 +81,12 @@ namespace Derivco.Orniscient.Proxy.Grains
             //2. Silo
             var grainQuery = grains.Where(p => _currentFilter.SelectedSilos == null || _currentFilter.SelectedSilos.Length == 0 || _currentFilter.SelectedSilos.Contains(p.Silo));
 
-            //3. Apply Type Filters
-
             if (_currentFilter.TypeFilters != null && _currentFilter.TypeFilters.Any())
             {
-                //TODO : we need to dynamically build up the expression tree here
+                //3. Get all the type filters selected by user
+                grainQuery = grainQuery.Where(p => _currentFilter.TypeFilters == null || _currentFilter.TypeFilters.Count == 0 || _currentFilter.TypeFilters.Any(t => t.TypeName == p.Type));
 
-                grainQuery = grains.Where(p => _currentFilter.TypeFilters.Any(t => t.TypeName == p.Type));
-
+                //4. Get all the actual values that was selected by the user.
                 var grainIdsToFilter = new List<string>();
 
                 //get all the typefilters in the system currently..

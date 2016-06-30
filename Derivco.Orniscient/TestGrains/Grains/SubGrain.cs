@@ -2,11 +2,10 @@ using System;
 using System.Threading.Tasks;
 using Derivco.Orniscient.Proxy.Attributes;
 using Derivco.Orniscient.Proxy.Filters;
-using Derivco.Orniscient.Proxy.Grains.Filters;
 using Orleans;
 using Orleans.Streams;
 
-namespace TestHost.Grains
+namespace TestGrains.Grains
 {
     [ImplicitStreamSubscription("TestStream")]
     [OrniscientGrain(linkFromType: typeof(FirstGrain),linkType:LinkType.SingleInstance,colour:"yellow")]
@@ -30,7 +29,7 @@ namespace TestHost.Grains
         public async Task OnNextAsync(Guid item, StreamSequenceToken token = null)
         {
             Console.WriteLine($"Grain started : {this.GetPrimaryKey()}");
-            var t = GrainFactory.GetGrain<TestHost.Grains.IFooGrain>(item);
+            var t = GrainFactory.GetGrain<IFooGrain>(item);
             await t.KeepAlive();
         }
 

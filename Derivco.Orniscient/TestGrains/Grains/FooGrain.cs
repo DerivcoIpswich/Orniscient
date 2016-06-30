@@ -6,7 +6,7 @@ using Derivco.Orniscient.Proxy.Filters;
 using Derivco.Orniscient.Proxy.Grains.Filters;
 using Orleans;
 
-namespace TestHost.Grains
+namespace TestGrains.Grains
 {
     [OrniscientGrain(typeof(SubGrain), LinkType.SameId, "lightblue")]
     public class FooGrain : Grain, IFooGrain, IFilterableGrain
@@ -24,23 +24,8 @@ namespace TestHost.Grains
                 new FilterRow() {FilterName = "league", Value = $"some league name"} //include the id here, just to see the difference
             };
 
-            //temp
-            //var filterGrain = GrainFactory.GetGrain<IFilterGrain>(Guid.Empty);
-            //await filterGrain.RegisterFilter(this.GetType().FullName, this.GetPrimaryKey().ToString(), filters);
-
-            //RegisterTimer(SetFilters, null, TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(30));
-
             await base.OnActivateAsync();
         }
-
-
-        //private async Task SetFilters(object o)
-        //{
-        //    var filterGrain = GrainFactory.GetGrain<IFilterGrain>(Guid.Empty);
-        //    await filterGrain.RegisterFilter(this.GetType().FullName, this.GetPrimaryKey().ToString(), filters);
-        //}
-
-
 
         public Task KeepAlive()
         {

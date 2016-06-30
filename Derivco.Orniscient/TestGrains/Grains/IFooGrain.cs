@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Orleans;
 
-namespace TestHost.Grains
+namespace TestGrains.Grains
 {
     public interface IFooGrain : IGrainWithGuidKey
     {

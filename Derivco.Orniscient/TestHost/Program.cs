@@ -1,6 +1,6 @@
 ﻿using System;
 using Orleans;
-using IFirstGrain = TestHost.Grains.IFirstGrain;
+using IFirstGrain = TestGrains.Grains.IFirstGrain;
 
 namespace TestHost
 {

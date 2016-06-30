@@ -54,6 +54,11 @@ var Dashboard = React.createClass({
         var selectedFilters = this.state.selectedFilters;
         var filter = {
             GrainId: this.state.grainIdFilter
+            
+        }
+
+        if (this.state.selectedSilos != undefined) {
+            filter.SelectedSilos= this.state.selectedSilos.map(function(silo) { return silo.value });
         }
 
         if (this.state.selectedTypes != undefined) {
