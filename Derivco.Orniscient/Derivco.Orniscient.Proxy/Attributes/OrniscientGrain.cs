@@ -33,6 +33,7 @@ namespace Derivco.Orniscient.Proxy.Attributes
     {
         Int,
         Guid,
-        String
+        String,
+        NotFound
     }
 }

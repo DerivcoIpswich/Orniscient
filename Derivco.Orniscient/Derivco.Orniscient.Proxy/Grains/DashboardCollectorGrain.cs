@@ -41,41 +41,50 @@ namespace Derivco.Orniscient.Proxy.Grains
             {
                 Id = grainStatistic.GrainIdentity.IdentityString,
                 Type = grainStatistic.GrainType,
-                Silo = grainStatistic.SiloAddress.ToString()
+                Silo = grainStatistic.SiloAddress.ToString(),
             };
 
-
-            //TODO : ooohhh what a pity, this means that this thing will only work if grain is marked with OrniscientInfo attribute.....
-
             var orniscientInfo = OrniscientLinkMap.Instance.GetLinkFromType(model.Type);
-            if (orniscientInfo != null )//&& orniscientInfo.HasLinkFromType)
+            if (orniscientInfo != null)
             {
+                if (!string.IsNullOrEmpty(orniscientInfo.Colour))
+                {
+                    model.Colour = orniscientInfo.Colour;
+                }
+
                 switch (orniscientInfo.IdentityType)
                 {
+
                     case IdentityTypes.String:
-                    {
-                        model.GrainId = grainStatistic.GrainIdentity.PrimaryKeyString;
-                        break;
-                    }
+                        {
+                            model.GrainId = grainStatistic.GrainIdentity.PrimaryKeyString;
+                            break;
+                        }
                     case IdentityTypes.Guid:
-                    {
-                        model.GrainId = grainStatistic.GrainIdentity.PrimaryKey.ToString();
-                        break;
-                    }
+                        {
+                            model.GrainId = grainStatistic.GrainIdentity.PrimaryKey.ToString();
+                            break;
+                        }
                     case IdentityTypes.Int:
-                    {
-                        //because an int key is returned as a guid, we need to turn it back to an int here.
-                        model.GrainId = grainStatistic.GrainIdentity.PrimaryKeyLong.ToString();
-                        break;
-                    }
+                        {
+                            //because an int key is returned as a guid, we need to turn it back to an int here.
+                            model.GrainId = grainStatistic.GrainIdentity.PrimaryKeyLong.ToString();
+                            break;
+                        }
+                    default:
+                        {
+                            model.GrainId = grainStatistic.GrainIdentity.PrimaryKeyString;
+                            break;
+                        }
                 }
-            }
-            else
-            {
-                //TODO : Remove this once we change this to work for all things grainy.....brainy....i wish it was rainy.....spencer is a panini....
-                model.GrainId = grainStatistic.Category.ToLower() == "grain"
-                    ? grainStatistic.GrainIdentity.PrimaryKey.ToString()
-                    : grainStatistic.GrainIdentity.PrimaryKeyString;
+
+                if (orniscientInfo.HasLinkFromType)
+                {
+                    var mapId = orniscientInfo.LinkType == LinkType.SameId ? model.GrainId : orniscientInfo.DefaultLinkFromTypeId;
+                    model.LinkToId = $"{orniscientInfo.LinkFromType.ToString().Split('.').Last()}_{mapId}";
+                }
+
+
             }
 
             ////need to check the linktypes
@@ -97,7 +106,8 @@ namespace Derivco.Orniscient.Proxy.Grains
             if (detailedStats != null && detailedStats.Any())
             {
                 //_logger.Info($"_GetAllFromCluster called [{detailedStats.Length} items returned from ManagementGrain]");
-                return detailedStats.Select(_FromGrainStat).ToList();
+                var temp = detailedStats.Select(_FromGrainStat).ToList();
+                return temp;
                 //return detailedStats.Where(p => p.Category.ToLower() == "grain").Select(_FromGrainStat).ToList();
             }
             return null;

@@ -73,17 +73,13 @@ namespace Derivco.Orniscient.Proxy.Grains
 
             //order of filtering applies here.
             //1. Grain Id
-            if (!string.IsNullOrEmpty(_currentFilter.GrainId))
-            {
-                return grains.Where(p => p.GrainId.Contains(_currentFilter.GrainId)).ToList();
-            }
-
+            // &&
             //2. Silo
             var grainQuery =
                 grains.Where(
-                    p =>
-                        _currentFilter.SelectedSilos == null || _currentFilter.SelectedSilos.Length == 0 ||
-                        _currentFilter.SelectedSilos.Contains(p.Silo));
+                    p => (string.IsNullOrEmpty(_currentFilter.GrainId) || p.GrainId.Contains(_currentFilter.GrainId)) &&
+                         (_currentFilter.SelectedSilos == null || _currentFilter.SelectedSilos.Length == 0 ||
+                          _currentFilter.SelectedSilos.Contains(p.Silo)));
 
             //3. Type filters
             if (_currentFilter.TypeFilters != null)

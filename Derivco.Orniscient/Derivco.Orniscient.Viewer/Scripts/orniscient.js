@@ -147,10 +147,10 @@
         });
 
         //add the edge (link)
-        if (grainData.LinkToId !== '') {
+        if (grainData.LinkToId !== null && grainData.LinkToId !== '') {
             orniscient.data.edges.add({
-                id: grainData.Id,
-                from: grainData.Id,
+                id: grainData.TypeShortName +'_'+ grainData.GrainId + 'temp',
+                from: grainData.TypeShortName + '_' + grainData.GrainId,
                 to: grainData.LinkToId
             });
         }

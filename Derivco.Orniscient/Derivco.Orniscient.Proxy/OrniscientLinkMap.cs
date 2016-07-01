@@ -21,39 +21,57 @@ namespace Derivco.Orniscient.Proxy
 
         private void CreateTypeMap()
         {
-            _typeMap = new Dictionary<Type, Attributes.OrniscientGrain>();
+            _typeMap = new Dictionary<Type, OrniscientGrain>();
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
                 foreach (var type in assembly.GetTypes())
                 {
-                    var attribs = type.GetCustomAttributes(typeof (Attributes.OrniscientGrain), false);
-                    if (attribs.Length <= 0) continue;
+                    //if this type is not a grain we do not want it..
+                    if (!typeof(IGrain).IsAssignableFrom(type))
+                        continue;
 
-                    var orniscientInfo = attribs.First() as Attributes.OrniscientGrain;
+                    var attribs = type.GetCustomAttributes(typeof(Attributes.OrniscientGrain), false);
+                    var orniscientInfo = attribs.FirstOrDefault() as OrniscientGrain ?? new OrniscientGrain();
+                    orniscientInfo.IdentityType = GetIdentityType(type);
 
-                    //if (string.IsNullOrEmpty(orniscientInfo.DefaultLinkFromTypeId))
-                    //{
-                        if (typeof (IGrainWithGuidKey).IsAssignableFrom(type))
-                        {
-                            orniscientInfo.IdentityType = IdentityTypes.Guid;
-                            orniscientInfo.DefaultLinkFromTypeId = Guid.Empty.ToString();
-                        }
-                        else if (typeof (IGrainWithIntegerKey).IsAssignableFrom(type))
-                        {
-                            orniscientInfo.IdentityType = IdentityTypes.Int;
-                            orniscientInfo.DefaultLinkFromTypeId = "0";
-                        }else if (typeof (IGrainWithStringKey).IsAssignableFrom(type))
-                        {
-                            orniscientInfo.IdentityType = IdentityTypes.String;
-                        }
-                    //}
-
+                    if (orniscientInfo.HasLinkFromType && string.IsNullOrEmpty(orniscientInfo.DefaultLinkFromTypeId))
+                    {
+                        orniscientInfo.DefaultLinkFromTypeId = GetDefaultLinkFromTypeId(type);
+                    }
                     _typeMap.Add(type, orniscientInfo);
-                    //if (linkFromType != null && linkFromType.HasLinkFromType)
-                    //    _typeMap.Add(type, linkFromType);
-
                 }
             }
+        }
+
+        private IdentityTypes GetIdentityType(Type type)
+        {
+            if (typeof(IGrainWithGuidKey).IsAssignableFrom(type))
+            {
+                return IdentityTypes.Guid;
+            }
+            else if (typeof(IGrainWithIntegerKey).IsAssignableFrom(type))
+            {
+                return IdentityTypes.Int;
+
+            }
+            else if (typeof(IGrainWithStringKey).IsAssignableFrom(type))
+            {
+                return IdentityTypes.String;
+            }
+            return IdentityTypes.NotFound;
+        }
+
+        private string GetDefaultLinkFromTypeId(Type type)
+        {
+            if (typeof(IGrainWithGuidKey).IsAssignableFrom(type))
+            {
+                return Guid.Empty.ToString();
+            }
+            else if (typeof(IGrainWithIntegerKey).IsAssignableFrom(type))
+            {
+                return "0";
+            }
+            return string.Empty;
         }
 
         public static OrniscientLinkMap Instance => _instance.Value;
