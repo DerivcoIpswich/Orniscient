@@ -75,7 +75,7 @@ namespace Derivco.Orniscient.Proxy.Grains
             //1. Grain Id
             if (!string.IsNullOrEmpty(_currentFilter.GrainId))
             {
-                return grains.Where(p => p.Guid.ToString().Contains(_currentFilter.GrainId)).ToList();
+                return grains.Where(p => p.GrainId.Contains(_currentFilter.GrainId)).ToList();
             }
 
             //2. Silo
@@ -118,7 +118,7 @@ namespace Derivco.Orniscient.Proxy.Grains
                     }
                     filterList.Add(sourceGrainType, grainIdsGrainType);
                 }
-                grainQuery = grainQuery.Where(p => filterList.ContainsKey(p.Type) && (filterList[p.Type] == null || filterList[p.Type].Contains(p.Guid.ToString())));
+                grainQuery = grainQuery.Where(p => filterList.ContainsKey(p.Type) && (filterList[p.Type] == null || filterList[p.Type].Contains(p.GrainId)));
             }
 
             return grainQuery.ToList();

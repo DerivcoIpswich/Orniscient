@@ -13,7 +13,7 @@ namespace TestGrains.Grains
         public override async Task OnActivateAsync()
         {
             _streamProvider = GetStreamProvider("SMSProvider");
-            RegisterTimer(p => AddGrains(10) ,null, TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(30));
+            //RegisterTimer(p => AddGrains(10) ,null, TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(30));
             await base.OnActivateAsync();
         }
 
@@ -24,8 +24,16 @@ namespace TestGrains.Grains
 
         private async Task AddGrains(int grainCountToAdd = 10)
         {
+            //create bargrain 
+
+            var random = new Random(5);
+            await GrainFactory.GetGrain<IBarGrain>(8).KeepAlive();
+            await GrainFactory.GetGrain<IBarGrain>(87).KeepAlive();
+            await GrainFactory.GetGrain<IBarGrain>(20).KeepAlive();
+
             for (var i = 0; i < grainCountToAdd; i++)
             {
+             
                 var grainId = Guid.NewGuid();
                 await _streamProvider.GetStream<Guid>(grainId, "TestStream").OnNextAsync(grainId);
             }

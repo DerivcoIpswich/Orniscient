@@ -56,7 +56,7 @@
 
                     var requestData = {
                         GrainType: node.graintype,
-                        GrainId: node.Guid
+                        GrainId: node.grainId
                     };
 
                     var xhr = new XMLHttpRequest();
@@ -64,22 +64,20 @@
                     xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
                     xhr.onload = function () {
                         var grainInfo = [];
+                        var infoRows = "";
+
+                        //add the info we can for the grain. As per Spencer....
+                        infoRows = infoRows + "<tr><td><strong>Grain Id</strong></td><td>" + node.grainId + "</td></tr>";
+                        infoRows = infoRows + "<tr><td><strong>Silo</strong></td><td>" + node.silo + "</td></tr>";
+                        infoRows = infoRows + "<tr><td><strong>Grain Type</strong></td><td>" + node.graintype + "</td></tr>";
+
                         if (xhr.responseText != null && xhr.responseText !== "") {
                             grainInfo = JSON.parse(xhr.responseText);
-
-                            var infoRows = "";
-
-                            //add the info we can for the grain. As per Spencer....
-                            infoRows = infoRows + "<tr><td><strong>Grain Id</strong></td><td>" + node.Guid + "</td></tr>";
-                            infoRows = infoRows + "<tr><td><strong>Silo</strong></td><td>" + node.silo + "</td></tr>";
-                            infoRows = infoRows + "<tr><td><strong>Grain Type</strong></td><td>" + node.graintype + "</td></tr>";
-
                             for (var i = 0; i < grainInfo.length; i++) {
                                 infoRows = infoRows + "<tr><td><strong>" + grainInfo[i].FilterName + "<strong></td><td>" + grainInfo[i].Value + "</td></tr>";
                             }
-
-                            node.title = "<h5>" + node.label + "</h5><table class='table'>" + infoRows + "</table>";
-                        } 
+                        }
+                        node.title = "<h5>" + node.label + "</h5><table class='table'>" + infoRows + "</table>";
                         node.ServerCalled = true;
                         orniscient.data.nodes.update(node);
                     }
@@ -144,7 +142,7 @@
             silo: grainData.Silo,
             linkToId: grainData.LinkToId,
             graintype: grainData.Type,
-            Guid: grainData.Guid,
+            grainId: grainData.GrainId,
             group: grainData.Silo
         });
 

@@ -24,7 +24,7 @@ namespace TestHost
 
 
             //Now we need some test classes....
-            var firstGrain = GrainClient.GrainFactory.GetGrain<IFirstGrain>(Guid.Empty);
+            var firstGrain = GrainClient.GrainFactory.GetGrain<IFirstGrain>("Hallo");
             firstGrain.KeepAlive();
 
             Console.ReadLine();

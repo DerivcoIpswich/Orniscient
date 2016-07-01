@@ -3,7 +3,7 @@ using Orleans;
 
 namespace TestGrains.Grains
 {
-    public interface IFirstGrain : IGrainWithGuidKey
+    public interface IFirstGrain : IGrainWithStringKey
     {
         Task KeepAlive();
     }
