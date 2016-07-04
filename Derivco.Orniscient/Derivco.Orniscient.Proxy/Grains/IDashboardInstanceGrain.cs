@@ -12,7 +12,6 @@ namespace Derivco.Orniscient.Proxy.Grains
         Task<List<UpdateModel>> GetAll(AppliedFilter filter = null);
         Task Subscribe(IOrniscientObserver observer);
         Task UnSubscribe(IOrniscientObserver observer);
-        Task SetTypeFilter(GrainType[] types);
         Task<GrainType[]> GetGrainTypes();
     }
 }

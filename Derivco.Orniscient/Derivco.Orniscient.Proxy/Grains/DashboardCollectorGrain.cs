@@ -122,17 +122,17 @@ namespace Derivco.Orniscient.Proxy.Grains
 
             var diffModel = new DiffModel()
             {
-                RemovedGrains = CurrentStats.Where(p => newStats.All(n => n.GrainId != p.GrainId)).Select(p => p.GrainId).ToList(),
-                NewGrains = newStats.Where(n => CurrentStats.Any(c => c.Id == n.Id) == false).ToList(),
+                RemovedGrains = CurrentStats?.Where(p => newStats.All(n => n.GrainId != p.GrainId)).Select(p => p.GrainId).ToList(),
+                NewGrains = newStats.Where(n => CurrentStats?.Any(c => c.Id == n.Id) == false).ToList(),
                 TypeCounts = newStats.GroupBy(p => p.TypeShortName).Select(p => new TypeCounter() { TypeName = p.Key, Total = p.Count() }).ToList()
             };
 
             //Update the CurrentStats with the latest.
             CurrentStats = newStats;
 
-            _logger.Verbose($"Sending {diffModel.RemovedGrains.Count} RemovedGrains from DashboardCollectorGrain");
-            _logger.Verbose($"Sending {diffModel.NewGrains.Count} NewGrains from DashboardCollectorGrain");
-            _logger.Verbose($"Sending {diffModel.TypeCounts.Count} TypeCounts from DashboardCollectorGrain");
+            _logger.Verbose($"Sending {diffModel.RemovedGrains?.Count} RemovedGrains from DashboardCollectorGrain");
+            _logger.Verbose($"Sending {diffModel.NewGrains?.Count} NewGrains from DashboardCollectorGrain");
+            _logger.Verbose($"Sending {diffModel.TypeCounts?.Count} TypeCounts from DashboardCollectorGrain");
 
             var streamProvider = GetStreamProvider(StreamKeys.StreamProvider);
             var stream = streamProvider.GetStream<DiffModel>(Guid.Empty, StreamKeys.OrniscientChanges);

@@ -56,12 +56,6 @@ namespace Derivco.Orniscient.Proxy.Grains
             return TaskDone.Done;
         }
 
-        public Task SetTypeFilter(GrainType[] types)
-        {
-            //TODO : Implement the SetTypeFilter on this level
-            return TaskDone.Done;
-        }
-
         public Task<GrainType[]> GetGrainTypes()
         {
             return _dashboardCollectorGrain.GetGrainTypes();

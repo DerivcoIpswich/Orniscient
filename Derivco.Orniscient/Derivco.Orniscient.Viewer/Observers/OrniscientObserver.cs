@@ -28,15 +28,6 @@ namespace Derivco.Orniscient.Viewer.Observers
             
         }
 
-        public async Task SetTypeFilter(Func<GrainType, bool> filter)
-        {
-            if (filter != null)
-            {
-                var availableTypes = await _dashboardInstanceGrain.GetGrainTypes();
-                await _dashboardInstanceGrain.SetTypeFilter(availableTypes.Where(filter).ToArray());
-            }
-        }
-
         public async Task<List<UpdateModel>> GetCurrentSnapshot(AppliedFilter filter = null)
         {
             return await _dashboardInstanceGrain.GetAll(filter);

@@ -4,6 +4,7 @@ using System.Web.Mvc;
 using Derivco.Orniscient.Proxy.Grains;
 using Derivco.Orniscient.Proxy.Grains.Filters;
 using Derivco.Orniscient.Viewer.Models.Dashboard;
+using Derivco.Orniscient.Viewer.Observers;
 using Orleans;
 
 namespace Derivco.Orniscient.Viewer.Controllers
@@ -18,7 +19,8 @@ namespace Derivco.Orniscient.Viewer.Controllers
                 if (!GrainClient.IsInitialized)
                 {
                     GrainClient.Initialize(Server.MapPath("~/DevTestClientConfiguration.xml"));
-                    //await OrniscientObserver.Instance.SetTypeFilter(p => p.Contains("SpinSport"));
+
+                    await OrniscientObserverContainer.Instance.SetTypeFilter(p=>p.FullName.Contains("TestGrains"));
                 }
                 return View();
             }
