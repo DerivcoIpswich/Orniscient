@@ -28,13 +28,24 @@ namespace Derivco.Orniscient.Viewer.Observers
             
         }
 
-        public async Task<List<UpdateModel>> GetCurrentSnapshot(AppliedFilter filter = null)
+        public async Task<DiffModel> GetCurrentSnapshot(AppliedFilter filter = null)
         {
+            //2 different models
+            // - the normal model
+            // - other one
+
+
+            //cheat searialisation
+
             return await _dashboardInstanceGrain.GetAll(filter);
         }
 
         public void GrainsUpdated(DiffModel model)
         {
+
+            //same will apply here
+
+
             if (model != null)
             {
                 Debug.WriteLine($"Pushing down {model.NewGrains.Count} new grains and removing {model.RemovedGrains.Count}");

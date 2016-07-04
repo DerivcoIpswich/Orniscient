@@ -3,7 +3,6 @@ namespace Derivco.Orniscient.Proxy.Grains.Models
 {
     public class UpdateModel
     {
-        public string ActivationId { get; set; }
         public string Silo { get; set; }
         public string Type { get; set; }
         public string TypeShortName => Type.Split('.').Last();

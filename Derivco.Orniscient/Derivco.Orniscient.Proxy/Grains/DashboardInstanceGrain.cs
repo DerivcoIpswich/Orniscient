@@ -37,11 +37,15 @@ namespace Derivco.Orniscient.Proxy.Grains
             _logger.Info("DashboardInstanceGrain Activated.");
         }
 
-        public async Task<List<UpdateModel>> GetAll(AppliedFilter filter = null)
+        public async Task<DiffModel> GetAll(AppliedFilter filter = null)
         {
             _currentFilter = filter;
             var allGrains = await _dashboardCollectorGrain.GetAll();
-            return await ApplyFilter(allGrains);
+
+            return new DiffModel()
+            {
+                NewGrains = await ApplyFilter(allGrains)
+            };
         }
 
         public Task Subscribe(IOrniscientObserver observer)

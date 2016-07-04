@@ -9,7 +9,7 @@ namespace Derivco.Orniscient.Proxy.Grains
 {
     public interface IDashboardInstanceGrain : IGrainWithIntegerKey
     {
-        Task<List<UpdateModel>> GetAll(AppliedFilter filter = null);
+        Task<DiffModel> GetAll(AppliedFilter filter = null);
         Task Subscribe(IOrniscientObserver observer);
         Task UnSubscribe(IOrniscientObserver observer);
         Task<GrainType[]> GetGrainTypes();

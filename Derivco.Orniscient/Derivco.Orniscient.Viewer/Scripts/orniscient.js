@@ -119,7 +119,7 @@
 
         return hub.server.GetCurrentSnapshot(filter)
             .done(function (data) {
-                $.each(data, function (index, grainData) {
+                $.each(data.NewGrains, function (index, grainData) {
                     addToNodes(grainData);
                 });
             })

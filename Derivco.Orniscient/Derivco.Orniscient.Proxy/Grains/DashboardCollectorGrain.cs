@@ -113,7 +113,7 @@ namespace Derivco.Orniscient.Proxy.Grains
             if (CurrentStats == null)
                 return Task.FromResult<List<UpdateModel>>(null);
             var filteredStats = CurrentStats.Where(x => x.Type == type);
-            return Task.FromResult(filteredStats?.ToList());
+            return Task.FromResult(filteredStats.ToList());
         }
 
         private async Task<DiffModel> GetChanges()
