@@ -16,11 +16,13 @@ namespace Derivco.Orniscient.Proxy.Grains
 {
     public class DashboardInstanceGrain : Grain, IDashboardInstanceGrain, IAsyncObserver<DiffModel>
     {
-        private List<UpdateModel> CurrentStats { get; set; }
+        private int CurrentGrianCount { get; set; }
         private ObserverSubscriptionManager<IOrniscientObserver> _subsManager;
         private IDashboardCollectorGrain _dashboardCollectorGrain;
         private AppliedFilter _currentFilter;
         private Logger _logger;
+
+        private int _summaryViewLimit = 10; //TODO : Get this from config when this grain is started.....
 
         public override async Task OnActivateAsync()
         {
@@ -41,9 +43,10 @@ namespace Derivco.Orniscient.Proxy.Grains
         {
             _currentFilter = filter;
             var allGrains = await _dashboardCollectorGrain.GetAll();
-
+            CurrentGrianCount = allGrains.Count;
             return new DiffModel()
             {
+                SummaryView = CurrentGrianCount > _summaryViewLimit,
                 NewGrains = await ApplyFilter(allGrains)
             };
         }
@@ -119,6 +122,10 @@ namespace Derivco.Orniscient.Proxy.Grains
 
         public async Task OnNextAsync(DiffModel item, StreamSequenceToken token = null)
         {
+            //push all when in summary mode, otherwise only the changes. We don't want to push 1000000000000000000000000 grains
+            CurrentGrianCount += item.NewGrains.Count;
+            item.SummaryView = CurrentGrianCount > _summaryViewLimit;
+
             _logger.Verbose($"OnNextAsync called with {item.NewGrains.Count} items");
             if (item.NewGrains != null && item.NewGrains.Any())
             {

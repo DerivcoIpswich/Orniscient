@@ -35,7 +35,7 @@ namespace Derivco.Orniscient.Viewer.Hubs
         { }
 
         [HubMethodName("GetCurrentSnapshot")]
-        public async Task<DiffModel> GetCurrentSnapshot(AppliedFilter filter = null)
+        public async Task<DashboardViewModel> GetCurrentSnapshot(AppliedFilter filter = null)
         {
             return await _orniscientObserverContainer.Get(_sessionId).GetCurrentSnapshot(filter);
         }

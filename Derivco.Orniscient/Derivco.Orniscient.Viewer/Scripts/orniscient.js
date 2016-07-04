@@ -15,8 +15,11 @@
             borderWidth: 3,
             shape: 'dot',
             scaling: {
-                min: 10,
-                max: 30,
+                //customScalingFunction: function (min, max, total, value) {
+                //    return value / total;
+                //},
+                min: 5,
+                max: 150,
                 label: {
                     min: 8,
                     max: 30,
@@ -90,10 +93,12 @@
             grainActivationChanged: function (diffModel) {
                 console.log('changes sent from server');
                 console.log(diffModel);
+
                 window.dispatchEvent(new CustomEvent('orniscientUpdated', { detail: diffModel.TypeCounts }));
                 $.each(diffModel.NewGrains, function (index, grainData) {
-                    addToNodes(grainData);
+                    addToNodes(grainData, diffModel.SummaryView);
                 });
+
             }
         });
         $.connection.hub.logging = true;
@@ -128,15 +133,27 @@
             });
     }
 
-    function addToNodes(grainData) {
+    function addToNodes(grainData, summaryView) {
 
-        //add the node
-        orniscient.data.nodes.add({
+
+        if (summaryView === true) {
+            //find and update 
+            var updateNode = nodes.get(grainData.Id);
+            if (updateNode != undefined) {
+
+                updateNode.value = grainData.Count;
+                orniscient.data.nodes.update(updateNode);
+                return;
+            }
+        }
+
+        //otherwise add new
+        var node = {
             id: grainData.Id,
             label: grainData.GrainName,
             color: {
-                border :grainData.Colour
-                
+                border: grainData.Colour
+
             },
             //border: grainData.Colour,
             silo: grainData.Silo,
@@ -144,12 +161,18 @@
             graintype: grainData.Type,
             grainId: grainData.GrainId,
             group: grainData.Silo
-        });
+        }
+        if (grainData.Count > 1) {
+            node.value = grainData.Count;
+        }
+
+        //add the node
+        orniscient.data.nodes.add(node);
 
         //add the edge (link)
         if (grainData.LinkToId !== null && grainData.LinkToId !== '') {
             orniscient.data.edges.add({
-                id: grainData.TypeShortName +'_'+ grainData.GrainId + 'temp',
+                id: grainData.TypeShortName + '_' + grainData.GrainId + 'temp',
                 from: grainData.TypeShortName + '_' + grainData.GrainId,
                 to: grainData.LinkToId
             });
