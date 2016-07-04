@@ -40,7 +40,7 @@ namespace Derivco.Orniscient.Viewer.Observers
                 SummaryView = diffmodel.SummaryView,
                 RemovedGrains = diffmodel.RemovedGrains,
                 TypeCounts = diffmodel.TypeCounts,
-                NewGrains = diffmodel.SummaryView ? diffmodel.Totals : diffmodel.NewGrains
+                NewGrains = diffmodel.NewGrains
             };
 
             //cheat searialisation
@@ -61,7 +61,7 @@ namespace Derivco.Orniscient.Viewer.Observers
                     SummaryView = model.SummaryView,
                     RemovedGrains = model.RemovedGrains,
                     TypeCounts = model.TypeCounts,
-                    NewGrains = model.SummaryView ? model.Totals : model.NewGrains
+                    NewGrains = model.NewGrains
                 });
             }
         }

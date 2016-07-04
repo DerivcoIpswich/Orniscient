@@ -6,7 +6,8 @@
         edges = new vis.DataSet([]),
         typeCounts = [],
         container,
-        arrows = { to: { scaleFactor: 1 } };
+        arrows = { to: { scaleFactor: 1 } },
+        summaryView = false;
 
     var options = {
         autoResize: true,
@@ -15,9 +16,9 @@
             borderWidth: 3,
             shape: 'dot',
             scaling: {
-                //customScalingFunction: function (min, max, total, value) {
-                //    return value / total;
-                //},
+                customScalingFunction: function (min, max, total, value) {
+                    return value / total;
+                },
                 min: 5,
                 max: 150,
                 label: {
@@ -133,15 +134,23 @@
             });
     }
 
-    function addToNodes(grainData, summaryView) {
+    function addToNodes(grainData, isSummaryView) {
+        if (isSummaryView === true) {
 
 
-        if (summaryView === true) {
+            if (summaryView === false) {
+                orniscient.data.nodes.clear();
+                orniscient.data.edges.clear();
+                summaryView = true;
+            }
+
+
             //find and update 
             var updateNode = nodes.get(grainData.Id);
             if (updateNode != undefined) {
 
                 updateNode.value = grainData.Count;
+                updateNode.label = grainData.TypeShortName + '(' + grainData.Count + ')';
                 orniscient.data.nodes.update(updateNode);
                 return;
             }
