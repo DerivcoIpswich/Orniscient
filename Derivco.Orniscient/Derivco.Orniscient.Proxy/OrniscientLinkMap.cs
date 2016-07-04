@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Derivco.Orniscient.Proxy.Attributes;
+using Orleans;
 
 namespace Derivco.Orniscient.Proxy
 {
@@ -8,31 +10,68 @@ namespace Derivco.Orniscient.Proxy
     {
         private static readonly Lazy<OrniscientLinkMap> _instance = new Lazy<OrniscientLinkMap>(() => new OrniscientLinkMap());
         private Dictionary<Type, Attributes.OrniscientGrain> _typeMap;
-        Dictionary<string, Type> typeCache;
 
         private OrniscientLinkMap()
         {
             if (_typeMap == null)
             {
-                createTypeMap();
+                CreateTypeMap();
             }
         }
 
-        private void createTypeMap()
+        private void CreateTypeMap()
         {
-            _typeMap = new Dictionary<Type, Attributes.OrniscientGrain>();
+            _typeMap = new Dictionary<Type, OrniscientGrain>();
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
                 foreach (var type in assembly.GetTypes())
                 {
-                    var attribs = type.GetCustomAttributes(typeof(Attributes.OrniscientGrain), false);
-                    if (attribs.Length <= 0) continue;
+                    //if this type is not a grain we do not want it..
+                    if (!typeof(IGrain).IsAssignableFrom(type))
+                        continue;
 
-                    var linkFromType = attribs.First() as Attributes.OrniscientGrain;
-                    if (linkFromType != null && linkFromType.HasLinkFromType)
-                        _typeMap.Add(type, linkFromType);
+                    var attribs = type.GetCustomAttributes(typeof(Attributes.OrniscientGrain), false);
+                    var orniscientInfo = attribs.FirstOrDefault() as OrniscientGrain ?? new OrniscientGrain();
+                    orniscientInfo.IdentityType = GetIdentityType(type);
+
+                    if (orniscientInfo.HasLinkFromType && string.IsNullOrEmpty(orniscientInfo.DefaultLinkFromTypeId))
+                    {
+                        orniscientInfo.DefaultLinkFromTypeId = GetDefaultLinkFromTypeId(type);
+                    }
+                    _typeMap.Add(type, orniscientInfo);
                 }
             }
+        }
+
+        private IdentityTypes GetIdentityType(Type type)
+        {
+            if (typeof(IGrainWithGuidKey).IsAssignableFrom(type))
+            {
+                return IdentityTypes.Guid;
+            }
+            else if (typeof(IGrainWithIntegerKey).IsAssignableFrom(type))
+            {
+                return IdentityTypes.Int;
+
+            }
+            else if (typeof(IGrainWithStringKey).IsAssignableFrom(type))
+            {
+                return IdentityTypes.String;
+            }
+            return IdentityTypes.NotFound;
+        }
+
+        private string GetDefaultLinkFromTypeId(Type type)
+        {
+            if (typeof(IGrainWithGuidKey).IsAssignableFrom(type))
+            {
+                return Guid.Empty.ToString();
+            }
+            else if (typeof(IGrainWithIntegerKey).IsAssignableFrom(type))
+            {
+                return "0";
+            }
+            return string.Empty;
         }
 
         public static OrniscientLinkMap Instance => _instance.Value;
@@ -51,14 +90,7 @@ namespace Derivco.Orniscient.Proxy
         private Type GetType(string typeName)
         {
             var temp = AppDomain.CurrentDomain.GetAssemblies();
-            //TODO : Cache this info somehow
-            foreach (var a in temp)
-            {
-                var t = a.GetType(typeName);
-                if (t != null)
-                    return t;
-            }
-            return null;
+            return temp.Select(a => a.GetType(typeName)).FirstOrDefault(t => t != null);
         }
     }
 }

@@ -39,30 +39,65 @@ namespace Derivco.Orniscient.Proxy.Grains
         {
             var model = new UpdateModel()
             {
-                Guid = grainStatistic.GrainIdentity.PrimaryKey,
                 Type = grainStatistic.GrainType,
-                Silo = grainStatistic.SiloAddress.ToString()
+                Silo = grainStatistic.SiloAddress.ToString(),
             };
 
-            try
+            var orniscientInfo = OrniscientLinkMap.Instance.GetLinkFromType(model.Type);
+            if (orniscientInfo != null)
             {
-                model.Guid = grainStatistic.GrainIdentity.PrimaryKey;
-            }
-            catch (Exception)
-            {
-                model.Guid = Guid.NewGuid();
-                Debug.WriteLine($"This guid is not cool {model.TypeShortName}");
-                throw;
+                if (!string.IsNullOrEmpty(orniscientInfo.Colour))
+                {
+                    model.Colour = orniscientInfo.Colour;
+                }
+
+                switch (orniscientInfo.IdentityType)
+                {
+
+                    case IdentityTypes.String:
+                        {
+                            model.Id = $"{model.TypeShortName}_{grainStatistic.GrainIdentity.PrimaryKeyString}";
+                            model.GrainId = grainStatistic.GrainIdentity.PrimaryKeyString;
+                            break;
+                        }
+                    case IdentityTypes.Guid:
+                        {
+                            model.Id = $"{model.TypeShortName}_{grainStatistic.GrainIdentity.PrimaryKey}";
+                            model.GrainId = grainStatistic.GrainIdentity.PrimaryKey.ToString();
+                            break;
+                        }
+                    case IdentityTypes.Int:
+                        {
+                            //because an int key is returned as a guid, we need to turn it back to an int here.
+                            model.Id = $"{model.TypeShortName}_{grainStatistic.GrainIdentity.PrimaryKeyLong}";
+                            model.GrainId = grainStatistic.GrainIdentity.PrimaryKeyLong.ToString();
+                            break;
+                        }
+                    default:
+                        {
+                            model.GrainId = grainStatistic.GrainIdentity.PrimaryKeyString;
+                            model.Id = grainStatistic.GrainIdentity.IdentityString;
+                            break;
+                        }
+                }
+
+                if (orniscientInfo.HasLinkFromType)
+                {
+                    var mapId = orniscientInfo.LinkType == LinkType.SameId ? model.GrainId : orniscientInfo.DefaultLinkFromTypeId;
+                    model.LinkToId = $"{orniscientInfo.LinkFromType.ToString().Split('.').Last()}_{mapId}";
+                }
+
+
             }
 
-            //need to check the linktypes
-            var orniscientInfo = OrniscientLinkMap.Instance.GetLinkFromType(model.Type);
-            if (orniscientInfo != null && orniscientInfo.HasLinkFromType)
-            {
-                var mapGuid = orniscientInfo.LinkType == LinkType.SameId ? model.Guid : Guid.Empty;
-                model.LinkToId = $"{orniscientInfo.LinkFromType.ToString().Split('.').Last()}_{mapGuid}";
-                model.Colour = orniscientInfo.Colour;
-            }
+            ////need to check the linktypes
+            //var orniscientInfo = OrniscientLinkMap.Instance.GetLinkFromType(model.Type);
+            //if (orniscientInfo != null && orniscientInfo.HasLinkFromType)
+            //{
+            //    var mapId = orniscientInfo.LinkType == LinkType.SameId ? model.GrainId : orniscientInfo.DefaultLinkFromTypeId;
+            //    model.LinkToId = $"{orniscientInfo.LinkFromType.ToString().Split('.').Last()}_{mapId}";
+            //    model.Colour = orniscientInfo.Colour;
+            //}
             return model;
 
         }
@@ -70,11 +105,13 @@ namespace Derivco.Orniscient.Proxy.Grains
         private async Task<List<UpdateModel>> _GetAllFromCluster()
         {
             //_logger.Info("_GetAllFromCluster called");
-            var detailedStats = await _managementGrain.GetDetailedGrainStatistics(_filteredTypes?.Select(p=>p.FullName).ToArray()); ;
+            var detailedStats = await _managementGrain.GetDetailedGrainStatistics(_filteredTypes?.Select(p => p.FullName).ToArray()); ;
             if (detailedStats != null && detailedStats.Any())
             {
                 //_logger.Info($"_GetAllFromCluster called [{detailedStats.Length} items returned from ManagementGrain]");
-                return detailedStats.Where(p => p.Category.ToLower() == "grain").Select(_FromGrainStat).ToList();
+                var temp = detailedStats.Select(_FromGrainStat).ToList();
+                return temp;
+                //return detailedStats.Where(p => p.Category.ToLower() == "grain").Select(_FromGrainStat).ToList();
             }
             return null;
         }
@@ -94,13 +131,13 @@ namespace Derivco.Orniscient.Proxy.Grains
 
         private async Task<DiffModel> GetChanges()
         {
-            var newStats = await _GetAllFromCluster()??new List<UpdateModel>();
+            var newStats = await _GetAllFromCluster() ?? new List<UpdateModel>();
 
             var diffModel = new DiffModel()
             {
-                RemovedGrains = CurrentStats.Where(p => newStats.All(n => n.Guid != p.Guid)).Select(p => p.Guid).ToList(),
-                NewGrains = newStats.Where(n=> CurrentStats.Any(c=>c.Id == n.Id)==false).ToList(),
-                TypeCounts = newStats.GroupBy(p => p.TypeShortName).Select(p => new TypeCounter() { TypeName = p.Key, Total = p.Count()}).ToList()
+                RemovedGrains = CurrentStats.Where(p => newStats.All(n => n.GrainId != p.GrainId)).Select(p => p.GrainId).ToList(),
+                NewGrains = newStats.Where(n => CurrentStats.Any(c => c.Id == n.Id) == false).ToList(),
+                TypeCounts = newStats.GroupBy(p => p.TypeShortName).Select(p => new TypeCounter() { TypeName = p.Key, Total = p.Count() }).ToList()
             };
 
             //Update the CurrentStats with the latest.

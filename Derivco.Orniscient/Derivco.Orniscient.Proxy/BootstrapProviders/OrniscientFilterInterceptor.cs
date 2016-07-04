@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using Derivco.Orniscient.Proxy.Extensions;
 using Derivco.Orniscient.Proxy.Grains.Filters;
 using Orleans;
 using Orleans.Providers;
@@ -58,8 +57,7 @@ namespace Derivco.Orniscient.Proxy.BootstrapProviders
                     await filterGrain.RegisterFilter(grainName, filterableGrain.GetPrimaryKey().ToString(), result);
 
                     var filterString = string.Join(",", result.Select(p => $"{p.FilterName} : {p.Value}"));
-                    Debug.WriteLine(
-                        $"Filters for grain [Type : {grainName}][Id : {grain.GetPrimaryKey().ToInt()}][filter : {filterString}]");
+                    Debug.WriteLine( $"Filters for grain [Type : {grainName}][Id : {grain.GetPrimaryKey()}][filter : {filterString}]");
                 }
                 else
                 {

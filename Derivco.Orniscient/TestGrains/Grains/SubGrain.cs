@@ -8,7 +8,7 @@ using Orleans.Streams;
 namespace TestGrains.Grains
 {
     [ImplicitStreamSubscription("TestStream")]
-    [OrniscientGrain(linkFromType: typeof(FirstGrain),linkType:LinkType.SingleInstance,colour:"yellow")]
+    [OrniscientGrain(linkFromType: typeof(FirstGrain),linkType:LinkType.SingleInstance,colour:"yellow",defaultLinkFromTypeId:"Hallo")]
     public class SubGrain : Grain, ISubGrain , IAsyncObserver<Guid> 
     {
         private StreamSubscriptionHandle<Guid> _subscriptionHandle;

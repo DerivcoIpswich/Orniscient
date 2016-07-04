@@ -50,6 +50,7 @@
   <ItemGroup>
     <Compile Include="Grains\FirstGrain.cs" />
     <Compile Include="Grains\FooGrain.cs" />
+    <Compile Include="Grains\IBarGrain.cs" />
     <Compile Include="Grains\IFirstGrain.cs" />
     <Compile Include="Grains\IFooGrain.cs" />
     <Compile Include="Grains\ISubGrain.cs" />
