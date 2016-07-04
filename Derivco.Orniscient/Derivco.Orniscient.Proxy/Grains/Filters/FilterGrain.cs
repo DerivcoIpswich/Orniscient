@@ -4,15 +4,18 @@ using System.Linq;
 using System.Threading.Tasks;
 using Derivco.Orniscient.Proxy.Filters;
 using Orleans;
+using Orleans.Runtime;
 
 namespace Derivco.Orniscient.Proxy.Grains.Filters
 {
     public class FilterGrain : Grain, IFilterGrain
     {
         private List<TypeFilter> _filters;
+        private Logger _logger;
 
         public override async  Task OnActivateAsync()
         {
+            _logger = GetLogger("FilterGrain");
             _filters = new List<TypeFilter>();
             await base.OnActivateAsync();
         }
@@ -65,7 +68,7 @@ namespace Derivco.Orniscient.Proxy.Grains.Filters
 
         public Task RegisterFilter(string typeName, string grainId, FilterRow[] filters)
         {
-            Debug.WriteLine($"----------Filters Registered for Grain[{typeName},id:{grainId}][{string.Join(",", filters.Select(p => $"{p.FilterName} : {p.Value}"))}]");
+            _logger.Verbose($"Filters Registered for Grain[{typeName},Id:{grainId}][{string.Join(",", filters.Select(p => $"{p.FilterName} : {p.Value}"))}]");
             filters.All(p =>
             {
                 p.GrainId = grainId;

@@ -16,12 +16,12 @@ namespace Derivco.Orniscient.Proxy.Grains
         private List<UpdateModel> CurrentStats { get; set; }
         private IManagementGrain _managementGrain;
         private GrainType[] _filteredTypes = null;
-        //private Orleans.Runtime.Logger _logger;
+        private Orleans.Runtime.Logger _logger;
 
         public override async Task OnActivateAsync()
         {
             await base.OnActivateAsync();
-            //_logger = GetLogger();
+            _logger = GetLogger();
             CurrentStats = new List<UpdateModel>();
             _managementGrain = GrainFactory.GetGrain<IManagementGrain>(0);
             //Timer to send the changes down to the dashboard every x minutes....
@@ -75,8 +75,8 @@ namespace Derivco.Orniscient.Proxy.Grains
                         }
                     default:
                         {
-                            model.GrainId = grainStatistic.GrainIdentity.PrimaryKeyString;
                             model.Id = grainStatistic.GrainIdentity.IdentityString;
+                            model.GrainId = grainStatistic.GrainIdentity.PrimaryKeyString;
                             break;
                         }
                 }
@@ -86,33 +86,20 @@ namespace Derivco.Orniscient.Proxy.Grains
                     var mapId = orniscientInfo.LinkType == LinkType.SameId ? model.GrainId : orniscientInfo.DefaultLinkFromTypeId;
                     model.LinkToId = $"{orniscientInfo.LinkFromType.ToString().Split('.').Last()}_{mapId}";
                 }
-
-
             }
-
-            ////need to check the linktypes
-            //var orniscientInfo = OrniscientLinkMap.Instance.GetLinkFromType(model.Type);
-            //if (orniscientInfo != null && orniscientInfo.HasLinkFromType)
-            //{
-            //    var mapId = orniscientInfo.LinkType == LinkType.SameId ? model.GrainId : orniscientInfo.DefaultLinkFromTypeId;
-            //    model.LinkToId = $"{orniscientInfo.LinkFromType.ToString().Split('.').Last()}_{mapId}";
-            //    model.Colour = orniscientInfo.Colour;
-            //}
             return model;
-
         }
 
         private async Task<List<UpdateModel>> _GetAllFromCluster()
         {
-            //_logger.Info("_GetAllFromCluster called");
+            _logger.Info("_GetAllFromCluster called");
             var detailedStats = await _managementGrain.GetDetailedGrainStatistics(_filteredTypes?.Select(p => p.FullName).ToArray()); ;
             if (detailedStats != null && detailedStats.Any())
             {
-                //_logger.Info($"_GetAllFromCluster called [{detailedStats.Length} items returned from ManagementGrain]");
-                var temp = detailedStats.Select(_FromGrainStat).ToList();
-                return temp;
-                //return detailedStats.Where(p => p.Category.ToLower() == "grain").Select(_FromGrainStat).ToList();
+                _logger.Verbose($"_GetAllFromCluster called [{detailedStats.Length} items returned from ManagementGrain]");
+                return detailedStats.Select(_FromGrainStat).ToList();
             }
+            _logger.Verbose($"_GetAllFromCluster called [nothing returned from ManagementGrain]");
             return null;
         }
 
@@ -143,7 +130,9 @@ namespace Derivco.Orniscient.Proxy.Grains
             //Update the CurrentStats with the latest.
             CurrentStats = newStats;
 
-            Debug.WriteLine($"Sending {diffModel.NewGrains} changes from DashboardCollectorGrain");
+            _logger.Verbose($"Sending {diffModel.RemovedGrains.Count} RemovedGrains from DashboardCollectorGrain");
+            _logger.Verbose($"Sending {diffModel.NewGrains.Count} NewGrains from DashboardCollectorGrain");
+            _logger.Verbose($"Sending {diffModel.TypeCounts.Count} TypeCounts from DashboardCollectorGrain");
 
             var streamProvider = GetStreamProvider(StreamKeys.StreamProvider);
             var stream = streamProvider.GetStream<DiffModel>(Guid.Empty, StreamKeys.OrniscientChanges);

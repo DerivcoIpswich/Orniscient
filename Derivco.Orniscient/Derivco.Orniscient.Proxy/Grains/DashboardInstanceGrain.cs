@@ -2,12 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Derivco.Orniscient.Proxy.Filters;
 using Derivco.Orniscient.Proxy.Grains.Filters;
 using Derivco.Orniscient.Proxy.Grains.Models;
 using Derivco.Orniscient.Proxy.Observers;
 using Orleans;
+using Orleans.Runtime;
 using Orleans.Streams;
 
 namespace Derivco.Orniscient.Proxy.Grains
@@ -18,12 +20,12 @@ namespace Derivco.Orniscient.Proxy.Grains
         private ObserverSubscriptionManager<IOrniscientObserver> _subsManager;
         private IDashboardCollectorGrain _dashboardCollectorGrain;
         private AppliedFilter _currentFilter;
-        //private Logger _logger;
+        private Logger _logger;
 
         public override async Task OnActivateAsync()
         {
             await base.OnActivateAsync();
-            //_logger = GetLogger();
+            _logger = GetLogger("DashboardInstanceGrain");
 
             _dashboardCollectorGrain = GrainFactory.GetGrain<IDashboardCollectorGrain>(Guid.Empty);
             _subsManager = new ObserverSubscriptionManager<IOrniscientObserver>();
@@ -32,7 +34,7 @@ namespace Derivco.Orniscient.Proxy.Grains
             var stream = streamProvider.GetStream<DiffModel>(Guid.Empty, StreamKeys.OrniscientChanges);
             await stream.SubscribeAsync<DiffModel>(OnNextAsync);
 
-            //_logger.Info("DashboardInstanceGrain Activated.");
+            _logger.Info("DashboardInstanceGrain Activated.");
         }
 
         public async Task<List<UpdateModel>> GetAll(AppliedFilter filter = null)
@@ -67,21 +69,19 @@ namespace Derivco.Orniscient.Proxy.Grains
 
         private async Task<List<UpdateModel>> ApplyFilter(List<UpdateModel> grains)
         {
-            //_logger.Verbose("Filter Applied");
+            _logger.Verbose($"Applying filters");
             if (_currentFilter == null)
                 return grains;
 
             //order of filtering applies here.
-            //1. Grain Id
-            // &&
-            //2. Silo
+            //1. Grain Id & Silo
             var grainQuery =
                 grains.Where(
                     p => (string.IsNullOrEmpty(_currentFilter.GrainId) || p.GrainId.Contains(_currentFilter.GrainId)) &&
                          (_currentFilter.SelectedSilos == null || _currentFilter.SelectedSilos.Length == 0 ||
                           _currentFilter.SelectedSilos.Contains(p.Silo)));
 
-            //3. Type filters
+            //2. Type filters
             if (_currentFilter.TypeFilters != null)
             {
                 var filterList = new Dictionary<string, List<string>>();
@@ -99,8 +99,7 @@ namespace Derivco.Orniscient.Proxy.Grains
                     {
                         //fetch the filters
                         var filterGrain = GrainFactory.GetGrain<IFilterGrain>(Guid.Empty);
-                        var currentTypeFilters =
-                            await filterGrain.GetFilters(_currentFilter.TypeFilters.Select(p => p.TypeName).ToArray());
+                        var currentTypeFilters = await filterGrain.GetFilters(_currentFilter.TypeFilters.Select(p => p.TypeName).ToArray());
 
                         foreach (var currentTypeFilter in currentTypeFilters)
                         {
@@ -122,7 +121,7 @@ namespace Derivco.Orniscient.Proxy.Grains
 
         public async Task OnNextAsync(DiffModel item, StreamSequenceToken token = null)
         {
-            Debug.WriteLine($"OnNextAsync called with {item.NewGrains.Count} items");
+            _logger.Verbose($"OnNextAsync called with {item.NewGrains.Count} items");
             if (item.NewGrains != null && item.NewGrains.Any())
             {
                 item.NewGrains = await ApplyFilter(item.NewGrains);
@@ -130,7 +129,7 @@ namespace Derivco.Orniscient.Proxy.Grains
 
             if (item.NewGrains != null && (item.NewGrains.Any() || item.RemovedGrains.Any()))
             {
-                Debug.WriteLine($"Sending {item.NewGrains.Count} new grains to the observers..");
+                _logger.Verbose($"Sending {item.NewGrains.Count} new grains to the observers");
                 _subsManager.Notify(s => s.GrainsUpdated(item));
             }
         }
