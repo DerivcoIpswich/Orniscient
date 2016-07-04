@@ -39,7 +39,6 @@ namespace Derivco.Orniscient.Proxy.Grains
         {
             var model = new UpdateModel()
             {
-                Id = grainStatistic.GrainIdentity.IdentityString,
                 Type = grainStatistic.GrainType,
                 Silo = grainStatistic.SiloAddress.ToString(),
             };
@@ -57,23 +56,27 @@ namespace Derivco.Orniscient.Proxy.Grains
 
                     case IdentityTypes.String:
                         {
+                            model.Id = $"{model.TypeShortName}_{grainStatistic.GrainIdentity.PrimaryKeyString}";
                             model.GrainId = grainStatistic.GrainIdentity.PrimaryKeyString;
                             break;
                         }
                     case IdentityTypes.Guid:
                         {
+                            model.Id = $"{model.TypeShortName}_{grainStatistic.GrainIdentity.PrimaryKey}";
                             model.GrainId = grainStatistic.GrainIdentity.PrimaryKey.ToString();
                             break;
                         }
                     case IdentityTypes.Int:
                         {
                             //because an int key is returned as a guid, we need to turn it back to an int here.
+                            model.Id = $"{model.TypeShortName}_{grainStatistic.GrainIdentity.PrimaryKeyLong}";
                             model.GrainId = grainStatistic.GrainIdentity.PrimaryKeyLong.ToString();
                             break;
                         }
                     default:
                         {
                             model.GrainId = grainStatistic.GrainIdentity.PrimaryKeyString;
+                            model.Id = grainStatistic.GrainIdentity.IdentityString;
                             break;
                         }
                 }
