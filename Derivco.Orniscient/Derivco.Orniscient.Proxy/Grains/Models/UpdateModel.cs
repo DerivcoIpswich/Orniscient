@@ -12,6 +12,7 @@ namespace Derivco.Orniscient.Proxy.Grains.Models
         public string LinkToId { get; set; }
         public string Colour { get; set; }
         public int Count { get; set; } = 1;
+
         public override string ToString()
         {
             return $"Type : {Type},GrainId : {GrainId}";

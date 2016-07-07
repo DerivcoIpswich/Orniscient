@@ -120,13 +120,10 @@
         if (filter === null)
             filter = {};
 
-        orniscient.data.nodes.clear();
-        orniscient.data.edges.clear();
-
         return hub.server.GetCurrentSnapshot(filter)
             .done(function (data) {
                 $.each(data.NewGrains, function (index, grainData) {
-                    addToNodes(grainData);
+                    addToNodes(grainData,data.SummaryView);
                 });
             })
             .fail(function (data) {
@@ -138,28 +135,28 @@
         if (isSummaryView === true) {
 
 
-            if (summaryView === false) {
+            if (summaryView === false && isSummaryView===true) {
                 orniscient.data.nodes.clear();
                 orniscient.data.edges.clear();
                 summaryView = true;
             }
-
 
             //find and update 
             var updateNode = nodes.get(grainData.Id);
             if (updateNode != undefined) {
 
                 updateNode.value = grainData.Count;
-                updateNode.label = grainData.TypeShortName + '(' + grainData.Count + ')';
                 orniscient.data.nodes.update(updateNode);
                 return;
             }
         }
 
         //otherwise add new
+        var label = (isSummaryView ? grainData.TypeShortName + '(' + grainData.Count + ')' : grainData.GrainName);
+        console.log(label);
         var node = {
             id: grainData.Id,
-            label: grainData.GrainName,
+            label: label,
             color: {
                 border: grainData.Colour
 

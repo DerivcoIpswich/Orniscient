@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Derivco.Orniscient.Proxy.Attributes;
 using Derivco.Orniscient.Proxy.Filters;
 using Derivco.Orniscient.Proxy.Grains.Filters;
 using Derivco.Orniscient.Proxy.Grains.Models;
@@ -16,7 +17,6 @@ namespace Derivco.Orniscient.Proxy.Grains
 {
     public class DashboardInstanceGrain : Grain, IDashboardInstanceGrain, IAsyncObserver<DiffModel>
     {
-        private int CurrentGrianCount { get; set; }
         private ObserverSubscriptionManager<IOrniscientObserver> _subsManager;
         private IDashboardCollectorGrain _dashboardCollectorGrain;
         private AppliedFilter _currentFilter;
@@ -24,10 +24,9 @@ namespace Derivco.Orniscient.Proxy.Grains
 
 
         private List<UpdateModel> _summaries = new List<UpdateModel>();
+        private List<Link> _summaryLinks = new List<Link>();
 
-
-        private int _summaryViewLimit = 
-            100; //TODO : Get this from config when this grain is started.....
+        private int _summaryViewLimit = 2; //100; //TODO : Get this from config when this grain is started.....
 
         public override async Task OnActivateAsync()
         {
@@ -53,10 +52,12 @@ namespace Derivco.Orniscient.Proxy.Grains
             if (allGrains.Count > _summaryViewLimit)
             {
                 _summaries = GetGrainSummaries(allGrains);
+                _summaryLinks = GetLinks(allGrains,true);
                 return new DiffModel()
                 {
                     SummaryView = allGrains.Count > _summaryViewLimit,
-                    NewGrains = GetGrainSummaries(allGrains)
+                    NewGrains = GetGrainSummaries(allGrains),
+                    SummaryViewLinks = _summaryLinks
                 };
             }
 
@@ -162,7 +163,8 @@ namespace Derivco.Orniscient.Proxy.Grains
                 { 
                     SummaryView = true,
                     TypeCounts = item.TypeCounts,
-                    NewGrains = _summaries
+                    NewGrains = _summaries,
+                    SummaryViewLinks = GetLinks(item.NewGrains)
                 }));
             }
             else
@@ -197,6 +199,50 @@ namespace Derivco.Orniscient.Proxy.Grains
                                         Id = $"{grp.Key.Type}_{grp.Key.Silo}"
                                     }).ToList();
             return changedSummaries;
+
+        }
+
+        private List<Link> GetLinks(IEnumerable<UpdateModel> grains,bool initialCall=false)
+        {
+
+            if (initialCall)
+            {
+                _summaryLinks = new List<Link>();
+            }
+
+
+            //add the orniscient info here......
+            foreach (var updateModel in grains)
+            {
+                var orniscientInfo = OrniscientLinkMap.Instance.GetLinkFromType(updateModel.Type);
+                if (orniscientInfo.HasLinkFromType)
+                {
+                    if (orniscientInfo.LinkType == LinkType.SameId)
+                    {
+                        var linkToGrain = grains.FirstOrDefault(p => p.Id == updateModel.LinkToId);
+                        if (linkToGrain != null)
+                        {
+                            string linkToGrainSummaryId = $"{linkToGrain.Type}_{linkToGrain.Silo}";
+                            string fromGrainSummaryId = $"{updateModel.Type}_{updateModel.Silo}";
+                            var link = _summaryLinks.FirstOrDefault(p => p.FromId == fromGrainSummaryId && p.ToId == linkToGrainSummaryId);
+                            if (link != null)
+                            {
+                                link.Count++;
+                            }
+                            else
+                            {
+                                _summaryLinks.Add(new Link()
+                                {
+                                    Count = 1,
+                                    FromId = fromGrainSummaryId,
+                                    ToId = linkToGrainSummaryId
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+            return _summaryLinks;
         }
 
         public Task OnCompletedAsync()
