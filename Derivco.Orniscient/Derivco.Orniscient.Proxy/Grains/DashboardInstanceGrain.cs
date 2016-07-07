@@ -26,7 +26,7 @@ namespace Derivco.Orniscient.Proxy.Grains
         private List<UpdateModel> _summaries = new List<UpdateModel>();
         private List<Link> _summaryLinks = new List<Link>();
 
-        private int _summaryViewLimit = 2; //100; //TODO : Get this from config when this grain is started.....
+        private int _summaryViewLimit = 100; //100; //TODO : Get this from config when this grain is started.....
 
         public override async Task OnActivateAsync()
         {
@@ -45,14 +45,15 @@ namespace Derivco.Orniscient.Proxy.Grains
 
         public async Task<DiffModel> GetAll(AppliedFilter filter = null)
         {
+
+
             _currentFilter = filter;
             var allGrains = await ApplyFilter(await _dashboardCollectorGrain.GetAll());
+            UpdateGrainSummaryInformation(allGrains, true);
 
             //if we are over the summaryViewLimit we need to keep the summary model details, then the counts will be updated every time new items are pushed here from the DashboardCollecterGrain/
             if (allGrains.Count > _summaryViewLimit)
             {
-                _summaries = GetGrainSummaries(allGrains);
-                _summaryLinks = GetLinks(allGrains,true);
                 return new DiffModel()
                 {
                     SummaryView = allGrains.Count > _summaryViewLimit,
@@ -143,19 +144,7 @@ namespace Derivco.Orniscient.Proxy.Grains
             _logger.Verbose($"OnNextAsync called with {item.NewGrains.Count} items");
             item.NewGrains = await ApplyFilter(item.NewGrains);
 
-            var changedSummaries = GetGrainSummaries(item.NewGrains);
-            foreach (var updateModel in changedSummaries)
-            {
-                var summary = _summaries.FirstOrDefault(p => p.Type == updateModel.Type && p.Silo == updateModel.Silo);
-                if (summary != null)
-                {
-                    summary.Count += updateModel.Count;
-                }
-                else
-                {
-                    _summaries.Add(updateModel);
-                }
-            }
+            UpdateGrainSummaryInformation(item.NewGrains);
 
             if (_summaries != null && _summaries.Sum(p => p.Count) > _summaryViewLimit)
             {
@@ -164,7 +153,7 @@ namespace Derivco.Orniscient.Proxy.Grains
                     SummaryView = true,
                     TypeCounts = item.TypeCounts,
                     NewGrains = _summaries,
-                    SummaryViewLinks = GetLinks(item.NewGrains)
+                    SummaryViewLinks = _summaryLinks
                 }));
             }
             else
@@ -182,6 +171,32 @@ namespace Derivco.Orniscient.Proxy.Grains
                     _subsManager.Notify(s => s.GrainsUpdated(item));
                 }
             }
+        }
+
+        private void UpdateGrainSummaryInformation(List<UpdateModel> newGrains,bool initialCall=false)
+        {
+            if (initialCall)
+            {
+                _summaries.Clear();
+                _summaryLinks.Clear();
+            }
+
+            UpdateSummaryViewLinks(newGrains, initialCall);
+
+            var changedSummaries = GetGrainSummaries(newGrains);
+            foreach (var updateModel in changedSummaries)
+            {
+                var summary = _summaries.FirstOrDefault(p => p.Type == updateModel.Type && p.Silo == updateModel.Silo);
+                if (summary != null)
+                {
+                    summary.Count += updateModel.Count;
+                }
+                else
+                {
+                    _summaries.Add(updateModel);
+                }
+            }
+
         }
 
         private static List<UpdateModel> GetGrainSummaries(IEnumerable<UpdateModel> grains)
@@ -202,7 +217,7 @@ namespace Derivco.Orniscient.Proxy.Grains
 
         }
 
-        private List<Link> GetLinks(IEnumerable<UpdateModel> grains,bool initialCall=false)
+        private void UpdateSummaryViewLinks(IEnumerable<UpdateModel> grains,bool initialCall=false)
         {
 
             if (initialCall)
@@ -242,7 +257,6 @@ namespace Derivco.Orniscient.Proxy.Grains
                     }
                 }
             }
-            return _summaryLinks;
         }
 
         public Task OnCompletedAsync()

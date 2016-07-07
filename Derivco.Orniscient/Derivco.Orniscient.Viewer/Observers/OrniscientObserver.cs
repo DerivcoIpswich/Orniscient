@@ -43,6 +43,9 @@ namespace Derivco.Orniscient.Viewer.Observers
                     $"Pushing down {model.NewGrains.Count} new grains and removing {model.RemovedGrains.Count}");
 
 
+                model.SentDate = DateTime.Now;
+
+
                 //TODO : Only push down to the asking user.
                 //GlobalHost.ConnectionManager.GetHubContext<OrniscientHub>().Clients.User(SessionId.ToString()).grainActivationChanged(model);
                 GlobalHost.ConnectionManager.GetHubContext<OrniscientHub>().Clients.All.grainActivationChanged(model);

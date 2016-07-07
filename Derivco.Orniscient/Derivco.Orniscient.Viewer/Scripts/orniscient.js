@@ -16,14 +16,9 @@
             borderWidth: 3,
             shape: 'dot',
             scaling: {
-                customScalingFunction: function (min, max, total, value) {
-                    return value / total;
-                },
-                min: 5,
-                max: 150,
                 label: {
                     min: 8,
-                    max: 30,
+                    max: 20,
                     drawThreshold: 12,
                     maxVisible: 20
                 }
@@ -92,7 +87,8 @@
 
         $.extend(hub.client, {
             grainActivationChanged: function (diffModel) {
-                console.log('changes sent from server');
+                console.log('changes sent from server 0         - ' + diffModel.SentDate);
+
                 console.log(diffModel);
 
                 window.dispatchEvent(new CustomEvent('orniscientUpdated', { detail: diffModel.TypeCounts }));
@@ -100,6 +96,9 @@
                     addToNodes(grainData, diffModel.SummaryView);
                 });
 
+                if (diffModel.SummaryView === true) {
+                    addSummaryViewEdges(diffModel.SummaryViewLinks);
+                }
             }
         });
         $.connection.hub.logging = true;
@@ -116,6 +115,10 @@
     }
 
     orniscient.getServerData = function getServerData(filter) {
+
+        orniscient.data.nodes.clear();
+        orniscient.data.edges.clear();
+
         console.log('getting server data');
         if (filter === null)
             filter = {};
@@ -125,6 +128,11 @@
                 $.each(data.NewGrains, function (index, grainData) {
                     addToNodes(grainData,data.SummaryView);
                 });
+
+                if (data.SummaryView === true) {
+                    addSummaryViewEdges(data.SummaryViewLinks);
+                }
+
             })
             .fail(function (data) {
                 alert('Oops, we cannot connect to the server...');
@@ -132,6 +140,7 @@
     }
 
     function addToNodes(grainData, isSummaryView) {
+        var nodeLabel = (isSummaryView ? grainData.TypeShortName + '(' + grainData.Count + ')' : grainData.GrainName);
         if (isSummaryView === true) {
 
 
@@ -142,24 +151,20 @@
             }
 
             //find and update 
-            var updateNode = nodes.get(grainData.Id);
+            var updateNode = orniscient.data.nodes.get(grainData.Id);
             if (updateNode != undefined) {
-
+                updateNode.label = nodeLabel;
                 updateNode.value = grainData.Count;
                 orniscient.data.nodes.update(updateNode);
                 return;
             }
         }
 
-        //otherwise add new
-        var label = (isSummaryView ? grainData.TypeShortName + '(' + grainData.Count + ')' : grainData.GrainName);
-        console.log(label);
         var node = {
             id: grainData.Id,
-            label: label,
+            label: nodeLabel,
             color: {
                 border: grainData.Colour
-
             },
             //border: grainData.Colour,
             silo: grainData.Silo,
@@ -168,20 +173,45 @@
             grainId: grainData.GrainId,
             group: grainData.Silo
         }
-        if (grainData.Count > 1) {
+        if (grainData.Count > 1 && isSummaryView === true) {
             node.value = grainData.Count;
         }
 
         //add the node
         orniscient.data.nodes.add(node);
 
-        //add the edge (link)
-        if (grainData.LinkToId !== null && grainData.LinkToId !== '') {
-            orniscient.data.edges.add({
-                id: grainData.TypeShortName + '_' + grainData.GrainId + 'temp',
-                from: grainData.TypeShortName + '_' + grainData.GrainId,
-                to: grainData.LinkToId
-            });
+        if (isSummaryView === false) {
+            //add the edge (link)
+            if (grainData.LinkToId !== null && grainData.LinkToId !== '') {
+                orniscient.data.edges.add({
+                    id: grainData.TypeShortName + '_' + grainData.GrainId + 'temp',
+                    from: grainData.TypeShortName + '_' + grainData.GrainId,
+                    to: grainData.LinkToId,
+                    label:""
+                });
+            }
         }
     }
+
+    function addSummaryViewEdges(links) {
+        $.each(links, function (index, link) {
+            var updateEdge = orniscient.data.edges.get(link.FromId);
+            if (updateEdge != undefined) {
+                updateEdge.value = link.Count;
+                updateEdge.label= link.Count;
+                orniscient.data.edges.update(updateEdge);
+            } else {
+                orniscient.data.edges.add({
+                    id: link.FromId,
+                    from: link.FromId,
+                    to: link.ToId,
+                    value: link.Count,
+                    label : link.Count
+                });
+            }
+        });
+    }
+
+
+
 }(window.orniscient = window.orniscient || {}, jQuery));
