@@ -133,7 +133,7 @@ namespace Derivco.Orniscient.Proxy.Grains
                     }
                     filterList.Add(sourceGrainType, grainIdsGrainType);
                 }
-                grainQuery = grainQuery.Where(p => filterList.ContainsKey(p.Type) && (filterList[p.Type] == null || filterList[p.Type].Contains(p.GrainId)));
+                grainQuery = grainQuery.Where(p => filterList.ContainsKey(p.Type) && (filterList[p.Type] == null || filterList[p.Type].Any()==false || filterList[p.Type].Contains(p.GrainId)));
             }
 
             return grainQuery.ToList();
