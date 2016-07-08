@@ -13,5 +13,6 @@ namespace Derivco.Orniscient.Proxy.Grains
         Task Subscribe(IOrniscientObserver observer);
         Task UnSubscribe(IOrniscientObserver observer);
         Task<GrainType[]> GetGrainTypes();
+        Task SetSummaryViewLimit(int limit);
     }
 }
