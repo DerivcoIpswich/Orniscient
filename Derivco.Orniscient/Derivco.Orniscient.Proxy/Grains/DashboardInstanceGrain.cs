@@ -87,6 +87,12 @@ namespace Derivco.Orniscient.Proxy.Grains
             return _dashboardCollectorGrain.GetGrainTypes();
         }
 
+        public Task SetSummaryViewLimit(int limit)
+        {
+            _summaryViewLimit = limit > 0 ? limit : _summaryViewLimit;
+            return TaskDone.Done;
+        }
+
         private async Task<List<UpdateModel>> ApplyFilter(List<UpdateModel> grains = null)
         {
             _logger.Verbose($"Applying filters");
