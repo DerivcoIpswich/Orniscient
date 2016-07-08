@@ -76,6 +76,7 @@
     <Compile Include="Grains\IDashboardInstanceGrain.cs" />
     <Compile Include="Grains\Models\DiffModel.cs" />
     <Compile Include="Grains\Models\GrainType.cs" />
+    <Compile Include="Grains\Models\Link.cs" />
     <Compile Include="Grains\Models\TypeCounter.cs" />
     <Compile Include="Grains\DashboardCollectorGrain.cs" />
     <Compile Include="Grains\Models\UpdateModel.cs" />

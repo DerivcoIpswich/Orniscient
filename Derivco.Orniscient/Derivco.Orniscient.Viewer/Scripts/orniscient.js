@@ -87,10 +87,6 @@
 
         $.extend(hub.client, {
             grainActivationChanged: function (diffModel) {
-                console.log('changes sent from server 0         - ' + diffModel.SentDate);
-
-                console.log(diffModel);
-
                 window.dispatchEvent(new CustomEvent('orniscientUpdated', { detail: diffModel.TypeCounts }));
                 $.each(diffModel.NewGrains, function (index, grainData) {
                     addToNodes(grainData, diffModel.SummaryView);
@@ -192,15 +188,17 @@
     }
 
     function addSummaryViewEdges(links) {
+        orniscient.data.edges.clear();
         $.each(links, function (index, link) {
-            var updateEdge = orniscient.data.edges.get(link.FromId);
+            var linkId = (link.FromId + '_' + link.ToId).replace(/[^\w]/gi, '.');
+            var updateEdge = orniscient.data.edges.get(linkId);
             if (updateEdge != undefined) {
                 updateEdge.value = link.Count;
                 updateEdge.label= link.Count;
                 orniscient.data.edges.update(updateEdge);
             } else {
                 orniscient.data.edges.add({
-                    id: link.FromId,
+                    id: linkId,
                     from: link.FromId,
                     to: link.ToId,
                     value: link.Count,
@@ -209,7 +207,4 @@
             }
         });
     }
-
-
-
 }(window.orniscient = window.orniscient || {}, jQuery));

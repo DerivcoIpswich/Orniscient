@@ -39,12 +39,7 @@ namespace Derivco.Orniscient.Viewer.Observers
             //TODO : when we are in summray mode return all from the observer....
             if (model != null)
             {
-                Debug.WriteLine(
-                    $"Pushing down {model.NewGrains.Count} new grains and removing {model.RemovedGrains.Count}");
-
-
-                model.SentDate = DateTime.Now;
-
+                Debug.WriteLine($"Pushing down {model.NewGrains.Count} new grains and removing {model.RemovedGrains.Count}");
 
                 //TODO : Only push down to the asking user.
                 //GlobalHost.ConnectionManager.GetHubContext<OrniscientHub>().Clients.User(SessionId.ToString()).grainActivationChanged(model);
