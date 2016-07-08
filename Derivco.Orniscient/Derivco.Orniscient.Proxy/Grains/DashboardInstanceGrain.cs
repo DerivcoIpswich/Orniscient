@@ -22,11 +22,9 @@ namespace Derivco.Orniscient.Proxy.Grains
         private AppliedFilter _currentFilter;
         private Logger _logger;
 
-
-        private List<UpdateModel> _summaries = new List<UpdateModel>();
-        private List<Link> _summaryLinks = new List<Link>();
-
         private int _summaryViewLimit = 100; //100; //TODO : Get this from config when this grain is started.....
+        private List<UpdateModel> _currentStats;
+        private bool InSummaryMode => _currentStats != null && _currentStats.Count > _summaryViewLimit;
 
         public override async Task OnActivateAsync()
         {
@@ -45,28 +43,24 @@ namespace Derivco.Orniscient.Proxy.Grains
 
         public async Task<DiffModel> GetAll(AppliedFilter filter = null)
         {
-
-
             _currentFilter = filter;
-            var allGrains = await ApplyFilter(await _dashboardCollectorGrain.GetAll());
-            UpdateGrainSummaryInformation(allGrains, true);
+            _currentStats = await ApplyFilter(await _dashboardCollectorGrain.GetAll());
 
             //if we are over the summaryViewLimit we need to keep the summary model details, then the counts will be updated every time new items are pushed here from the DashboardCollecterGrain/
-            if (allGrains.Count > _summaryViewLimit)
+            if (InSummaryMode)
             {
                 return new DiffModel()
                 {
-                    SummaryView = allGrains.Count > _summaryViewLimit,
-                    NewGrains = GetGrainSummaries(allGrains),
-                    SummaryViewLinks = _summaryLinks
+                    SummaryView = InSummaryMode,
+                    NewGrains = GetGrainSummaries(),
+                    SummaryViewLinks = GetGrainSummaryLinks()
                 };
             }
 
             //under normal circumstances we just returned the detail grains.
             return new DiffModel()
             {
-                SummaryView = allGrains.Count > _summaryViewLimit,
-                NewGrains = allGrains
+                NewGrains = _currentStats
             };
         }
 
@@ -148,66 +142,71 @@ namespace Derivco.Orniscient.Proxy.Grains
         public async Task OnNextAsync(DiffModel item, StreamSequenceToken token = null)
         {
             _logger.Verbose($"OnNextAsync called with {item.NewGrains.Count} items");
-            item.NewGrains = await ApplyFilter(item.NewGrains);
+            var newGrains = await ApplyFilter(item.NewGrains);
+            _currentStats.AddRange(newGrains);
 
-            UpdateGrainSummaryInformation(item.NewGrains);
-
-            if (_summaries != null && _summaries.Sum(p => p.Count) > _summaryViewLimit)
+            if (InSummaryMode)
             {
-                _subsManager.Notify(s=>s.GrainsUpdated(new DiffModel()
-                { 
-                    SummaryView = true,
+                _subsManager.Notify(s => s.GrainsUpdated(new DiffModel()
+                {
+                    SummaryView = InSummaryMode,
                     TypeCounts = item.TypeCounts,
-                    NewGrains = _summaries,
-                    SummaryViewLinks = _summaryLinks
+                    NewGrains = GetGrainSummaries(),
+                    SummaryViewLinks = GetGrainSummaryLinks()
                 }));
             }
             else
             {
-                //we are in detailed mode
+                item.NewGrains = newGrains;
                 _logger.Verbose($"OnNextAsync called with {item.NewGrains.Count} items");
-                if (item.NewGrains != null && item.NewGrains.Any())
-                {
-                    item.NewGrains = await ApplyFilter(item.NewGrains);
-                }
 
                 if (item.NewGrains != null && (item.NewGrains.Any() || item.RemovedGrains.Any()))
                 {
+                    item.SummaryView = InSummaryMode;
                     _logger.Verbose($"Sending {item.NewGrains.Count} new grains to the observers");
                     _subsManager.Notify(s => s.GrainsUpdated(item));
                 }
             }
         }
 
-        private void UpdateGrainSummaryInformation(List<UpdateModel> newGrains,bool initialCall=false)
+        private List<Link> GetGrainSummaryLinks()
         {
-            if (initialCall)
+            //add the orniscient info here......
+            var summaryLinks = new List<Link>();
+
+            foreach (var updateModel in _currentStats)
             {
-                _summaries.Clear();
-                _summaryLinks.Clear();
-            }
-
-            UpdateSummaryViewLinks(newGrains, initialCall);
-
-            var changedSummaries = GetGrainSummaries(newGrains);
-            foreach (var updateModel in changedSummaries)
-            {
-                var summary = _summaries.FirstOrDefault(p => p.Type == updateModel.Type && p.Silo == updateModel.Silo);
-                if (summary != null)
+                var orniscientInfo = OrniscientLinkMap.Instance.GetLinkFromType(updateModel.Type);
+                if (orniscientInfo.HasLinkFromType)
                 {
-                    summary.Count += updateModel.Count;
-                }
-                else
-                {
-                    _summaries.Add(updateModel);
+                    var linkToGrain = _currentStats.FirstOrDefault(p => p.Id == updateModel.LinkToId);
+                    if (linkToGrain != null)
+                    {
+                        string linkToGrainSummaryId = $"{linkToGrain.Type}_{linkToGrain.Silo}";
+                        string fromGrainSummaryId = $"{updateModel.Type}_{updateModel.Silo}";
+                        var link = summaryLinks.FirstOrDefault(p => p.FromId == fromGrainSummaryId && p.ToId == linkToGrainSummaryId);
+                        if (link != null)
+                        {
+                            link.Count++;
+                        }
+                        else
+                        {
+                            summaryLinks.Add(new Link()
+                            {
+                                Count = 1,
+                                FromId = fromGrainSummaryId,
+                                ToId = linkToGrainSummaryId
+                            });
+                        }
+                    }
                 }
             }
-
+            return summaryLinks;
         }
 
-        private static List<UpdateModel> GetGrainSummaries(IEnumerable<UpdateModel> grains)
+        private List<UpdateModel> GetGrainSummaries()
         {
-            var changedSummaries = (from grain in grains
+            var changedSummaries = (from grain in _currentStats
                                     group grain by new { grain.Type, grain.Silo, grain.Colour }
                                     into grp
                                     select new UpdateModel()
@@ -220,49 +219,6 @@ namespace Derivco.Orniscient.Proxy.Grains
                                         Id = $"{grp.Key.Type}_{grp.Key.Silo}"
                                     }).ToList();
             return changedSummaries;
-
-        }
-
-        private void UpdateSummaryViewLinks(IEnumerable<UpdateModel> grains,bool initialCall=false)
-        {
-
-            if (initialCall)
-            {
-                _summaryLinks = new List<Link>();
-            }
-
-
-            //add the orniscient info here......
-            foreach (var updateModel in grains)
-            {
-                var orniscientInfo = OrniscientLinkMap.Instance.GetLinkFromType(updateModel.Type);
-                if (orniscientInfo.HasLinkFromType)
-                {
-                    if (orniscientInfo.LinkType == LinkType.SameId)
-                    {
-                        var linkToGrain = grains.FirstOrDefault(p => p.Id == updateModel.LinkToId);
-                        if (linkToGrain != null)
-                        {
-                            string linkToGrainSummaryId = $"{linkToGrain.Type}_{linkToGrain.Silo}";
-                            string fromGrainSummaryId = $"{updateModel.Type}_{updateModel.Silo}";
-                            var link = _summaryLinks.FirstOrDefault(p => p.FromId == fromGrainSummaryId && p.ToId == linkToGrainSummaryId);
-                            if (link != null)
-                            {
-                                link.Count++;
-                            }
-                            else
-                            {
-                                _summaryLinks.Add(new Link()
-                                {
-                                    Count = 1,
-                                    FromId = fromGrainSummaryId,
-                                    ToId = linkToGrainSummaryId
-                                });
-                            }
-                        }
-                    }
-                }
-            }
         }
 
         public Task OnCompletedAsync()

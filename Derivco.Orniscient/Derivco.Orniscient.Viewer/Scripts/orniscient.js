@@ -115,7 +115,7 @@
     }
 
     orniscient.getServerData = function getServerData(filter) {
-
+        summaryView = false; //need to reset the summary view here.
         orniscient.data.nodes.clear();
         orniscient.data.edges.clear();
 
@@ -142,8 +142,6 @@
     function addToNodes(grainData, isSummaryView) {
         var nodeLabel = (isSummaryView ? grainData.TypeShortName + '(' + grainData.Count + ')' : grainData.GrainName);
         if (isSummaryView === true) {
-
-
             if (summaryView === false && isSummaryView===true) {
                 orniscient.data.nodes.clear();
                 orniscient.data.edges.clear();

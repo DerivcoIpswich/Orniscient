@@ -54,7 +54,6 @@ var Dashboard = React.createClass({
         var selectedFilters = this.state.selectedFilters;
         var filter = {
             GrainId: this.state.grainIdFilter
-
         }
 
         if (this.state.selectedSilos != null) {
