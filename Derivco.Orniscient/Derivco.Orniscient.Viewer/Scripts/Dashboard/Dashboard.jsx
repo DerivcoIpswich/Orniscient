@@ -54,11 +54,10 @@ var Dashboard = React.createClass({
         var selectedFilters = this.state.selectedFilters;
         var filter = {
             GrainId: this.state.grainIdFilter
-            
         }
 
         if (this.state.selectedSilos != null) {
-            filter.SelectedSilos= this.state.selectedSilos.map(function(silo) { return silo.value });
+            filter.SelectedSilos = this.state.selectedSilos.map(function (silo) { return silo.value });
         }
 
         if (this.state.selectedTypes != null) {
@@ -77,18 +76,34 @@ var Dashboard = React.createClass({
 
         orniscient.getServerData(filter);
     },
-    clearFiltersClicked :function(e) {
+    clearFiltersClicked: function (e) {
         e.preventDefault();
         //clear everything that was set with this.setState({})
         this.setState({
             grainIdFilter: '',
-            selectedSilos: null,            
+            selectedSilos: null,
             selectedTypes: null,
             availableFilters: [],
             selectedFilters: {}
-    });
+        });
 
         orniscient.getServerData();
+    },
+    setSummaryViewLimitClicked: function (e) {
+        e.preventDefault();
+
+        var limit = $('#summaryviewlimit').val();
+        if (limit != undefined) {
+            var requestData = {
+                summaryViewLimit: limit
+            };
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('post', 'dashboard/SetSummaryViewLimit', true);
+            xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+            xhr.onload = function () { this.searchClicked(e); }.bind(this);
+            xhr.send(JSON.stringify(requestData));
+        }
     },
     //React methods
     childContextTypes: {
@@ -153,7 +168,7 @@ var Dashboard = React.createClass({
                             <form>
                                 <div className="form-group">
                                     <label for="grainid">Grain Id</label>
-                                    <input type="text" className="form-control width100" id="grainid" placeholder="Grain Id" onChange={this.filterByGrainId} value={this.state.grainIdFilter}/>
+                                    <input type="text" className="form-control width100" id="grainid" placeholder="Grain Id" onChange={this.filterByGrainId} value={this.state.grainIdFilter} />
                                 </div>
                                 <div className="form-group">
                                     <label for="silo">Silo</label>
@@ -170,10 +185,15 @@ var Dashboard = React.createClass({
                                     </div>
                                     <div className="col-md-12">
                                         <button type="submit" className="btn btn-danger pull-left" onClick={this.clearFiltersClicked}>Clear Filters</button>
-                                     </div>
+                                    </div>
                                 </div>
                                 <DashboardTypeCounts data={this.state.typeCounts} />
                             </form>
+                                <div id="summaryViewLimit">
+                                    <h4>Summary View Limit</h4>
+                                    <input type="text" className="form-control" id="summaryviewlimit" placeholder="Summary View Limit" />
+                                    <button type="submit" className="btn btn-success pull-right" onClick={this.setSummaryViewLimitClicked}>Set Limit</button>
+                                </div>
                             </div>
                          </div>
                         </div>

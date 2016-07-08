@@ -61,5 +61,12 @@ namespace Derivco.Orniscient.Viewer.Controllers
             var filters = await typeFilterGrain.GetFilters(grainInfoRequest.GrainType,grainInfoRequest.GrainId);
             return Json(filters);
         }
+
+        [HttpPost]
+        public async Task SetSummaryViewLimit(int summaryViewLimit)
+        {
+            var dashboardInstanceGrain = GrainClient.GrainFactory.GetGrain<IDashboardInstanceGrain>(0);
+            await dashboardInstanceGrain.SetSummaryViewLimit(summaryViewLimit);
+        }
     }
 }

@@ -25,16 +25,18 @@ namespace Derivco.Orniscient.Viewer.Observers
             _dashboardInstanceGrain = GrainClient.GrainFactory.GetGrain<IDashboardInstanceGrain>(sessionId);
             _observer = GrainClient.GrainFactory.CreateObjectReference<IOrniscientObserver>(this).Result;
             _dashboardInstanceGrain.Subscribe(_observer);
-            
+
         }
 
-        public async Task<List<UpdateModel>> GetCurrentSnapshot(AppliedFilter filter = null)
+        public async Task<DiffModel> GetCurrentSnapshot(AppliedFilter filter = null)
         {
-            return await _dashboardInstanceGrain.GetAll(filter);
+            var diffmodel = await _dashboardInstanceGrain.GetAll(filter);
+            return diffmodel;
         }
 
         public void GrainsUpdated(DiffModel model)
         {
+            //TODO : when we are in summray mode return all from the observer....
             if (model != null)
             {
                 Debug.WriteLine($"Pushing down {model.NewGrains.Count} new grains and removing {model.RemovedGrains.Count}");
@@ -44,7 +46,6 @@ namespace Derivco.Orniscient.Viewer.Observers
                 GlobalHost.ConnectionManager.GetHubContext<OrniscientHub>().Clients.All.grainActivationChanged(model);
             }
         }
-
-
     }
 }
+

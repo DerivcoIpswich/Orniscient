@@ -6,7 +6,8 @@
         edges = new vis.DataSet([]),
         typeCounts = [],
         container,
-        arrows = { to: { scaleFactor: 1 } };
+        arrows = { to: { scaleFactor: 1 } },
+        summaryView = false;
 
     var options = {
         autoResize: true,
@@ -15,11 +16,9 @@
             borderWidth: 3,
             shape: 'dot',
             scaling: {
-                min: 10,
-                max: 30,
                 label: {
                     min: 8,
-                    max: 30,
+                    max: 20,
                     drawThreshold: 12,
                     maxVisible: 20
                 }
@@ -88,12 +87,14 @@
 
         $.extend(hub.client, {
             grainActivationChanged: function (diffModel) {
-                console.log('changes sent from server');
-                console.log(diffModel);
                 window.dispatchEvent(new CustomEvent('orniscientUpdated', { detail: diffModel.TypeCounts }));
                 $.each(diffModel.NewGrains, function (index, grainData) {
-                    addToNodes(grainData);
+                    addToNodes(grainData, diffModel.SummaryView);
                 });
+
+                if (diffModel.SummaryView === true) {
+                    addSummaryViewEdges(diffModel.SummaryViewLinks);
+                }
             }
         });
         $.connection.hub.logging = true;
@@ -110,33 +111,54 @@
     }
 
     orniscient.getServerData = function getServerData(filter) {
+        summaryView = false; //need to reset the summary view here.
+        orniscient.data.nodes.clear();
+        orniscient.data.edges.clear();
+
         console.log('getting server data');
         if (filter === null)
             filter = {};
 
-        orniscient.data.nodes.clear();
-        orniscient.data.edges.clear();
-
         return hub.server.GetCurrentSnapshot(filter)
             .done(function (data) {
-                $.each(data, function (index, grainData) {
-                    addToNodes(grainData);
+                $.each(data.NewGrains, function (index, grainData) {
+                    addToNodes(grainData,data.SummaryView);
                 });
+
+                if (data.SummaryView === true) {
+                    addSummaryViewEdges(data.SummaryViewLinks);
+                }
+
             })
             .fail(function (data) {
                 alert('Oops, we cannot connect to the server...');
             });
     }
 
-    function addToNodes(grainData) {
+    function addToNodes(grainData, isSummaryView) {
+        var nodeLabel = (isSummaryView ? grainData.TypeShortName + '(' + grainData.Count + ')' : grainData.GrainName);
+        if (isSummaryView === true) {
+            if (summaryView === false && isSummaryView===true) {
+                orniscient.data.nodes.clear();
+                orniscient.data.edges.clear();
+                summaryView = true;
+            }
 
-        //add the node
-        orniscient.data.nodes.add({
+            //find and update 
+            var updateNode = orniscient.data.nodes.get(grainData.Id);
+            if (updateNode != undefined) {
+                updateNode.label = nodeLabel;
+                updateNode.value = grainData.Count;
+                orniscient.data.nodes.update(updateNode);
+                return;
+            }
+        }
+
+        var node = {
             id: grainData.Id,
-            label: grainData.GrainName,
+            label: nodeLabel,
             color: {
-                border :grainData.Colour
-                
+                border: grainData.Colour
             },
             //border: grainData.Colour,
             silo: grainData.Silo,
@@ -144,15 +166,45 @@
             graintype: grainData.Type,
             grainId: grainData.GrainId,
             group: grainData.Silo
-        });
-
-        //add the edge (link)
-        if (grainData.LinkToId !== null && grainData.LinkToId !== '') {
-            orniscient.data.edges.add({
-                id: grainData.TypeShortName +'_'+ grainData.GrainId + 'temp',
-                from: grainData.TypeShortName + '_' + grainData.GrainId,
-                to: grainData.LinkToId
-            });
         }
+        if (grainData.Count > 1 && isSummaryView === true) {
+            node.value = grainData.Count;
+        }
+
+        //add the node
+        orniscient.data.nodes.add(node);
+
+        if (isSummaryView === false) {
+            //add the edge (link)
+            if (grainData.LinkToId !== null && grainData.LinkToId !== '') {
+                orniscient.data.edges.add({
+                    id: grainData.TypeShortName + '_' + grainData.GrainId + 'temp',
+                    from: grainData.TypeShortName + '_' + grainData.GrainId,
+                    to: grainData.LinkToId,
+                    label:""
+                });
+            }
+        }
+    }
+
+    function addSummaryViewEdges(links) {
+        orniscient.data.edges.clear();
+        $.each(links, function (index, link) {
+            var linkId = (link.FromId + '_' + link.ToId).replace(/[^\w]/gi, '.');
+            var updateEdge = orniscient.data.edges.get(linkId);
+            if (updateEdge != undefined) {
+                updateEdge.value = link.Count;
+                updateEdge.label= link.Count;
+                orniscient.data.edges.update(updateEdge);
+            } else {
+                orniscient.data.edges.add({
+                    id: linkId,
+                    from: link.FromId,
+                    to: link.ToId,
+                    value: link.Count,
+                    label : link.Count
+                });
+            }
+        });
     }
 }(window.orniscient = window.orniscient || {}, jQuery));
