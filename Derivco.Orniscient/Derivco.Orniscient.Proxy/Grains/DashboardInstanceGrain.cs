@@ -113,7 +113,7 @@ namespace Derivco.Orniscient.Proxy.Grains
                 foreach (var sourceGrainType in sourceGrainTypes)
                 {
                     var appliedTypeFilter = _currentFilter.TypeFilters.FirstOrDefault(p => p.TypeName == sourceGrainType);
-                    List<string> grainIdsGrainType = null;
+                    var grainIdsGrainType = new List<string>();
 
                     if (appliedTypeFilter?.SelectedValues != null && appliedTypeFilter.SelectedValues.Any())
                     {
@@ -123,12 +123,12 @@ namespace Derivco.Orniscient.Proxy.Grains
 
                         foreach (var currentTypeFilter in currentTypeFilters)
                         {
-                            grainIdsGrainType = currentTypeFilter.Filters.
+                            grainIdsGrainType.AddRange(currentTypeFilter.Filters.
                                 Where(
                                     p =>
                                         appliedTypeFilter.SelectedValues.ContainsKey(p.FilterName) &&
                                         appliedTypeFilter.SelectedValues[p.FilterName].Contains(p.Value)
-                                ).Select(p => p.GrainId).ToList();
+                                ).Select(p => p.GrainId).ToList());
                         }
                     }
                     filterList.Add(sourceGrainType, grainIdsGrainType);
