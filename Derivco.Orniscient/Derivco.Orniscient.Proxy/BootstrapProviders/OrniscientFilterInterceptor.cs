@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Derivco.Orniscient.Proxy.Grains;
 using Derivco.Orniscient.Proxy.Grains.Filters;
 using Orleans;
 using Orleans.Providers;
@@ -56,8 +57,7 @@ namespace Derivco.Orniscient.Proxy.BootstrapProviders
                 var result = await filterableGrain.GetFilters();
                 if (result != null)
                 {
-                    //Now we just need to send the filters up to some grain that will aggregate them....??????HOW BEST WE DO THAT.............
-                    var filterGrain = providerRuntime.GrainFactory.GetGrain<IFilterGrain>(Guid.Empty);
+                    var filterGrain = providerRuntime.GrainFactory.GetGrain<ITypeFilterGrain>(grain.GetType().FullName);
                     await filterGrain.RegisterFilter(grainName, filterableGrain.GetPrimaryKey().ToString(), result);
 
                     var filterString = string.Join(",", result.Select(p => $"{p.FilterName} : {p.Value}"));

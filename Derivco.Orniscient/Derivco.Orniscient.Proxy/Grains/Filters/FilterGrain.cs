@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Derivco.Orniscient.Proxy.Filters;
@@ -13,7 +12,7 @@ namespace Derivco.Orniscient.Proxy.Grains.Filters
         private List<TypeFilter> _filters;
         private Logger _logger;
 
-        public override async  Task OnActivateAsync()
+        public override async Task OnActivateAsync()
         {
             _logger = GetLogger("FilterGrain");
             _filters = new List<TypeFilter>();
@@ -25,7 +24,7 @@ namespace Derivco.Orniscient.Proxy.Grains.Filters
             return Task.FromResult(_filters);
         }
 
-        public Task<List<GroupedTypeFilter>>  GetGroupedFilterValues(string[] types)
+        public Task<List<GroupedTypeFilter>> GetGroupedFilterValues(string[] types)
         {
             var result = new List<GroupedTypeFilter>();
 
@@ -66,15 +65,9 @@ namespace Derivco.Orniscient.Proxy.Grains.Filters
             return typefilter != null ? Task.FromResult(typefilter.Filters.Where(p => p.GrainId == grainId).ToList()) : Task.FromResult<List<FilterRow>>(null);
         }
 
-        public Task RegisterFilter(string typeName, string grainId, FilterRow[] filters)
+        public Task UpdateTypeFilters(string typeName, IEnumerable<FilterRow> filters)
         {
-            _logger.Verbose($"Filters Registered for Grain[{typeName},Id:{grainId}][{string.Join(",", filters.Select(p => $"{p.FilterName} : {p.Value}"))}]");
-            filters.All(p =>
-            {
-                p.GrainId = grainId;
-                return true;
-            });
-
+            _logger.Verbose($"Filters Registered for Type Grain[{typeName}, Count : {filters.Count()}]");
             var typeFilter = _filters.FirstOrDefault(p => p.TypeName == typeName);
             if (typeFilter != null)
             {
@@ -82,7 +75,7 @@ namespace Derivco.Orniscient.Proxy.Grains.Filters
             }
             else
             {
-                _filters.Add(new TypeFilter() {TypeName = typeName,Filters = filters.ToList()});
+                _filters.Add(new TypeFilter() { TypeName = typeName, Filters = filters.ToList() });
             }
             return TaskDone.Done;
         }

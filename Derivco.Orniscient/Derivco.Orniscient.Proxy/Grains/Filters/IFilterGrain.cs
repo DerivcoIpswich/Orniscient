@@ -12,6 +12,6 @@ namespace Derivco.Orniscient.Proxy.Grains.Filters
         Task<TypeFilter> GetFilter(string type);
         Task KeepAlive();
         Task<List<FilterRow>> GetFilters(string type, string grainId);
-        Task RegisterFilter(string typeName,string grainId, FilterRow[] filters);
+        Task UpdateTypeFilters(string typeName, IEnumerable<FilterRow> filters);
     }
 }
