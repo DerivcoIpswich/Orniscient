@@ -36,7 +36,7 @@ namespace Derivco.Orniscient.Proxy.BootstrapProviders
                     getTimerFunc(providerRuntime,grain),
                     null,
                     TimeSpan.FromSeconds(0),
-                    TimeSpan.FromSeconds(5)
+                    TimeSpan.FromSeconds(20)
                 });
 
                 _grainsWhereTimerWasRegistered.Add(((Orleans.Grain)grain).IdentityString);

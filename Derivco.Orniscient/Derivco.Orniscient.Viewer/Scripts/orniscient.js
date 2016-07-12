@@ -105,7 +105,6 @@
         $.connection.hub.start().then(init);
     }
 
-
     function init() {
         return orniscient.getServerData();
     }

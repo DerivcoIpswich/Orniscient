@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 
 namespace Derivco.Orniscient.Proxy.Grains.Models
@@ -15,9 +14,6 @@ namespace Derivco.Orniscient.Proxy.Grains.Models
         public List<TypeCounter> TypeCounts { get; set; }
         public bool SummaryView { get; set; }
         public List<Link> SummaryViewLinks { get; set; }
-
         public long SessionId { get; set; }
-        public Guid StreamIdIWasSentOn { get; set; }
-
     }
 }

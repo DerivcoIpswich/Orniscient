@@ -1,12 +1,9 @@
 using System;
-using System.Diagnostics;
-using System.Linq;
 using System.Threading.Tasks;
-using Derivco.Orniscient.Proxy.Extensions;
+using Derivco.Orniscient.Proxy;
 using Derivco.Orniscient.Proxy.Filters;
 using Derivco.Orniscient.Proxy.Grains;
 using Derivco.Orniscient.Proxy.Grains.Models;
-using Derivco.Orniscient.Proxy.Observers;
 using Derivco.Orniscient.Viewer.Hubs;
 using Microsoft.AspNet.SignalR;
 using Orleans;
@@ -24,15 +21,15 @@ namespace Derivco.Orniscient.Viewer.Observers
 
         public OrniscientObserver()
         {
-            var streamprovider = GrainClient.GetStreamProvider("SMSProvider");
-            _stream = streamprovider.GetStream<DiffModel>(Guid.Empty, "OrniscientClient");
+            var streamprovider = GrainClient.GetStreamProvider(StreamKeys.StreamProvider);
+            _stream = streamprovider.GetStream<DiffModel>(Guid.Empty, StreamKeys.OrniscientClient);
             _stream.SubscribeAsync(this);
         }
 
         public async Task<DiffModel> GetCurrentSnapshot(AppliedFilter filter = null,int sessionId=0)
         {
-            var _dashboardInstanceGrain = GrainClient.GrainFactory.GetGrain<IDashboardInstanceGrain>(sessionId);
-            var diffmodel = await _dashboardInstanceGrain.GetAll(filter);
+            var dashboardInstanceGrain = GrainClient.GrainFactory.GetGrain<IDashboardInstanceGrain>(sessionId);
+            var diffmodel = await dashboardInstanceGrain.GetAll(filter);
             return diffmodel;
         }
 
@@ -40,7 +37,6 @@ namespace Derivco.Orniscient.Viewer.Observers
         {
             if (item != null)
             {
-                //Debug.WriteLine($"OrniscientObserver (GrainsUpdated) -  DiffModel Session ID: {item.SessionId} ,Stream Id :{StreamId},DiffModelSent on Stream : {item.StreamIdIWasSentOn}, Types : {string.Join("|", item.NewGrains.Select(p => p.Type))}");
                 GlobalHost.ConnectionManager.GetHubContext<OrniscientHub>().Clients.Group(item.SessionId.ToString()).grainActivationChanged(item);
             }
             return TaskDone.Done;

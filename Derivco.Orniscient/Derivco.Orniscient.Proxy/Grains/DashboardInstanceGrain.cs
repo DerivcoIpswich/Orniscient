@@ -1,14 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using Derivco.Orniscient.Proxy.Attributes;
-using Derivco.Orniscient.Proxy.Extensions;
 using Derivco.Orniscient.Proxy.Filters;
 using Derivco.Orniscient.Proxy.Grains.Filters;
 using Derivco.Orniscient.Proxy.Grains.Models;
-using Derivco.Orniscient.Proxy.Observers;
 using Orleans;
 using Orleans.Runtime;
 using Orleans.Streams;
@@ -22,7 +18,7 @@ namespace Derivco.Orniscient.Proxy.Grains
         private Logger _logger;
         private IStreamProvider _streamProvider;
 
-        private int _sessionId => (int) this.GetPrimaryKeyLong();
+        private int SessionId => (int) this.GetPrimaryKeyLong();
         
         private int _summaryViewLimit = 100; 
         private List<UpdateModel> _currentStats;
@@ -37,22 +33,20 @@ namespace Derivco.Orniscient.Proxy.Grains
             _dashboardCollectorGrain = GrainFactory.GetGrain<IDashboardCollectorGrain>(Guid.Empty);
 
             _streamProvider = GetStreamProvider(StreamKeys.StreamProvider);
-
             var stream = _streamProvider.GetStream<DiffModel>(Guid.Empty, StreamKeys.OrniscientChanges);
             await stream.SubscribeAsync(OnNextAsync);
 
-            _dashboardInstanceStream = _streamProvider.GetStream<DiffModel>(Guid.Empty, "OrniscientClient");
-
+            _dashboardInstanceStream = _streamProvider.GetStream<DiffModel>(Guid.Empty, StreamKeys.OrniscientClient);
             _logger.Info("DashboardInstanceGrain Activated.");
         }
 
         public async Task<DiffModel> GetAll(AppliedFilter filter = null)
         {
-            _logger.Info($"GetAll called DashboardInstance Grain [Id : {this.GetPrimaryKeyLong()}][CurrentStatsCount : {_currentStats?.Count}]");
+            _logger.Verbose($"GetAll called DashboardInstance Grain [Id : {this.GetPrimaryKeyLong()}][CurrentStatsCount : {_currentStats?.Count}]");
             _currentFilter = filter;
             _currentStats = await ApplyFilter(await _dashboardCollectorGrain.GetAll());
 
-            _logger.Info($"GetAll called DashboardInstance Grain [Id : {this.GetPrimaryKeyLong()}][CurrentStatsCount : {_currentStats?.Count}]");
+            _logger.Verbose($"GetAll called DashboardInstance Grain [Id : {this.GetPrimaryKeyLong()}][CurrentStatsCount : {_currentStats?.Count}]");
 
             //if we are over the summaryViewLimit we need to keep the summary model details, then the counts will be updated every time new items are pushed here from the DashboardCollecterGrain/
             if (InSummaryMode)
@@ -88,8 +82,6 @@ namespace Derivco.Orniscient.Proxy.Grains
             _logger.Verbose($"Applying filters");
             if (_currentFilter == null || grains == null)
                 return grains;
-
-            _logger.Info($"ApplyFilter - SessionId : {this.GetPrimaryKeyLong()},Filter : {string.Join("|||",_currentFilter.TypeFilters.Select(p=>p.TypeName))}");
 
             //order of filtering applies here.
             //1. Grain Id & Silo
@@ -143,20 +135,16 @@ namespace Derivco.Orniscient.Proxy.Grains
             var newGrains = await ApplyFilter(item.NewGrains);
             _currentStats.AddRange(newGrains);
 
-         
-            Debug.WriteLine($"---------------SessionID: {_sessionId}, streamID: {_dashboardInstanceStream.Guid}, session.toGuid: {_sessionId.ToGuid()}");
             if (InSummaryMode)
             {
-                //push to stream
-                
                 await _dashboardInstanceStream.OnNextAsync(new DiffModel()
                 {
                     SummaryView = InSummaryMode,
                     TypeCounts = item.TypeCounts,
                     NewGrains = GetGrainSummaries(),
                     SummaryViewLinks = GetGrainSummaryLinks(),
-                    SessionId = this.GetPrimaryKeyLong(),
-                    StreamIdIWasSentOn = _dashboardInstanceStream.Guid
+                    SessionId = SessionId
+                    
                 });
             }
             else
@@ -167,11 +155,7 @@ namespace Derivco.Orniscient.Proxy.Grains
                 if (item.NewGrains != null && (item.NewGrains.Any() || item.RemovedGrains.Any()))
                 {
                     item.SummaryView = InSummaryMode;
-                    item.StreamIdIWasSentOn = _dashboardInstanceStream.Guid;
-                    item.SessionId = this.GetPrimaryKeyLong();
-                    _logger.Verbose($"Sending {item.NewGrains.Count} new grains to the observers");
-
-                    _logger.Info($"OnNextAsync - SessionId : {this.GetPrimaryKeyLong()},Stream Id : {_dashboardInstanceStream.Guid}, Pushing Types : {string.Join("|||",newGrains.GroupBy(g=>g.Type).Select(g=>g.Key))}");
+                    item.SessionId = SessionId;
                     await _dashboardInstanceStream.OnNextAsync(item);
                 }
             }

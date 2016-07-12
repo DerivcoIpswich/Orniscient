@@ -4,7 +4,6 @@ using System.Web.Mvc;
 using Derivco.Orniscient.Proxy.Grains;
 using Derivco.Orniscient.Proxy.Grains.Filters;
 using Derivco.Orniscient.Viewer.Models.Dashboard;
-using Derivco.Orniscient.Viewer.Observers;
 using Orleans;
 
 namespace Derivco.Orniscient.Viewer.Controllers
@@ -12,7 +11,7 @@ namespace Derivco.Orniscient.Viewer.Controllers
     public class DashboardController : Controller
     {
         // GET: Dashboard
-        public async Task<ActionResult> Index(int id=0)
+        public async Task<ActionResult> Index(int id = 0)
         {
             try
             {
@@ -57,12 +56,12 @@ namespace Derivco.Orniscient.Viewer.Controllers
         public async Task<ActionResult> GetGrainInfo(GetGrainInfoRequest grainInfoRequest)
         {
             var typeFilterGrain = GrainClient.GrainFactory.GetGrain<IFilterGrain>(Guid.Empty);
-            var filters = await typeFilterGrain.GetFilters(grainInfoRequest.GrainType,grainInfoRequest.GrainId);
+            var filters = await typeFilterGrain.GetFilters(grainInfoRequest.GrainType, grainInfoRequest.GrainId);
             return Json(filters);
         }
 
         [HttpPost]
-        public async Task SetSummaryViewLimit(int summaryViewLimit,int sessionId=0)
+        public async Task SetSummaryViewLimit(int summaryViewLimit, int sessionId = 0)
         {
             var dashboardInstanceGrain = GrainClient.GrainFactory.GetGrain<IDashboardInstanceGrain>(sessionId);
             await dashboardInstanceGrain.SetSummaryViewLimit(summaryViewLimit);

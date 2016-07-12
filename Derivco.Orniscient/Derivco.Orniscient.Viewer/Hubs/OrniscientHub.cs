@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Derivco.Orniscient.Proxy.Filters;
 using Derivco.Orniscient.Proxy.Grains.Models;
 using Derivco.Orniscient.Viewer.Observers;
@@ -13,17 +12,17 @@ namespace Derivco.Orniscient.Viewer.Hubs
     {
         public override Task OnConnected()
         {
-            Groups.Add(this.Context.ConnectionId, _sessionId.ToString());
+            Groups.Add(this.Context.ConnectionId, SessionId.ToString());
             return base.OnConnected();
         }
 
         [HubMethodName("GetCurrentSnapshot")]
         public async Task<DiffModel> GetCurrentSnapshot(AppliedFilter filter = null)
         {
-            return await OrniscientObserver.Instance.GetCurrentSnapshot(filter, _sessionId);
+            return await OrniscientObserver.Instance.GetCurrentSnapshot(filter, SessionId);
         }
 
-        private int _sessionId
+        private int SessionId
         {
             get
             {
