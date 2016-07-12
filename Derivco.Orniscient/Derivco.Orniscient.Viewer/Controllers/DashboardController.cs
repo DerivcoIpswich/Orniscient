@@ -19,8 +19,7 @@ namespace Derivco.Orniscient.Viewer.Controllers
                 if (!GrainClient.IsInitialized)
                 {
                     GrainClient.Initialize(Server.MapPath("~/DevTestClientConfiguration.xml"));
-
-                    await OrniscientObserverContainer.Instance.SetTypeFilter(p=>p.FullName.Contains("TestGrains"));
+                    //await OrniscientObserverContainer.Instance.SetTypeFilter(p=>p.FullName.Contains("TestGrains"));
                 }
                 return View();
             }
@@ -63,9 +62,9 @@ namespace Derivco.Orniscient.Viewer.Controllers
         }
 
         [HttpPost]
-        public async Task SetSummaryViewLimit(int summaryViewLimit)
+        public async Task SetSummaryViewLimit(int summaryViewLimit,int sessionId=0)
         {
-            var dashboardInstanceGrain = GrainClient.GrainFactory.GetGrain<IDashboardInstanceGrain>(0);
+            var dashboardInstanceGrain = GrainClient.GrainFactory.GetGrain<IDashboardInstanceGrain>(sessionId);
             await dashboardInstanceGrain.SetSummaryViewLimit(summaryViewLimit);
         }
     }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -37,7 +36,7 @@ namespace Derivco.Orniscient.Proxy.BootstrapProviders
                     getTimerFunc(providerRuntime,grain),
                     null,
                     TimeSpan.FromSeconds(0),
-                    TimeSpan.FromSeconds(500)
+                    TimeSpan.FromSeconds(5)
                 });
 
                 _grainsWhereTimerWasRegistered.Add(((Orleans.Grain)grain).IdentityString);

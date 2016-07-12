@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Derivco.Orniscient.Proxy.Attributes;
@@ -16,7 +15,7 @@ namespace Derivco.Orniscient.Proxy.Grains
         private List<UpdateModel> CurrentStats { get; set; }
         private IManagementGrain _managementGrain;
         private GrainType[] _filteredTypes = null;
-        private Orleans.Runtime.Logger _logger;
+        private Logger _logger;
 
         public override async Task OnActivateAsync()
         {
@@ -26,7 +25,7 @@ namespace Derivco.Orniscient.Proxy.Grains
             _managementGrain = GrainFactory.GetGrain<IManagementGrain>(0);
             //Timer to send the changes down to the dashboard every x minutes....
             await _Hydrate();
-            RegisterTimer(p => GetChanges(), null, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(5));
+            RegisterTimer(p => GetChanges(), null, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(6));
             await GrainFactory.GetGrain<IFilterGrain>(Guid.Empty).KeepAlive();
         }
 
@@ -135,6 +134,8 @@ namespace Derivco.Orniscient.Proxy.Grains
             _logger.Verbose($"Sending {diffModel.TypeCounts?.Count} TypeCounts from DashboardCollectorGrain");
 
             var streamProvider = GetStreamProvider(StreamKeys.StreamProvider);
+
+            _logger.Info($"About to send the changes to the dashboardInstanceGrains");
             var stream = streamProvider.GetStream<DiffModel>(Guid.Empty, StreamKeys.OrniscientChanges);
             await stream.OnNextAsync(diffModel);
             return diffModel;

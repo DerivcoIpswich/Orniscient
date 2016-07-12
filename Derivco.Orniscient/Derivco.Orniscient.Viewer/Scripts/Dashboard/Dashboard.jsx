@@ -95,7 +95,8 @@ var Dashboard = React.createClass({
         var limit = $('#summaryviewlimit').val();
         if (limit != undefined) {
             var requestData = {
-                summaryViewLimit: limit
+                summaryViewLimit: limit,
+                sessionId: orniscient.getSessionId()
             };
 
             var xhr = new XMLHttpRequest();
