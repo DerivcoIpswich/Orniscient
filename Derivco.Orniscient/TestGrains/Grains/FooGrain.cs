@@ -15,11 +15,11 @@ namespace TestGrains.Grains
         public override async Task OnActivateAsync()
         {
             //creating dummy filters for testing
-            string[] _sports = new[] {"Rugby", "Soccer", "Pool" };//, "Pool", "Darts", "Formula 1", "Horse Racing" };
+            string[] _sports = new[] {"Rugby", "Soccer",  "Pool", "Darts", "Formula 1", "Horse Racing" };
             var rand = new Random();
             this._filters = new[]
             {
-                new FilterRow() {FilterName = "sport", Value =_sports[rand.Next(0,2)]},
+                new FilterRow() {FilterName = "sport", Value =_sports[rand.Next(0,5)]},
                 new FilterRow() {FilterName = "league", Value = $"some league name"} //include the id here, just to see the difference
             };
 

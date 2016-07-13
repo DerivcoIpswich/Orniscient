@@ -73,7 +73,7 @@ namespace Derivco.Orniscient.Proxy.Grains.Filters
             {
                 foreach (var filterRow in filters)
                 {
-                    var existingFilter = typeFilter.Filters.FirstOrDefault(p => p.FilterName == filterRow.FilterName);
+                    var existingFilter = typeFilter.Filters.FirstOrDefault(p => p.FilterName == filterRow.FilterName && p.GrainId==filterRow.GrainId);
                     if (existingFilter != null)
                     {
                         existingFilter.Value = filterRow.Value;

@@ -13,7 +13,7 @@ namespace TestGrains.Grains
         public override async Task OnActivateAsync()
         {
             _streamProvider = GetStreamProvider("SMSProvider");
-            RegisterTimer(p => AddGrains(2) ,null, TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(10));
+            RegisterTimer(p => AddGrains(10) ,null, TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(5));
             await base.OnActivateAsync();
         }
 

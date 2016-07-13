@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Derivco.Orniscient.Proxy;
 using Derivco.Orniscient.Proxy.Filters;
@@ -33,6 +34,8 @@ namespace Derivco.Orniscient.Viewer.Observers
             return diffmodel;
         }
 
+        
+
         public Task OnNextAsync(DiffModel item, StreamSequenceToken token = null)
         {
             if (item != null)
@@ -51,6 +54,17 @@ namespace Derivco.Orniscient.Viewer.Observers
         {
             return TaskDone.Done;
         }
+
+        public async Task SetTypeFilter(Func<GrainType, bool> filter)
+        {
+            if (filter != null)
+            {
+                var dashboardCollecterGrain = GrainClient.GrainFactory.GetGrain<IDashboardCollectorGrain>(Guid.Empty);
+                var availableTypes = await dashboardCollecterGrain.GetGrainTypes();
+                await dashboardCollecterGrain.SetTypeFilter(availableTypes.Where(filter).ToArray());
+            }
+        }
+
     }
 }
 
