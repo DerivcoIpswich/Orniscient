@@ -5,11 +5,9 @@ var Dashboard = React.createClass({
         this.setState({ grainIdFilter: event.target.value });
     },
     siloSelected(val) {
-        //console.log("Selected Silo: " + val);
         this.setState({ selectedSilos: val });
     },
     getFilters: function (selectedTypes) {
-
         var requestData = {
             Types: selectedTypes != null && selectedTypes.length > 0 ? selectedTypes.map(function (a) { return a.value; }) : {}
         };
@@ -126,7 +124,6 @@ var Dashboard = React.createClass({
         };
     },
     componentWillMount: function () {
-        console.log('componentWillMount is callled');
         var xhr = new XMLHttpRequest();
         xhr.open('get', orniscienturls.dashboardInfo, true);
         xhr.onload = function () {
@@ -139,13 +136,10 @@ var Dashboard = React.createClass({
         xhr.send();
     },
     orniscientUpdated: function (typeCounts, a, b) {
-        //console.log('orniscientUpdated was called, need to re-render the form now......');
         this.setState({ typeCounts: typeCounts.detail });
     },
     componentDidMount: function () {
-        //console.log('componentDidMount is called.');
         window.addEventListener('orniscientUpdated', this.orniscientUpdated);
-        console.log('Init orniscient now');
         orniscient.init();
     },
 
