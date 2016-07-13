@@ -156,7 +156,9 @@ namespace Derivco.Orniscient.Proxy.Grains
         public async Task<GrainType[]> GetGrainTypes()
         {
             var types = await _managementGrain.GetActiveGrainTypes();
-            return types?.Select(p => new GrainType(p)).ToArray();
+            return types?.Where(p => _filteredTypes == null || _filteredTypes.Any(ft => ft.FullName == p))
+                .Select(p => new GrainType(p))
+                .ToArray();
         }
     }
 }

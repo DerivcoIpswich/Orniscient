@@ -4,9 +4,7 @@
     var hub = $.connection.orniscientHub,
         nodes = new vis.DataSet([]),
         edges = new vis.DataSet([]),
-        typeCounts = [],
         container,
-        arrows = { to: { scaleFactor: 1 } },
         summaryView = false;
 
     var options = {
@@ -41,72 +39,15 @@
         console.log('orniscient.init was called');
         container = document.getElementById('mynetwork');
         var network = new vis.Network(container, orniscient.data, options);
-        network.on("selectNode", function (params) {
-            if (params.nodes.length == 1) {
-                if (network.isCluster(params.nodes[0]) == true) {
-                    network.openCluster(params.nodes[0]);
-                }
-            }
-        }).
-            on("hoverNode", function (params) {
-                //get the node's information from the server.
-                var node = nodes.get(params.node);
-                if (node.ServerCalled !== true) {
+        network.on("hoverNode", onHover);
 
-                    var requestData = {
-                        GrainType: node.graintype,
-                        GrainId: node.grainId
-                    };
-
-                    var xhr = new XMLHttpRequest();
-                    xhr.open('post', orniscienturls.getGrainInfo, true);
-                    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-                    xhr.onload = function () {
-                        var grainInfo = [];
-                        var infoRows = "";
-
-                        //add the info we can for the grain. As per Spencer....
-                        infoRows = infoRows + "<tr><td><strong>Grain Id</strong></td><td>" + node.grainId + "</td></tr>";
-                        infoRows = infoRows + "<tr><td><strong>Silo</strong></td><td>" + node.silo + "</td></tr>";
-                        infoRows = infoRows + "<tr><td><strong>Grain Type</strong></td><td>" + node.graintype + "</td></tr>";
-
-                        if (xhr.responseText != null && xhr.responseText !== "") {
-                            grainInfo = JSON.parse(xhr.responseText);
-                            for (var i = 0; i < grainInfo.length; i++) {
-                                infoRows = infoRows + "<tr><td><strong>" + grainInfo[i].FilterName + "<strong></td><td>" + grainInfo[i].Value + "</td></tr>";
-                            }
-                        }
-                        node.title = "<h5>" + node.label + "</h5><table class='table'>" + infoRows + "</table>";
-                        node.ServerCalled = false; //TODO : Change this back
-                        orniscient.data.nodes.update(node);
-                    }
-                    xhr.send(JSON.stringify(requestData));
-                }
-            });
-
-
-        $.extend(hub.client, {
-            grainActivationChanged: function (diffModel) {
-                window.dispatchEvent(new CustomEvent('orniscientUpdated', { detail: diffModel.TypeCounts }));
-                $.each(diffModel.NewGrains, function (index, grainData) {
-                    addToNodes(grainData, diffModel.SummaryView);
-                });
-
-                if (diffModel.SummaryView === true) {
-                    addSummaryViewEdges(diffModel.SummaryViewLinks);
-                }
-            }
-        });
+        $.extend(hub.client, {grainActivationChanged: grainActivationChanged});
         $.connection.hub.logging = true;
         $.connection.hub.error(function (error) {
             console.log('SignalR error: ' + error);
         });
         $.connection.hub.qs = { 'id': getParameterByName('id') };
         $.connection.hub.start().then(init);
-    }
-
-    function init() {
-        return orniscient.getServerData();
     }
 
     orniscient.getServerData = function getServerData(filter) {
@@ -121,7 +62,7 @@
         return hub.server.GetCurrentSnapshot(filter)
             .done(function (data) {
                 $.each(data.NewGrains, function (index, grainData) {
-                    addToNodes(grainData,data.SummaryView);
+                    addToNodes(grainData, data.SummaryView);
                 });
 
                 if (data.SummaryView === true) {
@@ -134,8 +75,12 @@
             });
     }
 
-    orniscient.getSessionId = function() {
+    orniscient.getSessionId = function () {
         return getParameterByName('id');
+    }
+
+    function init() {
+        return orniscient.getServerData();
     }
 
     function addToNodes(grainData, isSummaryView) {
@@ -219,6 +164,52 @@
         if (!results) return null;
         if (!results[2]) return '';
         return decodeURIComponent(results[2].replace(/\+/g, " "));
+    }
+
+    function onHover(params) {
+        //get the node's information from the server.
+        var node = nodes.get(params.node);
+        if (node.ServerCalled !== true) {
+
+            var requestData = {
+                GrainType: node.graintype,
+                GrainId: node.grainId
+            };
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('post', orniscienturls.getGrainInfo, true);
+            xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+            xhr.onload = function () {
+                var grainInfo = [];
+                var infoRows = "";
+
+                infoRows = infoRows + "<tr><td><strong>Grain Id</strong></td><td>" + node.grainId + "</td></tr>";
+                infoRows = infoRows + "<tr><td><strong>Silo</strong></td><td>" + node.silo + "</td></tr>";
+                infoRows = infoRows + "<tr><td><strong>Grain Type</strong></td><td>" + node.graintype + "</td></tr>";
+
+                if (xhr.responseText != null && xhr.responseText !== "") {
+                    grainInfo = JSON.parse(xhr.responseText);
+                    for (var i = 0; i < grainInfo.length; i++) {
+                        infoRows = infoRows + "<tr><td><strong>" + grainInfo[i].FilterName + "<strong></td><td>" + grainInfo[i].Value + "</td></tr>";
+                    }
+                }
+                node.title = "<h5>" + node.label + "</h5><table class='table'>" + infoRows + "</table>";
+                node.ServerCalled = false; //TODO : Change this back
+                orniscient.data.nodes.update(node);
+            }
+            xhr.send(JSON.stringify(requestData));
+        }
+    }
+
+    function grainActivationChanged(diffModel) {
+        window.dispatchEvent(new CustomEvent('orniscientUpdated', { detail: diffModel.TypeCounts }));
+        $.each(diffModel.NewGrains, function (index, grainData) {
+            addToNodes(grainData, diffModel.SummaryView);
+        });
+
+        if (diffModel.SummaryView === true) {
+            addSummaryViewEdges(diffModel.SummaryViewLinks);
+        }
     }
 
 }(window.orniscient = window.orniscient || {}, jQuery));
