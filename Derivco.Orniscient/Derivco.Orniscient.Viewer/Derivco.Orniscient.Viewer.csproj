@@ -251,7 +251,6 @@
     <Compile Include="Models\Dashboard\GetFiltersRequest.cs" />
     <Compile Include="Models\Dashboard\GetGrainInfoRequest.cs" />
     <Compile Include="Observers\OrniscientObserver.cs" />
-    <Compile Include="Observers\OrniscientObserverContainer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>

@@ -5,23 +5,25 @@ using System.Threading.Tasks;
 using Derivco.Orniscient.Proxy.Filters;
 using Derivco.Orniscient.Proxy.Grains.Filters;
 using Derivco.Orniscient.Proxy.Grains.Models;
-using Derivco.Orniscient.Proxy.Observers;
 using Orleans;
 using Orleans.Runtime;
 using Orleans.Streams;
 
 namespace Derivco.Orniscient.Proxy.Grains
 {
-    public class DashboardInstanceGrain : Grain, IDashboardInstanceGrain, IAsyncObserver<DiffModel>
+    public class DashboardInstanceGrain : Grain, IDashboardInstanceGrain
     {
-        private ObserverSubscriptionManager<IOrniscientObserver> _subsManager;
         private IDashboardCollectorGrain _dashboardCollectorGrain;
         private AppliedFilter _currentFilter;
         private Logger _logger;
+        private IStreamProvider _streamProvider;
 
-        private int _summaryViewLimit = 100; //100; //TODO : Get this from config when this grain is started.....
+        private int SessionId => (int) this.GetPrimaryKeyLong();
+        
+        private int _summaryViewLimit = 100; 
         private List<UpdateModel> _currentStats;
         private bool InSummaryMode => _currentStats != null && _currentStats.Count > _summaryViewLimit;
+        private IAsyncStream<DiffModel> _dashboardInstanceStream;
 
         public override async Task OnActivateAsync()
         {
@@ -29,19 +31,22 @@ namespace Derivco.Orniscient.Proxy.Grains
             _logger = GetLogger("DashboardInstanceGrain");
 
             _dashboardCollectorGrain = GrainFactory.GetGrain<IDashboardCollectorGrain>(Guid.Empty);
-            _subsManager = new ObserverSubscriptionManager<IOrniscientObserver>();
 
-            var streamProvider = GetStreamProvider(StreamKeys.StreamProvider);
-            var stream = streamProvider.GetStream<DiffModel>(Guid.Empty, StreamKeys.OrniscientChanges);
-            await stream.SubscribeAsync<DiffModel>(OnNextAsync);
+            _streamProvider = GetStreamProvider(StreamKeys.StreamProvider);
+            var stream = _streamProvider.GetStream<DiffModel>(Guid.Empty, StreamKeys.OrniscientChanges);
+            await stream.SubscribeAsync(OnNextAsync);
 
+            _dashboardInstanceStream = _streamProvider.GetStream<DiffModel>(Guid.Empty, StreamKeys.OrniscientClient);
             _logger.Info("DashboardInstanceGrain Activated.");
         }
 
         public async Task<DiffModel> GetAll(AppliedFilter filter = null)
         {
+            _logger.Verbose($"GetAll called DashboardInstance Grain [Id : {this.GetPrimaryKeyLong()}][CurrentStatsCount : {_currentStats?.Count}]");
             _currentFilter = filter;
             _currentStats = await ApplyFilter(await _dashboardCollectorGrain.GetAll());
+
+            _logger.Verbose($"GetAll called DashboardInstance Grain [Id : {this.GetPrimaryKeyLong()}][CurrentStatsCount : {_currentStats?.Count}]");
 
             //if we are over the summaryViewLimit we need to keep the summary model details, then the counts will be updated every time new items are pushed here from the DashboardCollecterGrain/
             if (InSummaryMode)
@@ -55,22 +60,10 @@ namespace Derivco.Orniscient.Proxy.Grains
             }
 
             //under normal circumstances we just returned the detail grains.
-            return new DiffModel()
+            return new DiffModel
             {
                 NewGrains = _currentStats
             };
-        }
-
-        public Task Subscribe(IOrniscientObserver observer)
-        {
-            _subsManager.Subscribe(observer);
-            return TaskDone.Done;
-        }
-
-        public Task UnSubscribe(IOrniscientObserver observer)
-        {
-            _subsManager.Unsubscribe(observer);
-            return TaskDone.Done;
         }
 
         public Task<GrainType[]> GetGrainTypes()
@@ -130,7 +123,7 @@ namespace Derivco.Orniscient.Proxy.Grains
                     }
                     filterList.Add(sourceGrainType, grainIdsGrainType);
                 }
-                grainQuery = grainQuery.Where(p => filterList.ContainsKey(p.Type) && (filterList[p.Type] == null || filterList[p.Type].Any()==false || filterList[p.Type].Contains(p.GrainId)));
+                grainQuery = grainQuery.Where(p => filterList.ContainsKey(p.Type) && (filterList[p.Type] == null || filterList[p.Type].Any() == false || filterList[p.Type].Contains(p.GrainId)));
             }
 
             return grainQuery.ToList();
@@ -144,13 +137,15 @@ namespace Derivco.Orniscient.Proxy.Grains
 
             if (InSummaryMode)
             {
-                _subsManager.Notify(s => s.GrainsUpdated(new DiffModel()
+                await _dashboardInstanceStream.OnNextAsync(new DiffModel()
                 {
                     SummaryView = InSummaryMode,
                     TypeCounts = item.TypeCounts,
                     NewGrains = GetGrainSummaries(),
-                    SummaryViewLinks = GetGrainSummaryLinks()
-                }));
+                    SummaryViewLinks = GetGrainSummaryLinks(),
+                    SessionId = SessionId
+                    
+                });
             }
             else
             {
@@ -160,8 +155,8 @@ namespace Derivco.Orniscient.Proxy.Grains
                 if (item.NewGrains != null && (item.NewGrains.Any() || item.RemovedGrains.Any()))
                 {
                     item.SummaryView = InSummaryMode;
-                    _logger.Verbose($"Sending {item.NewGrains.Count} new grains to the observers");
-                    _subsManager.Notify(s => s.GrainsUpdated(item));
+                    item.SessionId = SessionId;
+                    await _dashboardInstanceStream.OnNextAsync(item);
                 }
             }
         }

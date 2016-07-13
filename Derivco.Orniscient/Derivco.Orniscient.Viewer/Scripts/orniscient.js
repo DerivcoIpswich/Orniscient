@@ -77,7 +77,7 @@
                             }
                         }
                         node.title = "<h5>" + node.label + "</h5><table class='table'>" + infoRows + "</table>";
-                        node.ServerCalled = true;
+                        node.ServerCalled = false; //TODO : Change this back
                         orniscient.data.nodes.update(node);
                     }
                     xhr.send(JSON.stringify(requestData));
@@ -101,10 +101,9 @@
         $.connection.hub.error(function (error) {
             console.log('SignalR error: ' + error);
         });
+        $.connection.hub.qs = { 'id': getParameterByName('id') };
         $.connection.hub.start().then(init);
-
     }
-
 
     function init() {
         return orniscient.getServerData();
@@ -133,6 +132,10 @@
             .fail(function (data) {
                 alert('Oops, we cannot connect to the server...');
             });
+    }
+
+    orniscient.getSessionId = function() {
+        return getParameterByName('id');
     }
 
     function addToNodes(grainData, isSummaryView) {
@@ -207,4 +210,15 @@
             }
         });
     }
+
+    function getParameterByName(name, url) {
+        if (!url) url = window.location.href;
+        name = name.replace(/[\[\]]/g, "\\$&");
+        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+            results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, " "));
+    }
+
 }(window.orniscient = window.orniscient || {}, jQuery));
