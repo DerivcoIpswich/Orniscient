@@ -75,6 +75,7 @@
     <Compile Include="Grains\IDashboardCollectorGrain.cs" />
     <Compile Include="Grains\IDashboardInstanceGrain.cs" />
     <Compile Include="Grains\ITypeFilterGrain.cs" />
+    <Compile Include="Grains\ITypeMethodsGrain.cs" />
     <Compile Include="Grains\Models\DiffModel.cs" />
     <Compile Include="Grains\Models\GrainType.cs" />
     <Compile Include="Grains\Models\Link.cs" />

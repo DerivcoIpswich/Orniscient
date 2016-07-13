@@ -30,6 +30,7 @@
             randomSeed: 2
         }
     };
+
     orniscient.data = {
         nodes: nodes,
         edges: edges
@@ -40,6 +41,11 @@
         container = document.getElementById('mynetwork');
         var network = new vis.Network(container, orniscient.data, options);
         network.on("hoverNode", onHover);
+        network.on('select', function (params) {
+            
+            //this is where we will set id for grain details menu.
+
+        });
 
         $.extend(hub.client, {grainActivationChanged: grainActivationChanged});
         $.connection.hub.logging = true;

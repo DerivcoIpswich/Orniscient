@@ -67,5 +67,14 @@ namespace Derivco.Orniscient.Viewer.Controllers
             var dashboardInstanceGrain = GrainClient.GrainFactory.GetGrain<IDashboardInstanceGrain>(sessionId);
             await dashboardInstanceGrain.SetSummaryViewLimit(summaryViewLimit);
         }
+
+        [HttpPost]
+        public async Task<ActionResult> GetMethods(string type)
+        {
+            var methodGrain = GrainClient.GrainFactory.GetGrain<ITypeMethodsGrain>(type);
+            var methods = await methodGrain.GetAvailableMethods();
+            return Json(methods, JsonRequestBehavior.AllowGet);
+        }
+
     }
 }

@@ -1,6 +1,4 @@
-﻿
-
-var Dashboard = React.createClass({
+﻿var Dashboard = React.createClass({
     filterByGrainId: function (event) {
         this.setState({ grainIdFilter: event.target.value });
     },
@@ -142,57 +140,87 @@ var Dashboard = React.createClass({
         window.addEventListener('orniscientUpdated', this.orniscientUpdated);
         orniscient.init();
     },
+    getMethods: function (e) {
 
+        //TODO : Call this.
+
+        e.preventDefault();
+
+        var requestData = {
+            type: 'TestGrains.Grains.FooGrain'
+        };
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('post', 'dashboard/GetMethods', true);
+        xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+        xhr.onload = function () {
+            var data = JSON.parse(xhr.responseText);
+            console.log(data);
+        }.bind(this);
+        xhr.send(JSON.stringify(requestData));
+    },
     render: function () {
         return (
             <div id="filterwrap">
                     <div className="container bigContainer ">
                         <div className="row">
-                            <div className="" id="mynetwork">
-                            </div>
+                            <div className="" id="mynetwork"></div>
                         </div>
                     </div>
-                    <div className="filterFlyout">
+                    <div className="flyout filterFlyout">
                         <div className="container">
-                        <div className="floatButton">
-                            <button className="btn btn-default togglefilter"><span className="glyphicon glyphicon-chevron-right"></span></button>
-                        </div>
-                         <div className="row">
-                            <div className="col-md-12">
-                            <h4>Filter options</h4>
-                            <form>
-                                <div className="form-group">
-                                    <label for="grainid">Grain Id</label>
-                                    <input type="text" className="form-control width100" id="grainid" placeholder="Grain Id" onChange={this.filterByGrainId} value={this.state.grainIdFilter} />
-                                </div>
-                                <div className="form-group">
-                                    <label for="silo">Silo</label>
-                                    <Select name="form-field-name" options={this.state.silos} multi={true} onChange={this.siloSelected} disabled={false} value={ this.state.selectedSilos } />
-                                </div>
-                                <div className="form-group">
-                                    <label for="grainType">Grain Type</label>
-                                    <Select name="form-field-name" options={this.state.availableTypes} multi={true} onChange={this.getFilters} disabled={false} value={ this.state.selectedTypes } />
-                                </div>
-                                <DashboardTypeFilterList data={this.state.availableFilters} filterSelected={this.filterSelected} />
-                                <div className="row">
-                                    <div className="col-md-12">
-                                        <button type="submit" className="btn btn-success pull-right" onClick={this.searchClicked}>Search</button>
-                                    </div>
-                                    <div className="col-md-12">
-                                        <button type="submit" className="btn btn-danger pull-left" onClick={this.clearFiltersClicked}>Clear Filters</button>
-                                    </div>
-                                </div>
-                                <DashboardTypeCounts data={this.state.typeCounts} />
-                            </form>
-                                <div id="summaryViewLimit">
-                                    <h4>Summary View Limit</h4>
-                                    <input type="text" className="form-control" id="summaryviewlimit" placeholder="Summary View Limit" />
-                                    <button type="submit" className="btn btn-success pull-right" onClick={this.setSummaryViewLimitClicked}>Set Limit</button>
-                                </div>
+                            <div className="floatButton">
+                                <button className="btn btn-default togglefilter"><span className="glyphicon glyphicon-chevron-right"></span></button>
                             </div>
-                         </div>
+                             <div className="row">
+                                <div className="col-md-12">
+                                <h4>Filter options</h4>
+                                <form>
+                                    <div className="form-group">
+                                        <label for="grainid">Grain Id</label>
+                                        <input type="text" className="form-control width100" id="grainid" placeholder="Grain Id" onChange={this.filterByGrainId} value={this.state.grainIdFilter} />
+                                    </div>
+                                    <div className="form-group">
+                                        <label for="silo">Silo</label>
+                                        <Select name="form-field-name" options={this.state.silos} multi={true} onChange={this.siloSelected} disabled={false} value={ this.state.selectedSilos } />
+                                    </div>
+                                    <div className="form-group">
+                                        <label for="grainType">Grain Type</label>
+                                        <Select name="form-field-name" options={this.state.availableTypes} multi={true} onChange={this.getFilters} disabled={false} value={ this.state.selectedTypes } />
+                                    </div>
+                                    <DashboardTypeFilterList data={this.state.availableFilters} filterSelected={this.filterSelected} />
+                                    <div className="row">
+                                        <div className="col-md-12">
+                                            <button type="submit" className="btn btn-success pull-right" onClick={this.searchClicked}>Search</button>
+                                        </div>
+                                        <div className="col-md-12">
+                                            <button type="submit" className="btn btn-danger pull-left" onClick={this.clearFiltersClicked}>Clear Filters</button>
+                                        </div>
+                                    </div>
+                                    <DashboardTypeCounts data={this.state.typeCounts} />
+                                </form>
+                                    <div id="summaryViewLimit">
+                                        <h4>Summary View Limit</h4>
+                                        <input type="text" className="form-control" id="summaryviewlimit" placeholder="Summary View Limit" />
+                                        <button type="submit" className="btn btn-success pull-right" onClick={this.setSummaryViewLimitClicked}>Set Limit</button>
+                                    </div>
+                                </div>
+                             </div>
                         </div>
                     </div>
+                    <div className="flyout grainFlyout">
+                         <div className="container">
+                            <div className="floatButton">
+                                <button className="btn btn-default togglefilter "><span className="glyphicon glyphicon-chevron-left"></span></button>
+                            </div>
+                             <div className="row">
+                                   <div className="col-md-12">
+                                <h4>Hallo</h4>
+                                   </div>
+                                 </div>
+                         </div>
+                    </div>
+
             </div>
         );
     }
@@ -209,13 +237,32 @@ $(document).ready(function () {
     $(document).on('click', '.togglefilter', function (e) {
         e.preventDefault();
 
-        var $filterLayout = $('.filterFlyout');
-        $filterLayout.toggleClass('shown');
 
-        if ($filterLayout.hasClass('shown')) {
-            $filterLayout.find('.glyphicon').removeClass('glyphicon-chevron-right').addClass('glyphicon-chevron-left');
+        if ($(this).closest('.flyout').hasClass('filterFlyout')) {
+            var $filterLayout = $('.filterFlyout');
+            $filterLayout.toggleClass('shown');
+
+            if ($filterLayout.hasClass('shown')) {
+                $filterLayout.find('.glyphicon').removeClass('glyphicon-chevron-right').addClass('glyphicon-chevron-left');
+            } else {
+                $filterLayout.find('.glyphicon').removeClass('glyphicon-chevron-left').addClass('glyphicon-chevron-right');
+            }
         } else {
-            $filterLayout.find('.glyphicon').removeClass('glyphicon-chevron-left').addClass('glyphicon-chevron-right');
+            var $grainFlyout = $('.grainFlyout');
+            $grainFlyout.toggleClass('shown');
+
+            if ($grainFlyout.hasClass('shown')) {
+                $grainFlyout.find('.glyphicon').removeClass('glyphicon-chevron-left').addClass('glyphicon-chevron-right');
+            } else {
+                $grainFlyout.find('.glyphicon').removeClass('glyphicon-chevron-right').addClass('glyphicon-chevron-left');
+            }
         }
+
+        
     });
+
+
+
+
+
 });

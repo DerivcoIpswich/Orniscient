@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Derivco.Orniscient.Proxy.Attributes;
 using Derivco.Orniscient.Proxy.Filters;
+using Derivco.Orniscient.Proxy.Grains;
 using Derivco.Orniscient.Proxy.Grains.Filters;
 using Orleans;
 
@@ -26,6 +27,7 @@ namespace TestGrains.Grains
             await base.OnActivateAsync();
         }
 
+        [OrniscientMethod]
         public Task KeepAlive()
         {
             return TaskDone.Done;
