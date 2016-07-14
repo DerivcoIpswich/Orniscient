@@ -12,10 +12,10 @@
 
         var xhr = new XMLHttpRequest();
         xhr.open('post', orniscienturls.getFilters, true);
-        xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+        xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
         xhr.onload = function () {
             var filters = [];
-            if (xhr.responseText != null && xhr.responseText !== "") {
+            if (xhr.responseText != null && xhr.responseText !== '') {
                 filters = JSON.parse(xhr.responseText);
             }
 
@@ -97,7 +97,7 @@
 
             var xhr = new XMLHttpRequest();
             xhr.open('post', 'dashboard/SetSummaryViewLimit', true);
-            xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+            xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
             xhr.onload = function () { this.searchClicked(e); }.bind(this);
             xhr.send(JSON.stringify(requestData));
         }
@@ -118,7 +118,12 @@
             availableTypes: [],
             availableFilters: [],
             selectedFilters: {},
-            typeCounts: []
+            typeCounts: [],
+            selectedGrainId: '',
+            selectedGrainSilo: '',
+            selectedGrainType: '',
+            selectedGrainMethods: [],
+            grainMethod: null
         };
     },
     componentWillMount: function () {
@@ -139,25 +144,31 @@
     componentDidMount: function () {
         window.addEventListener('orniscientUpdated', this.orniscientUpdated);
         orniscient.init();
+
+        window.addEventListener('nodeSelected', this.orniscientNodeSelected);
     },
-    getMethods: function (e) {
-
-        //TODO : Call this.
-
-        e.preventDefault();
-
+    orniscientNodeSelected: function (node, a, b) {
+        var grainDetails = node.detail;
         var requestData = {
-            type: 'TestGrains.Grains.FooGrain'
+            type: grainDetails.graintype
         };
 
         var xhr = new XMLHttpRequest();
         xhr.open('post', 'dashboard/GetMethods', true);
-        xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+        xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
         xhr.onload = function () {
             var data = JSON.parse(xhr.responseText);
-            console.log(data);
+            this.setState({
+                selectedGrainId: grainDetails.grainId,
+                selectedGrainSilo: grainDetails.silo,
+                selectedGrainType: grainDetails.graintype,
+                selectedGrainMethods: orniscientutils.methodsToSelectOptions(data)
+            });
         }.bind(this);
         xhr.send(JSON.stringify(requestData));
+    },
+    grainMethodSelected(val) {
+        this.setState({ grainMethod: val });
     },
     render: function () {
         return (
@@ -170,7 +181,7 @@
                     <div className="flyout filterFlyout">
                         <div className="container">
                             <div className="floatButton">
-                                <button className="btn btn-default togglefilter"><span className="glyphicon glyphicon-chevron-right"></span></button>
+                                <button className="btn btn-default toggleFlyout"><span className="glyphicon glyphicon-chevron-right"></span></button>
                             </div>
                              <div className="row">
                                 <div className="col-md-12">
@@ -211,11 +222,30 @@
                     <div className="flyout grainFlyout">
                          <div className="container">
                             <div className="floatButton">
-                                <button className="btn btn-default togglefilter "><span className="glyphicon glyphicon-chevron-left"></span></button>
+                                <button className="btn btn-default toggleFlyout "><span className="glyphicon glyphicon-chevron-left"></span></button>
                             </div>
                              <div className="row">
                                    <div className="col-md-12">
-                                <h4>Hallo</h4>
+                                       <h4>Grain Information</h4>
+                                       <form>
+                                            <div className="form-group">
+                                                <h5>Grain Id</h5>
+                                                <label for="grainid">{ this.state.selectedGrainId }</label>
+                                            </div>
+                                            <div className="form-group">
+                                                <h5>Silo</h5>
+                                                <label for="silo" >{ this.state.selectedGrainSilo }</label>
+                                                
+                                            </div>
+                                            <div className="form-group">
+                                                <h5>Grain Type</h5>
+                                                <label for="grainType" >{ this.state.selectedGrainType }</label>
+                                            </div>
+                                            <div className="form-group">
+                                                <h5>Grain Methods</h5>
+                                                <Select name="form-field-name" options={this.state.selectedGrainMethods} multi={false} onChange={this.grainMethodSelected} disabled={false} value={ this.state.grainMethod } />
+                                            </div>
+                                       </form>
                                    </div>
                                  </div>
                          </div>
@@ -234,9 +264,8 @@ ReactDOM.render(
 
 $(document).ready(function () {
 
-    $(document).on('click', '.togglefilter', function (e) {
+    $(document).on('click', '.toggleFlyout', function (e) {
         e.preventDefault();
-
 
         if ($(this).closest('.flyout').hasClass('filterFlyout')) {
             var $filterLayout = $('.filterFlyout');
@@ -257,12 +286,5 @@ $(document).ready(function () {
                 $grainFlyout.find('.glyphicon').removeClass('glyphicon-chevron-right').addClass('glyphicon-chevron-left');
             }
         }
-
-        
     });
-
-
-
-
-
 });
