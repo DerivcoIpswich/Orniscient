@@ -168,7 +168,53 @@
         xhr.send(JSON.stringify(requestData));
     },
     grainMethodSelected(val) {
-        this.setState({ grainMethod: val });
+        this.setState({
+            grainMethod: val
+        });
+    },
+    invokeGrainMethod: function (e) {
+        e.preventDefault();
+        
+        var methodData = this.state.grainMethod;
+
+        var parameterValues = [];
+
+        $.each(methodData.parameters, function(index, parameter) {
+            var parameterValue = $('#' + parameter.Name).val();
+
+            parameterValues.push({ 'name': parameter.Name, 'type':parameter.Type, 'value': parameterValue });
+        });
+
+        var requestData = {
+            type: this.state.selectedGrainType,
+            id: this.state.selectedGrainId,
+            methodName: methodData.value,
+            parametersJson: JSON.stringify(parameterValues)
+        };
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('post', 'dashboard/InvokeGrainMethod', true);
+        xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+        xhr.send(JSON.stringify(requestData));
+
+    },
+    parameterInputChanged: function() {
+        var empty = false;
+
+        $('#parameterInputs input').each(function() {
+            if ($(this).val() === '') {
+                empty = true;
+            }
+        });
+
+            if (empty === true) {
+                this.state.disableInvoke = true;
+                console.log('disabled');
+            } else {
+                this.state.disableInvoke = false;
+                console.log('enabled');
+            }
+        
     },
     render: function () {
         return (
@@ -245,6 +291,14 @@
                                                 <h5>Grain Methods</h5>
                                                 <Select name="form-field-name" options={this.state.selectedGrainMethods} multi={false} onChange={this.grainMethodSelected} disabled={false} value={ this.state.grainMethod } />
                                             </div>
+                                           <div className="form-group" id="parameterInputs">
+                                                <DashboardGrainMethodParameters data={this.state.grainMethod}/>
+                                           </div>
+                                           <div className="row">
+                                                <div className="col-md-12">
+                                                    <button type="submit" className="btn btn-success pull-left" id="invokeMethodButton" onClick={this.invokeGrainMethod}>Invoke Method</button>
+                                                </div>
+                                        </div>
                                        </form>
                                    </div>
                                  </div>
@@ -263,7 +317,6 @@ ReactDOM.render(
 
 
 $(document).ready(function () {
-
     $(document).on('click', '.toggleFlyout', function (e) {
         e.preventDefault();
 

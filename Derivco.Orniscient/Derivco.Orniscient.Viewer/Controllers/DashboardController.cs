@@ -76,5 +76,12 @@ namespace Derivco.Orniscient.Viewer.Controllers
             return Json(methods, JsonRequestBehavior.AllowGet);
         }
 
+        [HttpPost]
+        public async Task InvokeGrainMethod(string type, string id, string methodName, string parametersJson)
+        {
+            var methodGrain = GrainClient.GrainFactory.GetGrain<ITypeMethodsGrain>(type);
+            await methodGrain.InvokeGrainMethod(id, methodName, parametersJson);
+        }
+
     }
 }

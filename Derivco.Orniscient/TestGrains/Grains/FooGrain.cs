@@ -1,8 +1,9 @@
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Derivco.Orniscient.Proxy.Attributes;
 using Derivco.Orniscient.Proxy.Filters;
-using Derivco.Orniscient.Proxy.Grains;
 using Derivco.Orniscient.Proxy.Grains.Filters;
 using Orleans;
 
@@ -16,20 +17,37 @@ namespace TestGrains.Grains
         public override async Task OnActivateAsync()
         {
             //creating dummy filters for testing
-            string[] _sports = new[] {"Rugby", "Soccer",  "Pool", "Darts", "Formula 1", "Horse Racing" };
+            var sports = new[] {"Rugby", "Soccer",  "Pool", "Darts", "Formula 1", "Horse Racing" };
             var rand = new Random();
             this._filters = new[]
             {
-                new FilterRow() {FilterName = "sport", Value =_sports[rand.Next(0,5)]},
+                new FilterRow() {FilterName = "sport", Value =sports[rand.Next(0,5)]},
                 new FilterRow() {FilterName = "league", Value = $"some league name"} //include the id here, just to see the difference
             };
 
             await base.OnActivateAsync();
         }
 
-        [OrniscientMethod]
         public Task KeepAlive()
         {
+            return TaskDone.Done;
+        }
+
+        public Task KeepAliveOne(int intOne, string stringOne)
+        {
+            Debug.WriteLine("one");
+            return TaskDone.Done;
+        }
+
+        public Task KeepAliveTwo(bool boolTwo, List<string> listStringTwo, FilterRow filterRowTwo)
+        {
+            Debug.WriteLine("two");
+            return TaskDone.Done;
+        }
+
+        public Task KeepAliveThree(Dictionary<string, int> dictionaryStringIntThree, Random randomThree, Guid guidThree )
+        {
+            Debug.WriteLine("three");
             return TaskDone.Done;
         }
 
