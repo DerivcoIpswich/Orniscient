@@ -5,11 +5,16 @@
 
         if (methodData != null) {
             if (methodData.parameters.length > 0) {
-                displayParameters = methodData.parameters.map(function(parameter) {
+                displayParameters = methodData.parameters.map(function (parameter) {
+
+                    var inputElement = parameter.IsComplexType === true ?
+                                            (<textarea rows="5" className="form-control" id={parameter.Name} placeholder={parameter.Type}></textarea>) :
+                                            (<input type="text" className="form-control" id={parameter.Name} placeholder={parameter.Type}/>);
+
                     return (
                             <div className="" key={parameter.Name}>
                                 <label for="parameter" className="">{parameter.Name} : </label>
-                                <input type="text" className="form-control paramInput" id={parameter.Name} placeholder={parameter.Type}/>
+                                {inputElement}
                             </div>
                             );
                 }, this);
@@ -25,3 +30,4 @@
     </div>);
     }
 });
+

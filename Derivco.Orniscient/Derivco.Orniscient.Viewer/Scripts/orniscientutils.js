@@ -20,7 +20,7 @@
     orniscientutils.methodsToSelectOptions = function(arr) {
         return arr.map(function (obj) {
             return {
-                value: obj.Name,
+                value: obj.MethodHashCode,
                 label: obj.Name,
                 parameters: obj.Parameters
             }
