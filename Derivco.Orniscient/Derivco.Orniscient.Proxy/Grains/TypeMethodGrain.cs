@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Derivco.Orniscient.Proxy.Attributes;
 using Derivco.Orniscient.Proxy.Grains.Models;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Orleans;
 namespace Derivco.Orniscient.Proxy.Grains
@@ -17,7 +18,7 @@ namespace Derivco.Orniscient.Proxy.Grains
         {
             if (_methods != null && !_methods.Any())
             {
-                var grainType = GetGrainType();
+                var grainType = GetTypeFromString(this.GetPrimaryKeyString());
 
                 //type could still be null here
                 if (grainType != null)
@@ -30,26 +31,24 @@ namespace Derivco.Orniscient.Proxy.Grains
 
         public Task InvokeGrainMethod(string id, string methodName, string parametersJson)
         {
-            var grainType = GetGrainType();
-
+            var grainType = GetTypeFromString(this.GetPrimaryKeyString());
             var grainInterface = GetGrainInterfaceType(grainType);
 
             if (grainInterface != null)
             {
                 var parameters = BuildParameterObjects(JArray.Parse(parametersJson));
-
                 var grainMethod = grainInterface.GetMethod(methodName, parameters.Select(s => s.GetType()).ToArray());
+                if (grainMethod != null)
+                {
+                    var grainKeyType = GetGrainKeyType(grainInterface);
+                    var grainKey = GetGrainKeyFromType(grainKeyType, id);
 
-                var grainKeyType = GetGrainKeyType(grainInterface);
+                    var getGrainMethod = ReflectGetGrainMethod(grainKeyType, grainInterface);
+                    var grainReference = getGrainMethod.Invoke(GrainFactory, new[] {grainKey, null});
 
-                var grainKey = GetGrainKeyFromType(grainKeyType, id);
-
-                var getGrainMethod = ReflectGetGrainMethod(grainKeyType, grainInterface);
-
-                var grainReference = getGrainMethod.Invoke(GrainFactory, new [] {grainKey, null});
-                
-                //DO IT!!!
-                grainMethod?.Invoke(grainReference, parameters);
+                    //JUST DO IT!!!
+                    grainMethod.Invoke(grainReference, parameters);
+                }
             }
 
             return TaskDone.Done;
@@ -60,12 +59,12 @@ namespace Derivco.Orniscient.Proxy.Grains
             var parameterObjects = new List<object>();
             foreach (var parameter in parametersArray)
             {
-                var type = Type.GetType(parameter["type"].ToString());
-                var value = parameter["value"];
+                var type = GetTypeFromString(parameter["type"].ToString());
+                var value = JsonConvert.DeserializeObject(parameter["value"].ToString(), type);
 
-                if (type != null)
+                if (value != null)
                 {
-                    parameterObjects.Add(Convert.ChangeType(value, type));
+                    parameterObjects.Add(value);
                 }
             }
 
@@ -89,20 +88,19 @@ namespace Derivco.Orniscient.Proxy.Grains
             return null;
         }
 
-        private Type GetGrainType()
+        private static Type GetTypeFromString(string typeName)
         {
-            var typeName = this.GetPrimaryKeyString();
-            var grainType = Type.GetType(typeName);
-            if (grainType == null)
+            var type = Type.GetType(typeName);
+            if (type == null)
             {
                 foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
                 {
-                    grainType = a.GetType(typeName);
-                    if (grainType != null)
+                    type = a.GetType(typeName);
+                    if (type != null)
                         break;
                 }
             }
-            return grainType;
+            return type;
         }
 
         private static List<GrainMethod> GetMethodList(Type grainType)

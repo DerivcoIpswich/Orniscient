@@ -16,9 +16,9 @@ namespace TestGrains.Grains
         Task KeepAliveOne(int intOne, string stringOne);
 
         [OrniscientMethod]
-        Task KeepAliveTwo(bool boolTwo, List<string> listStringTwo, FilterRow filterRowTwo);
+        Task KeepAliveTwo(ExternalParameterType externalParameterTwo);
 
         [OrniscientMethod]
-        Task KeepAliveThree(Dictionary<string, int> dictionaryStringIntThree, Random randomThree, Guid guidThree);
+        Task KeepAliveThree(Dictionary<string, int> dictionaryStringIntThree);
     }
 }
