@@ -35,7 +35,7 @@ namespace TestGrains.Grains
         }
 
         [OrniscientMethod]
-        public Task KeepAliveOne(int intOne, string stringOne)
+        public Task KeepAliveOne(int? intOne, string stringOne)
         {
             Debug.WriteLine("KeepAliveOne called.");
             return TaskDone.Done;

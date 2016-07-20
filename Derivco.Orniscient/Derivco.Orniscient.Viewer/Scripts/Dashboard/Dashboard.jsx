@@ -188,7 +188,7 @@
         var requestData = {
             type: this.state.selectedGrainType,
             id: this.state.selectedGrainId,
-            methodHashCode: methodData.value,
+            methodId: methodData.value,
             parametersJson: JSON.stringify(parameterValues)
         };
 
