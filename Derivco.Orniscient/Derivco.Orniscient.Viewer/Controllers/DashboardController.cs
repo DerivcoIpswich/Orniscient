@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using Derivco.Orniscient.Proxy.Grains;
 using Derivco.Orniscient.Proxy.Grains.Filters;
+using Derivco.Orniscient.Proxy.Grains.Models;
 using Derivco.Orniscient.Viewer.Models.Dashboard;
 using Derivco.Orniscient.Viewer.Observers;
 using Orleans;
@@ -77,11 +80,12 @@ namespace Derivco.Orniscient.Viewer.Controllers
         }
 
         [HttpPost]
-        public async Task InvokeGrainMethod(string type, string id, string methodName, string parametersJson)
+        public async Task InvokeGrainMethod(string type, string id, string methodId, string parametersJson)
         {
             var methodGrain = GrainClient.GrainFactory.GetGrain<ITypeMethodsGrain>(type);
-            await methodGrain.InvokeGrainMethod(id, methodName, parametersJson);
+            await methodGrain.InvokeGrainMethod(id, methodId, parametersJson);
         }
-
     }
+
+    
 }

@@ -28,29 +28,48 @@ namespace TestGrains.Grains
             await base.OnActivateAsync();
         }
 
+        [OrniscientMethod]
         public Task KeepAlive()
         {
             return TaskDone.Done;
         }
 
-        public Task KeepAliveOne(int intOne, string stringOne)
+        [OrniscientMethod]
+        public Task KeepAliveOne(int? intOne, string stringOne)
         {
             Debug.WriteLine("KeepAliveOne called.");
             return TaskDone.Done;
         }
 
+        [OrniscientMethod]
+        public Task KeepAliveOne(int intOne, int stringOne)
+        {
+            Debug.WriteLine("KeepAliveOne called.");
+            return TaskDone.Done;
+        }
+
+        [OrniscientMethod]
         public Task KeepAliveTwo(ExternalParameterType externalParameterTwo)
         {
             Debug.WriteLine("KeepAliveTwo called.");
             return TaskDone.Done;
         }
 
+        [OrniscientMethod]
         public Task KeepAliveThree(Dictionary<string, int> dictionaryStringIntThree )
         {
             Debug.WriteLine("KeepAliveThree called.");
             return TaskDone.Done;
         }
 
+        [OrniscientMethod]
+        public Task KeepAliveThree(Dictionary<int, int> dictionaryStringIntThree)
+        {
+            Debug.WriteLine("KeepAliveThree called.");
+            return TaskDone.Done;
+        }
+
+        [OrniscientMethod]
         public Task<FilterRow[]> GetFilters()
         {
             return Task.FromResult(_filters);

@@ -123,7 +123,8 @@
             selectedGrainSilo: '',
             selectedGrainType: '',
             selectedGrainMethods: [],
-            grainMethod: null
+            grainMethod: null,
+            grainInfoLoading: false
         };
     },
     componentWillMount: function () {
@@ -148,6 +149,7 @@
         window.addEventListener('nodeSelected', this.orniscientNodeSelected);
     },
     orniscientNodeSelected: function (node, a, b) {
+        this.setState({ grainInfoLoading: true });
         var grainDetails = node.detail;
         var requestData = {
             type: grainDetails.graintype
@@ -162,7 +164,8 @@
                 selectedGrainId: grainDetails.grainId,
                 selectedGrainSilo: grainDetails.silo,
                 selectedGrainType: grainDetails.graintype,
-                selectedGrainMethods: orniscientutils.methodsToSelectOptions(data)
+                selectedGrainMethods: orniscientutils.methodsToSelectOptions(data),
+                grainInfoLoading: false
             });
         }.bind(this);
         xhr.send(JSON.stringify(requestData));
@@ -188,7 +191,7 @@
         var requestData = {
             type: this.state.selectedGrainType,
             id: this.state.selectedGrainId,
-            methodName: methodData.value,
+            methodId: methodData.value,
             parametersJson: JSON.stringify(parameterValues)
         };
 
@@ -303,6 +306,9 @@
                                    </div>
                                  </div>
                          </div>
+                        {this.state.grainInfoLoading&&
+                                <div className="loader"></div>
+                        }
                     </div>
 
             </div>

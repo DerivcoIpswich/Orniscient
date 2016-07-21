@@ -8,49 +8,101 @@ using Derivco.Orniscient.Proxy.Grains.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Orleans;
+using Orleans.Runtime;
+
 namespace Derivco.Orniscient.Proxy.Grains
 {
     public class TypeMethodGrain : Grain, ITypeMethodsGrain
     {
         private List<GrainMethod> _methods = new List<GrainMethod>();
+        public override async Task OnActivateAsync()
+        {
+            await HydrateMethodList();
+            await base.OnActivateAsync();
+        }
 
         public Task<List<GrainMethod>> GetAvailableMethods()
         {
-            if (_methods != null && !_methods.Any())
-            {
-                var grainType = GetTypeFromString(this.GetPrimaryKeyString());
-
-                //type could still be null here
-                if (grainType != null)
-                {
-                    _methods = GetMethodList(GetGrainInterfaceType(grainType));
-                }
-            }
             return Task.FromResult(_methods);
         }
 
-        public Task InvokeGrainMethod(string id, string methodName, string parametersJson)
+        private IGrain GetGrainReference(string id, GrainMethod method)
         {
-            var grainType = GetTypeFromString(this.GetPrimaryKeyString());
-            var grainInterface = GetGrainInterfaceType(grainType);
-
-            if (grainInterface != null)
+            if (method != null)
             {
-                var parameters = BuildParameterObjects(JArray.Parse(parametersJson));
-                var grainMethod = grainInterface.GetMethod(methodName, parameters.Select(s => s.GetType()).ToArray());
-                if (grainMethod != null)
+                var grainInterface = GetGrainInterfaceType(GetTypeFromString(this.GetPrimaryKeyString()));
+                var grainKeyType = GetGrainKeyType(grainInterface);
+                var grainKey = GetGrainKeyFromType(grainKeyType, id);
+
+                var grainReference = typeof(GrainFactory)
+                                            .GetMethod("GetGrain", new[] { grainKeyType, typeof(string) })
+                                            .MakeGenericMethod(grainInterface)
+                                            .Invoke(GrainFactory, new[] { grainKey, null }) as IGrain;
+
+                if (method.InterfaceForMethod == grainInterface.FullName)
                 {
-                    var grainKeyType = GetGrainKeyType(grainInterface);
-                    var grainKey = GetGrainKeyFromType(grainKeyType, id);
+                    return grainReference;
+                }
 
-                    var getGrainMethod = ReflectGetGrainMethod(grainKeyType, grainInterface);
-                    var grainReference = getGrainMethod.Invoke(GrainFactory, new[] {grainKey, null});
+                var interfaceForMethod = GetTypeFromString(method.InterfaceForMethod);
 
-                    //JUST DO IT!!!
-                    grainMethod.Invoke(grainReference, parameters);
+                return typeof(GrainExtensions)
+                    .GetMethod("AsReference")
+                    .MakeGenericMethod(interfaceForMethod)
+                    .Invoke(grainReference, new object[] { grainReference }) as IGrain;
+            }
+            return null;
+        }
+
+        public async Task InvokeGrainMethod(string id, string methodId, string parametersJson)
+        {
+            var method = _methods.FirstOrDefault(p => p.MethodId == methodId);
+            if (method != null)
+            {
+                var grain = GetGrainReference(id, method);
+                if (grain != null)
+                {
+                    //invoke the method in the grain.
+                    var parameters = BuildParameterObjects(JArray.Parse(parametersJson));
+                    await (Task) grain
+                        .GetType()
+                        .GetMethod(method.Name, BindingFlags.Instance | BindingFlags.Public, null,
+                            method.Parameters.Select(p => GetTypeFromString(p.Type)).ToArray(), null)
+                        .Invoke(grain, parameters);
                 }
             }
+        }
 
+        private Task HydrateMethodList()
+        {
+            var grainType = GetTypeFromString(this.GetPrimaryKeyString());
+            _methods = new List<GrainMethod>();
+            
+            foreach (var @interface in grainType.GetInterfaces())
+            {
+                if (@interface.GetInterfaces().Contains(typeof(IAddressable)))
+                {
+                    _methods.AddRange(@interface.GetMethods()
+                        .Where(
+                            p =>
+                                grainType.GetMethods()
+                                    .Where(q => Attribute.IsDefined(q, typeof (OrniscientMethod)))
+                                    .Any(r => r.Name == p.Name))
+                        .Select(m => new GrainMethod
+                        {
+                            Name = m.Name,
+                            InterfaceForMethod = @interface.FullName,
+                            MethodId = Guid.NewGuid().ToString(),
+                            Parameters = m.GetParameters()
+                                .Select(p => new GrainMethodParameters
+                                {
+                                    Name = p.Name,
+                                    Type = p.ParameterType.ToString(),
+                                    IsComplexType = !p.ParameterType.IsValueType && p.ParameterType != typeof (string)
+                                }).ToList()
+                        }));
+                }
+            }
             return TaskDone.Done;
         }
 
@@ -60,14 +112,16 @@ namespace Derivco.Orniscient.Proxy.Grains
             foreach (var parameter in parametersArray)
             {
                 var type = GetTypeFromString(parameter["type"].ToString());
-                var value = JsonConvert.DeserializeObject(parameter["value"].ToString(), type);
-
-                if (value != null)
+                if (!string.IsNullOrEmpty(parameter["value"].ToString()))
                 {
+                    var value = JsonConvert.DeserializeObject(parameter["value"].ToString(), type);
                     parameterObjects.Add(value);
                 }
+                else
+                {
+                    parameterObjects.Add(null);
+                }
             }
-
             return parameterObjects.ToArray();
         }
 
@@ -77,7 +131,7 @@ namespace Derivco.Orniscient.Proxy.Grains
             {
                 return Guid.Parse(id);
             }
-            if (grainKeyType == typeof (int))
+            if (grainKeyType == typeof(int))
             {
                 return int.Parse(id);
             }
@@ -103,20 +157,6 @@ namespace Derivco.Orniscient.Proxy.Grains
             return type;
         }
 
-        private static List<GrainMethod> GetMethodList(Type grainType)
-        {
-            return grainType.GetMethods()
-                .Where(m => Attribute.IsDefined(m, typeof(OrniscientMethod)))
-                .Select(m => new GrainMethod
-                {
-                    Name = m.Name,
-                    Parameters =
-                        m.GetParameters()
-                            .Select(p => new GrainMethodParameters { Name = p.Name, Type = p.ParameterType.ToString() })
-                            .ToList()
-                }).ToList();
-        }
-
         private static Type GetGrainInterfaceType(Type grainType)
         {
             return grainType?.GetInterfaces()
@@ -129,29 +169,20 @@ namespace Derivco.Orniscient.Proxy.Grains
             var grainKeyInterface = grainInterface.GetInterfaces().FirstOrDefault(i => i.Name.Contains("Key"));
             if (grainKeyInterface != null)
             {
-                if (grainKeyInterface.IsAssignableFrom(typeof (IGrainWithGuidKey)))
+                if (grainKeyInterface.IsAssignableFrom(typeof(IGrainWithGuidKey)))
                 {
-                    return typeof (Guid);
-
+                    return typeof(Guid);
                 }
-                if (grainKeyInterface.IsAssignableFrom(typeof (IGrainWithIntegerKey)))
+                if (grainKeyInterface.IsAssignableFrom(typeof(IGrainWithIntegerKey)))
                 {
-                    return typeof (int);
-
+                    return typeof(int);
                 }
-                if (grainKeyInterface.IsAssignableFrom(typeof (IGrainWithStringKey)))
+                if (grainKeyInterface.IsAssignableFrom(typeof(IGrainWithStringKey)))
                 {
-                    return typeof (string);
+                    return typeof(string);
                 }
             }
             return null;
-        }
-
-        private static MethodInfo ReflectGetGrainMethod(Type grainKeyType, Type grainInterface)
-        {
-            return typeof(GrainFactory)
-                .GetMethod("GetGrain", new[] { grainKeyType, typeof(string) })
-                .MakeGenericMethod(grainInterface);
         }
     }
 }
