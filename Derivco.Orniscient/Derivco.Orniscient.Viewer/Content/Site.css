@@ -200,3 +200,13 @@ div.floatButton button {
 .vis-right {
     left: 135px !important;
 }
+
+.loader {
+    height: 100%;
+    width: 100%;
+    background: url(/content/img/balls.svg) no-repeat center;
+    position: absolute;
+    background-color: lightgray;
+    top: 0px;
+    opacity: 0.6;
+}

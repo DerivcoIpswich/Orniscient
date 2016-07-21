@@ -19,7 +19,7 @@
                             );
                 }, this);
             } else {
-                displayParameters = (<label for="parameters">{methodData.label} has no Orniscient methods.</label>);
+                displayParameters = (<label for="parameters">{methodData.label} has no parameters.</label>);
             }
         }
 

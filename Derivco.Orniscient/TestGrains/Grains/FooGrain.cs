@@ -42,6 +42,13 @@ namespace TestGrains.Grains
         }
 
         [OrniscientMethod]
+        public Task KeepAliveOne(int intOne, int stringOne)
+        {
+            Debug.WriteLine("KeepAliveOne called.");
+            return TaskDone.Done;
+        }
+
+        [OrniscientMethod]
         public Task KeepAliveTwo(ExternalParameterType externalParameterTwo)
         {
             Debug.WriteLine("KeepAliveTwo called.");

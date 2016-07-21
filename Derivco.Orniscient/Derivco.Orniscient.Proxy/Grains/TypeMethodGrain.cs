@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Derivco.Orniscient.Proxy.Attributes;
 using Derivco.Orniscient.Proxy.Grains.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -75,23 +76,27 @@ namespace Derivco.Orniscient.Proxy.Grains
         {
             var grainType = GetTypeFromString(this.GetPrimaryKeyString());
             _methods = new List<GrainMethod>();
-
+            
             foreach (var @interface in grainType.GetInterfaces())
             {
                 if (@interface.GetInterfaces().Contains(typeof(IAddressable)))
                 {
                     _methods.AddRange(@interface.GetMethods()
+                        .Where(
+                            p =>
+                                grainType.GetMethods()
+                                    .Where(q => Attribute.IsDefined(q, typeof (OrniscientMethod)))
+                                    .Any(r => r.Name == p.Name))
                         .Select(m => new GrainMethod
                         {
                             Name = m.Name,
-                            MethodHashCode = m.GetHashCode(),
                             InterfaceForMethod = @interface.FullName,
                             Parameters = m.GetParameters()
                                 .Select(p => new GrainMethodParameters
                                 {
                                     Name = p.Name,
                                     Type = p.ParameterType.ToString(),
-                                    IsComplexType = !p.ParameterType.IsValueType && p.ParameterType != typeof(string)
+                                    IsComplexType = !p.ParameterType.IsValueType && p.ParameterType != typeof (string)
                                 }).ToList()
                         }));
                 }
