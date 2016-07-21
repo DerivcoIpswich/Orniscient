@@ -180,15 +180,16 @@
     },
     invokeGrainMethod: function (e) {
         e.preventDefault();
-
         var methodData = this.state.grainMethod;
-
         var parameterValues = [];
 
         $.each(methodData.parameters, function (index, parameter) {
             var parameterValue = $('#' + parameter.Name).val();
-
-            parameterValues.push({ 'name': parameter.Name, 'type': parameter.Type, 'value': parameterValue });
+            if (parameter.IsComplexType) {
+                parameterValues.push({ 'name': parameter.Name, 'type': parameter.Type, 'value': JSON.parse(parameterValue) });
+            } else {
+                parameterValues.push({ 'name': parameter.Name, 'type': parameter.Type, 'value': JSON.stringify(parameterValue) });
+            }
         });
 
         var requestData = {
