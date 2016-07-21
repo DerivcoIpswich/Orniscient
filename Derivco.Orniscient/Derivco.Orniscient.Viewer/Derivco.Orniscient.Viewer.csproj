@@ -256,6 +256,7 @@
   <ItemGroup>
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\img\balls.svg" />
     <Content Include="Content\img\derivco.png" />
     <Content Include="Content\img\favicon.ico" />
     <Content Include="Content\img\network\acceptDeleteIcon.png" />
@@ -293,6 +294,7 @@
     <None Include="Properties\PublishProfiles\FileDeploy.pubxml" />
     <None Include="Properties\PublishProfiles\FileDeploy_Front.pubxml" />
     <Content Include="Scripts\Dashboard\DashboardTypeCounts.jsx" />
+    <Content Include="Scripts\Dashboard\DashboardGrainMethodParameters.jsx" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\index.js" />
     <Content Include="Scripts\jquery-1.10.2.js" />

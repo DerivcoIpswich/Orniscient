@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using Derivco.Orniscient.Proxy.Grains;
 using Derivco.Orniscient.Proxy.Grains.Filters;
+using Derivco.Orniscient.Proxy.Grains.Models;
 using Derivco.Orniscient.Viewer.Models.Dashboard;
 using Derivco.Orniscient.Viewer.Observers;
 using Orleans;
@@ -67,5 +70,22 @@ namespace Derivco.Orniscient.Viewer.Controllers
             var dashboardInstanceGrain = GrainClient.GrainFactory.GetGrain<IDashboardInstanceGrain>(sessionId);
             await dashboardInstanceGrain.SetSummaryViewLimit(summaryViewLimit);
         }
+
+        [HttpPost]
+        public async Task<ActionResult> GetMethods(string type)
+        {
+            var methodGrain = GrainClient.GrainFactory.GetGrain<ITypeMethodsGrain>(type);
+            var methods = await methodGrain.GetAvailableMethods();
+            return Json(methods, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public async Task InvokeGrainMethod(string type, string id, string methodId, string parametersJson)
+        {
+            var methodGrain = GrainClient.GrainFactory.GetGrain<ITypeMethodsGrain>(type);
+            await methodGrain.InvokeGrainMethod(id, methodId, parametersJson);
+        }
     }
+
+    
 }

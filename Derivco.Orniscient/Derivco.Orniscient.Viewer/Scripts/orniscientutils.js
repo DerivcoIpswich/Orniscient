@@ -17,4 +17,14 @@
 	    });
 	}
 
+    orniscientutils.methodsToSelectOptions = function(arr) {
+        return arr.map(function (obj) {
+            return {
+                value: obj.MethodId,
+                label: obj.Name,
+                parameters: obj.Parameters
+            }
+        });
+    }
+
 }(window.orniscientutils = window.orniscientutils || {}, jQuery));
