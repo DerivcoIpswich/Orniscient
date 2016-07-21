@@ -201,6 +201,18 @@ div.floatButton button {
     left: 135px !important;
 }
 
+.vis-zoomOut {
+    right: 95px !important;
+}
+
+.vis-zoomIn {
+    right: 55px !important;
+}
+
+.vis-zoomExtends {
+    right: 55px !important;
+}
+
 .loader {
     height: 100%;
     width: 100%;

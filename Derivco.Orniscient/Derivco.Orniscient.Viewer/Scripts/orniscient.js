@@ -36,6 +36,8 @@
         edges: edges
     };
 
+    orniscient.summaryView = function () {return summaryView;}
+
     orniscient.init = function () {
         console.log('orniscient.init was called');
         container = document.getElementById('mynetwork');
