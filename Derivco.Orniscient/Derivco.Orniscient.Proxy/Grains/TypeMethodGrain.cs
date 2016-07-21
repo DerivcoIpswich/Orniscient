@@ -64,9 +64,10 @@ namespace Derivco.Orniscient.Proxy.Grains
                 {
                     //invoke the method in the grain.
                     var parameters = BuildParameterObjects(JArray.Parse(parametersJson));
-                    await (Task)grain
+                    await (Task) grain
                         .GetType()
-                        .GetMethod(method.Name, BindingFlags.Instance | BindingFlags.Public)
+                        .GetMethod(method.Name, BindingFlags.Instance | BindingFlags.Public, null,
+                            method.Parameters.Select(p => GetTypeFromString(p.Type)).ToArray(), null)
                         .Invoke(grain, parameters);
                 }
             }
@@ -91,6 +92,7 @@ namespace Derivco.Orniscient.Proxy.Grains
                         {
                             Name = m.Name,
                             InterfaceForMethod = @interface.FullName,
+                            MethodId = Guid.NewGuid().ToString(),
                             Parameters = m.GetParameters()
                                 .Select(p => new GrainMethodParameters
                                 {

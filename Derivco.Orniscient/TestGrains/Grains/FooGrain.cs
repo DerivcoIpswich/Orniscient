@@ -63,6 +63,13 @@ namespace TestGrains.Grains
         }
 
         [OrniscientMethod]
+        public Task KeepAliveThree(Dictionary<int, int> dictionaryStringIntThree)
+        {
+            Debug.WriteLine("KeepAliveThree called.");
+            return TaskDone.Done;
+        }
+
+        [OrniscientMethod]
         public Task<FilterRow[]> GetFilters()
         {
             return Task.FromResult(_filters);
