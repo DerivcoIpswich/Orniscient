@@ -98,7 +98,10 @@
             var xhr = new XMLHttpRequest();
             xhr.open('post', 'dashboard/SetSummaryViewLimit', true);
             xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-            xhr.onload = function () { this.searchClicked(e); }.bind(this);
+            xhr.onload = function () {
+                this.searchClicked(e);
+                this.forceUpdate();
+            }.bind(this);
             xhr.send(JSON.stringify(requestData));
         }
     },
@@ -177,15 +180,15 @@
     },
     invokeGrainMethod: function (e) {
         e.preventDefault();
-        
+
         var methodData = this.state.grainMethod;
 
         var parameterValues = [];
 
-        $.each(methodData.parameters, function(index, parameter) {
+        $.each(methodData.parameters, function (index, parameter) {
             var parameterValue = $('#' + parameter.Name).val();
 
-            parameterValues.push({ 'name': parameter.Name, 'type':parameter.Type, 'value': parameterValue });
+            parameterValues.push({ 'name': parameter.Name, 'type': parameter.Type, 'value': parameterValue });
         });
 
         var requestData = {
@@ -201,23 +204,23 @@
         xhr.send(JSON.stringify(requestData));
 
     },
-    parameterInputChanged: function() {
+    parameterInputChanged: function () {
         var empty = false;
 
-        $('#parameterInputs input').each(function() {
+        $('#parameterInputs input').each(function () {
             if ($(this).val() === '') {
                 empty = true;
             }
         });
 
-            if (empty === true) {
-                this.state.disableInvoke = true;
-                console.log('disabled');
-            } else {
-                this.state.disableInvoke = false;
-                console.log('enabled');
-            }
-        
+        if (empty === true) {
+            this.state.disableInvoke = true;
+            console.log('disabled');
+        } else {
+            this.state.disableInvoke = false;
+            console.log('enabled');
+        }
+
     },
     render: function () {
         return (
@@ -252,18 +255,18 @@
                                     <div className="row">
                                         <div className="col-md-12">
                                             <button type="submit" className="btn btn-success pull-right" onClick={this.searchClicked}>Search</button>
-                                        </div>
-                                        <div className="col-md-12">
                                             <button type="submit" className="btn btn-danger pull-left" onClick={this.clearFiltersClicked}>Clear Filters</button>
                                         </div>
                                     </div>
                                     <DashboardTypeCounts data={this.state.typeCounts} />
-                                </form>
                                     <div id="summaryViewLimit">
                                         <h4>Summary View Limit</h4>
-                                        <input type="text" className="form-control" id="summaryviewlimit" placeholder="Summary View Limit" />
-                                        <button type="submit" className="btn btn-success pull-right" onClick={this.setSummaryViewLimitClicked}>Set Limit</button>
+                                        <div className="form-group">
+                                            <input type="text" className="form-control" id="summaryviewlimit" placeholder="Summary View Limit" />
+
+                                        </div><button type="submit" className="btn btn-success pull-right" onClick={this.setSummaryViewLimitClicked}>Set Limit</button>
                                     </div>
+                                </form>
                                 </div>
                              </div>
                         </div>
@@ -273,7 +276,9 @@
                             <div className="floatButton">
                                 <button className="btn btn-default toggleFlyout "><span className="glyphicon glyphicon-chevron-left"></span></button>
                             </div>
+                             {orniscient.summaryView() === false &&
                              <div className="row">
+                                 {this.state.selectedGrainId !== '' &&
                                    <div className="col-md-12">
                                        <h4>Grain Information</h4>
                                        <form>
@@ -283,34 +288,45 @@
                                             </div>
                                             <div className="form-group">
                                                 <h5>Silo</h5>
-                                                <label for="silo" >{ this.state.selectedGrainSilo }</label>
-                                                
+                                                <label for="silo">{ this.state.selectedGrainSilo }</label>
+
                                             </div>
                                             <div className="form-group">
                                                 <h5>Grain Type</h5>
-                                                <label for="grainType" >{ this.state.selectedGrainType }</label>
+                                                <label for="grainType">{ this.state.selectedGrainType }</label>
                                             </div>
                                             <div className="form-group">
                                                 <h5>Grain Methods</h5>
                                                 <Select name="form-field-name" options={this.state.selectedGrainMethods} multi={false} onChange={this.grainMethodSelected} disabled={false} value={ this.state.grainMethod } />
                                             </div>
                                            <div className="form-group" id="parameterInputs">
-                                                <DashboardGrainMethodParameters data={this.state.grainMethod}/>
+                                                <DashboardGrainMethodParameters data={this.state.grainMethod} />
                                            </div>
                                            <div className="row">
                                                 <div className="col-md-12">
                                                     <button type="submit" className="btn btn-success pull-left" id="invokeMethodButton" onClick={this.invokeGrainMethod}>Invoke Method</button>
                                                 </div>
-                                        </div>
+                                           </div>
                                        </form>
                                    </div>
-                                 </div>
+                                 }
+                                 {this.state.selectedGrainId === '' &&
+                            <div className="alert alert-info" role="alert">
+                                <strong>Please select a grain to view grain information.</strong>
+                            </div>
+                                 }
+                             </div>
+                             }
+                             {orniscient.summaryView() === true &&
+                            <div className="alert alert-info" role="alert">
+                                <strong>Method invocation is diasbled during summary view.</strong>
+                            </div>
+                             }
                          </div>
-                        {this.state.grainInfoLoading&&
+                        {this.state.grainInfoLoading &&
                                 <div className="loader"></div>
                         }
                     </div>
-
             </div>
         );
     }
