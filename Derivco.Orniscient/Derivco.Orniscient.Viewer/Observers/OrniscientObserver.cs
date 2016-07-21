@@ -1,53 +1,70 @@
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Derivco.Orniscient.Proxy;
+using Derivco.Orniscient.Proxy.Filters;
 using Derivco.Orniscient.Proxy.Grains;
 using Derivco.Orniscient.Proxy.Grains.Models;
-using Derivco.Orniscient.Proxy.Observers;
 using Derivco.Orniscient.Viewer.Hubs;
 using Microsoft.AspNet.SignalR;
 using Orleans;
+using Orleans.Streams;
 
 namespace Derivco.Orniscient.Viewer.Observers
 {
-    public class OrniscientObserver : IOrniscientObserver
+    public class OrniscientObserver : IAsyncObserver<DiffModel>
     {
         private static readonly Lazy<OrniscientObserver> _instance = new Lazy<OrniscientObserver>(() => new OrniscientObserver());
-        private IOrniscientObserver observer;
+        public static OrniscientObserver Instance => _instance.Value;
+        private IAsyncStream<DiffModel> _stream;
 
-        private OrniscientObserver()
+        public Guid StreamId => _stream.Guid;
+
+        public OrniscientObserver()
         {
-            //Proper async code needed ?????????
-            var orniscientGrain = GrainClient.GrainFactory.GetGrain<IOrniscientReportingGrain>(Guid.Empty);
-            observer = GrainClient.GrainFactory.CreateObjectReference<IOrniscientObserver>(this).Result;
-            orniscientGrain.Subscribe(observer);
+            var streamprovider = GrainClient.GetStreamProvider(StreamKeys.StreamProvider);
+            _stream = streamprovider.GetStream<DiffModel>(Guid.Empty, StreamKeys.OrniscientClient);
+            _stream.SubscribeAsync(this);
         }
 
-        public async Task SetTypeFilter(Func<string,bool> filter)
+        public async Task<DiffModel> GetCurrentSnapshot(AppliedFilter filter = null,int sessionId=0)
+        {
+            var dashboardInstanceGrain = GrainClient.GrainFactory.GetGrain<IDashboardInstanceGrain>(sessionId);
+            var diffmodel = await dashboardInstanceGrain.GetAll(filter);
+            return diffmodel;
+        }
+
+        
+
+        public Task OnNextAsync(DiffModel item, StreamSequenceToken token = null)
+        {
+            if (item != null)
+            {
+                GlobalHost.ConnectionManager.GetHubContext<OrniscientHub>().Clients.Group(item.SessionId.ToString()).grainActivationChanged(item);
+            }
+            return TaskDone.Done;
+        }
+
+        public Task OnCompletedAsync()
+        {
+            return TaskDone.Done;
+        }
+
+        public Task OnErrorAsync(Exception ex)
+        {
+            return TaskDone.Done;
+        }
+
+        public async Task SetTypeFilter(Func<GrainType, bool> filter)
         {
             if (filter != null)
             {
-                var orniscientGrain = GrainClient.GrainFactory.GetGrain<IOrniscientReportingGrain>(Guid.Empty);
-                var availableTypes = await orniscientGrain.GetGrainTypes();
-                await orniscientGrain.SetTypeFilter(availableTypes.Where(filter).ToArray());
+                var dashboardCollecterGrain = GrainClient.GrainFactory.GetGrain<IDashboardCollectorGrain>(Guid.Empty);
+                var availableTypes = await dashboardCollecterGrain.GetGrainTypes();
+                await dashboardCollecterGrain.SetTypeFilter(availableTypes.Where(filter).ToArray());
             }
         }
 
-        public static OrniscientObserver Instance => _instance.Value;
-
-        public async Task<List<UpdateModel>> GetCurrentSnapshot()
-        {
-            var orniscientGrain = GrainClient.GrainFactory.GetGrain<IOrniscientReportingGrain>(Guid.Empty);
-            var temp = await orniscientGrain.GetAll();
-            return temp;
-        }
-
-        public void GrainsUpdated(DiffModel model)
-        {
-            Debug.WriteLine($"Pushing down {model.NewGrains.Count} new grains and removing {model.RemovedGrains.Count}");
-            GlobalHost.ConnectionManager.GetHubContext<OrniscientHub>().Clients.All.grainActivationChanged(model);
-        }
     }
 }
+

@@ -1,6 +1,17 @@
-﻿body {
+﻿html, body {
+    height: 100%;
+}
+
+body {
     padding-top: 50px;
     padding-bottom: 20px;
+    overflow-y: hidden;
+    overflow-x: hidden;
+}
+
+#mynetwork {
+    height: 900px;
+    /*border: 1px solid lightgray;*/
 }
 
 /* Set padding to keep content from hitting the edges */
@@ -43,4 +54,171 @@
     margin-left: -5px;
     border-top-left-radius: 0px;
     border-bottom-left-radius: 0px;
+}
+
+.vis-network-tooltip > table {
+    width: 400px;
+    max-width: 400px;
+    table-layout: fixed;
+    margin-bottom: 0px !important;
+}
+
+.vis-network-tooltip td {
+    -moz-word-break: break-all;
+    -o-word-break: break-all;
+    word-break: break-all;
+    padding: 4px !important;
+    white-space: normal !important;
+    font-size: 70% !important;
+}
+
+div.Select-value {
+    -moz-word-break: break-all;
+    -o-word-break: break-all;
+    word-break: break-all;
+}
+
+span.Select-value-label {
+    max-width: 99% !important;
+}
+
+
+/* Flyout*/
+.flyout {
+    position: absolute;
+    top: 60px;
+    background-color: #efefef;
+    height: 94vh;
+    overflow-y: scroll;
+    
+}
+
+    .flyout h4 {
+        color: #00c0ff;
+        border-bottom: 2px solid lightgray;
+        padding-bottom: 5px;
+    }
+
+    .flyout h5 {
+        padding-top: 14px;
+        color: #00c0ff;
+        font-weight: bold;
+        border-bottom: 1px solid lightgray;
+        padding-bottom: 5px;
+    }
+
+    .flyout label {
+        font-weight: bolder;
+        font-size: 9pt;
+    }
+
+    .flyout div.form-group {
+        padding-left: 8px;
+        padding-right: 5px;
+    }
+
+.floatButton {
+    margin-top: 117px;
+    position: fixed;
+    margin-top: -40px;
+    top: 97px;
+    height: 100%;
+}
+
+div.floatButton button {
+    width: 41px;
+    height: 100%;
+    border-radius: 0px 4px 4px 0px !important;
+    outline: none !important;
+    background-color: #efefef !important;
+}
+
+
+
+/*
+    grain details
+*/
+
+.grainFlyout {
+    float: right;
+    width: 400px;
+    right: -400px;
+    transition: right 0.5s ease;
+}
+
+    .grainFlyout.shown {
+        transition: right 0.5s ease;
+        right: 0px !important;
+    }
+
+      .grainFlyout div.floatButton {
+        float: right;
+        margin-left: -56px;
+    }
+
+        .grainFlyout div.floatButton button {
+            border-right: 0px;
+        }
+
+/*filtermenu*/
+
+.filterFlyout {
+    float: left;
+    width: 400px;
+    left: -400px;
+    transition: left 0.5s ease;
+}
+
+
+    .filterFlyout.shown {
+        transition: left 0.5s ease;
+        left: 0px;
+    }
+
+    .filterFlyout div.floatButton {
+        float: left;
+        margin-left: 384px;
+    }
+
+        .filterFlyout div.floatButton button {
+            border-left: 0px;
+        }
+
+/*vis overrides*/
+.vis-left {
+    left: 55px !important;
+}
+
+.vis-down {
+    left: 95px !important;
+}
+
+.vis-up {
+    left: 95px !important;
+}
+
+.vis-right {
+    left: 135px !important;
+}
+
+.vis-zoomOut {
+    right: 95px !important;
+}
+
+.vis-zoomIn {
+    right: 55px !important;
+}
+
+.vis-zoomExtends {
+    right: 55px !important;
+}
+
+.loader {
+    height: 100%;
+    width: 100%;
+    background: url(/content/img/balls.svg) no-repeat center;
+    position: absolute;
+    background-color: lightgray;
+    top: 0px;
+    opacity: 0.6;
 }

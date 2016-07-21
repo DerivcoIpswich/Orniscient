@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using Derivco.Orniscient.Proxy.Filters;
 using Derivco.Orniscient.Proxy.Grains.Models;
 using Derivco.Orniscient.Viewer.Observers;
 using Microsoft.AspNet.SignalR;
@@ -10,20 +10,26 @@ namespace Derivco.Orniscient.Viewer.Hubs
     [HubName("orniscientHub")]
     public class OrniscientHub : Hub
     {
-        private readonly OrniscientObserver _orniscientObserver;
-
-        public OrniscientHub(OrniscientObserver orniscientObserver)
+        public override Task OnConnected()
         {
-            _orniscientObserver = orniscientObserver;
+            Groups.Add(this.Context.ConnectionId, SessionId.ToString());
+            return base.OnConnected();
         }
 
-        public OrniscientHub()
-            :this(OrniscientObserver.Instance)
-        {}
-
-        public async Task<List<UpdateModel>> GetCurrentSnapshot()
+        [HubMethodName("GetCurrentSnapshot")]
+        public async Task<DiffModel> GetCurrentSnapshot(AppliedFilter filter = null)
         {
-            return await _orniscientObserver.GetCurrentSnapshot();
+            return await OrniscientObserver.Instance.GetCurrentSnapshot(filter, SessionId);
+        }
+
+        private int SessionId
+        {
+            get
+            {
+                var sessionId = 0;
+                int.TryParse(this.Context.Request.QueryString["id"], out sessionId);
+                return sessionId;
+            }
         }
     }
 }

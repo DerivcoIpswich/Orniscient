@@ -6,7 +6,11 @@
 -->
 <ClientConfiguration xmlns="urn:orleans">
     <GatewayProvider ProviderType="Config" />
-    <Gateway Address="localhost" Port="30000" />
+    <Gateway Address="localhost" Port="40000" />
     <Statistics MetricsTableWriteInterval="30s" PerfCounterWriteInterval="30s" LogWriteInterval="300s"
                 WriteLogStatisticsToTable="true" />
+  <StreamProviders>
+    <Provider Type="Orleans.Providers.Streams.SimpleMessageStream.SimpleMessageStreamProvider" Name="SMSProvider" FireAndForgetDelivery="false"/>
+    <!--<Provider Type="Orleans.Providers.Streams.Persistent.AzureQueueStreamProvider" Name="AzureQueueProvider" DataConnectionString=""/> -->
+  </StreamProviders>
 </ClientConfiguration>

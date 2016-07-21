@@ -1,6 +1,6 @@
 ﻿using System;
 using Orleans;
-using IFirstGrain = TestHost.Grains.IFirstGrain;
+using IFirstGrain = TestGrains.Grains.IFirstGrain;
 
 namespace TestHost
 {
@@ -21,10 +21,10 @@ namespace TestHost
 
             GrainClient.Initialize("DevTestClientConfiguration.xml");
             Console.WriteLine("Orleans Silo is running.\nPress Enter to terminate...");
-            
+
 
             //Now we need some test classes....
-            var firstGrain = GrainClient.GrainFactory.GetGrain<IFirstGrain>(Guid.Empty);
+            var firstGrain = GrainClient.GrainFactory.GetGrain<IFirstGrain>("Hallo");
             firstGrain.KeepAlive();
 
             Console.ReadLine();

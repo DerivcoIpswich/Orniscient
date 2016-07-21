@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<!-- 
+	This is a sample client configuration file. 
+	For a detailed reference, see "Orleans Configuration Reference.html".
+-->
+<ClientConfiguration xmlns="urn:orleans">
+    <GatewayProvider ProviderType="Config" />
+    <!--<Gateway Address="192.168.57.138" Port="40000" />-->
+    <Statistics MetricsTableWriteInterval="30s" PerfCounterWriteInterval="30s" LogWriteInterval="300s"
+                WriteLogStatisticsToTable="true" />
+  <SystemStore SystemStoreType ="SqlServer"
+                 DeploymentId="OrleansTest"
+                 DataConnectionString="Data Source=.;Initial Catalog=Orleans;Integrated Security=True;Pooling=False;Max Pool Size=200;Asynchronous Processing=True;MultipleActiveResultSets=True" AdoInvariant="System.Data.SqlClient" />
+</ClientConfiguration>
