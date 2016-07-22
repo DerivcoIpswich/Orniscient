@@ -54,7 +54,7 @@ namespace Derivco.Orniscient.Proxy.Grains
             return null;
         }
 
-        public async Task InvokeGrainMethod(string id, string methodId, string parametersJson)
+        public async Task<object> InvokeGrainMethod(string id, string methodId, string parametersJson)
         {
             var method = _methods.FirstOrDefault(p => p.MethodId == methodId);
             if (method != null)
@@ -64,13 +64,16 @@ namespace Derivco.Orniscient.Proxy.Grains
                 {
                     //invoke the method in the grain.
                     var parameters = BuildParameterObjects(JArray.Parse(parametersJson));
-                    await (Task) grain
-                        .GetType()
+
+                    dynamic methodInvocation = grain.GetType()
                         .GetMethod(method.Name, BindingFlags.Instance | BindingFlags.Public, null,
                             method.Parameters.Select(p => GetTypeFromString(p.Type)).ToArray(), null)
                         .Invoke(grain, parameters);
+
+                    return await methodInvocation;
                 }
             }
+            return null;
         }
 
         private Task HydrateMethodList()
