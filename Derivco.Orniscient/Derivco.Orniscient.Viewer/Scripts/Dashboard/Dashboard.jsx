@@ -127,6 +127,7 @@
             selectedGrainType: '',
             selectedGrainMethods: [],
             grainMethod: null,
+            invokedMethodReturn: null,
             grainInfoLoading: false
         };
     },
@@ -185,10 +186,14 @@
 
         $.each(methodData.parameters, function (index, parameter) {
             var parameterValue = $('#' + parameter.Name).val();
-            if (parameter.IsComplexType) {
-                parameterValues.push({ 'name': parameter.Name, 'type': parameter.Type, 'value': JSON.parse(parameterValue) });
+            if (parameterValue !== '') {
+                if (parameter.IsComplexType) {
+                    parameterValues.push({ 'name': parameter.Name, 'type': parameter.Type, 'value': JSON.parse(parameterValue) });
+                } else {
+                    parameterValues.push({ 'name': parameter.Name, 'type': parameter.Type, 'value': JSON.stringify(parameterValue) });
+                }
             } else {
-                parameterValues.push({ 'name': parameter.Name, 'type': parameter.Type, 'value': JSON.stringify(parameterValue) });
+                parameterValues.push({ 'name': parameter.Name, 'type': parameter.Type, 'value': null });
             }
         });
 
@@ -202,26 +207,16 @@
         var xhr = new XMLHttpRequest();
         xhr.open('post', 'dashboard/InvokeGrainMethod', true);
         xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-        xhr.send(JSON.stringify(requestData));
-
-    },
-    parameterInputChanged: function () {
-        var empty = false;
-
-        $('#parameterInputs input').each(function () {
-            if ($(this).val() === '') {
-                empty = true;
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    this.setState({ invokedMethodReturn: xhr.responseText });
+                } else {
+                    this.setState({ invokedMethodReturn: xhr.statusText });
+                }
             }
-        });
-
-        if (empty === true) {
-            this.state.disableInvoke = true;
-            console.log('disabled');
-        } else {
-            this.state.disableInvoke = false;
-            console.log('enabled');
-        }
-
+        }.bind(this);
+        xhr.send(JSON.stringify(requestData));
     },
     render: function () {
         return (
@@ -309,6 +304,7 @@
                                                 </div>
                                            </div>
                                        </form>
+                                       <DashboardGrainMethodReturnData data={this.state.invokedMethodReturn} />
                                    </div>
                                  }
                                  {this.state.selectedGrainId === '' &&
