@@ -8,6 +8,6 @@ namespace Derivco.Orniscient.Proxy.Grains
     public interface ITypeMethodsGrain : IGrainWithStringKey
     {
         Task<List<GrainMethod>> GetAvailableMethods();
-        Task InvokeGrainMethod(string id, string methodId, string parametersJson);
+        Task<object> InvokeGrainMethod(string id, string methodId, string parametersJson);
     }
 }
