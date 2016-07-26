@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -23,7 +24,7 @@ namespace Derivco.Orniscient.Viewer.Controllers
                 if (!GrainClient.IsInitialized)
                 {
                     GrainClient.Initialize(Server.MapPath("~/DevTestClientConfiguration.xml"));
-                    await OrniscientObserver.Instance.SetTypeFilter(p=>p.FullName.Contains("TestGrains"));
+                    await OrniscientObserver.Instance.SetTypeFilter(p => p.FullName.Contains(ConfigurationManager.AppSettings["GlobalFilter"]));
                 }
                 return View();
             }
@@ -96,5 +97,5 @@ namespace Derivco.Orniscient.Viewer.Controllers
         }
     }
 
-    
+
 }
