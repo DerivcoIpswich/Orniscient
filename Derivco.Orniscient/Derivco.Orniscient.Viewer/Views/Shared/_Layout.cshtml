@@ -13,17 +13,11 @@
 <body>
     <div class="navbar navbar-inverse navbar-fixed-top">
         <div class="navbar-header">
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="#">
+            <a class="navbar-brand brand" href="#">
                 <img alt="Brand" src="@Url.Content("~/Content/img/derivco.png")">
             </a>
-            @Html.ActionLink("Orniscient", "Index", "Home", new {area = ""}, new {@class = "navbar-brand"})
+            @Html.ActionLink("Orniscient", "Index", "Dashboard", new {area = ""}, new {@class = "navbar-brand heading"})
         </div>
-
     </div>
     @RenderBody()
     @Scripts.Render("~/bundles/jquery")

@@ -238,7 +238,7 @@
                             </div>
                              <div className="row">
                                 <div className="col-md-12">
-                                <h4>Filter options</h4>
+                                <h4>Filters</h4>
                                 <form>
                                     <div className="form-group">
                                         <label for="grainid">Grain Id</label>
