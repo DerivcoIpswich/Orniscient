@@ -222,3 +222,13 @@ div.floatButton button {
     top: 0px;
     opacity: 0.6;
 }
+
+.heading {
+    color: white !important;
+    margin-top: 5px;
+    margin-left: -30px;
+}
+
+.brand {
+    margin-left: -12px;
+}
