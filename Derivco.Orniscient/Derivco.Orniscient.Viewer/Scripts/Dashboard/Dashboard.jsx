@@ -153,7 +153,10 @@
         window.addEventListener('nodeSelected', this.orniscientNodeSelected);
     },
     orniscientNodeSelected: function (node, a, b) {
-        this.setState({ grainInfoLoading: true });
+        this.setState({
+            grainInfoLoading: true,
+            invokedMethodReturn: null
+        });
         var grainDetails = node.detail;
         var requestData = {
             type: grainDetails.graintype
@@ -176,7 +179,8 @@
     },
     grainMethodSelected(val) {
         this.setState({
-            grainMethod: val
+            grainMethod: val,
+            invokedMethodReturn: null
         });
     },
     invokeGrainMethod: function (e) {
