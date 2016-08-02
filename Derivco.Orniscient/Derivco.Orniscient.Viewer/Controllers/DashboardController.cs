@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using Derivco.Orniscient.Proxy.Grains;
@@ -22,7 +24,7 @@ namespace Derivco.Orniscient.Viewer.Controllers
                 if (!GrainClient.IsInitialized)
                 {
                     GrainClient.Initialize(Server.MapPath("~/DevTestClientConfiguration.xml"));
-                    await OrniscientObserver.Instance.SetTypeFilter(p=>p.FullName.Contains("TestGrains"));
+                    await OrniscientObserver.Instance.SetTypeFilter(p => p.FullName.Contains(ConfigurationManager.AppSettings["GlobalFilter"]));
                 }
                 return View();
             }
@@ -80,12 +82,20 @@ namespace Derivco.Orniscient.Viewer.Controllers
         }
 
         [HttpPost]
-        public async Task InvokeGrainMethod(string type, string id, string methodId, string parametersJson)
+        public async Task<ActionResult> InvokeGrainMethod(string type, string id, string methodId, string parametersJson)
         {
             var methodGrain = GrainClient.GrainFactory.GetGrain<ITypeMethodsGrain>(type);
-            await methodGrain.InvokeGrainMethod(id, methodId, parametersJson);
+            try
+            {
+                var methodReturnData = await methodGrain.InvokeGrainMethod(id, methodId, parametersJson);
+                return Json(methodReturnData, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Error: " + ex.Message);
+            }
         }
     }
 
-    
+
 }
