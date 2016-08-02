@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
 using Derivco.Orniscient.Proxy.Filters;
@@ -18,7 +19,11 @@ namespace Derivco.Orniscient.Proxy.Grains
         {
             _logger = GetLogger("TypeFilterGrain");
             _filters = new List<FilterRow>();
-            RegisterTimer(SendFilters, null, TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(1));
+
+            var configTimerPeriods = ConfigurationManager.AppSettings["TypeFilterGrainTimerPeriods"];
+            var timerPeriods = configTimerPeriods?.Split(',').Select(int.Parse).ToArray() ?? new[] { 0, 1 };
+
+            RegisterTimer(SendFilters, null, TimeSpan.FromSeconds(timerPeriods[0]), TimeSpan.FromSeconds(timerPeriods[1]));
             return base.OnActivateAsync();
         }
 
