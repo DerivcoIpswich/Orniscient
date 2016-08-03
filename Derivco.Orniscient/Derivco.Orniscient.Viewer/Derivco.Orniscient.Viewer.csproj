@@ -90,6 +90,14 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.Extensions.DependencyInjection, Version=1.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.1.0.0\lib\netstandard1.1\Microsoft.Extensions.DependencyInjection.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.Abstractions.1.0.0\lib\netstandard1.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.Owin, Version=2.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Owin.2.1.0\lib\net45\Microsoft.Owin.dll</HintPath>
       <Private>True</Private>
@@ -115,27 +123,23 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Orleans, Version=1.3.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Orleans.Core.1.3.0\lib\net451\Orleans.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Orleans.Core.1.3.0-beta1\lib\net451\Orleans.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="OrleansCodeGenerator, Version=1.3.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Orleans.OrleansCodeGenerator.1.3.0\lib\net451\OrleansCodeGenerator.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="OrleansDependencyInjection, Version=1.3.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Orleans.OrleansRuntime.1.3.0\lib\net451\OrleansDependencyInjection.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Orleans.OrleansCodeGenerator.1.3.0-beta1\lib\net451\OrleansCodeGenerator.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="OrleansProviders, Version=1.3.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Orleans.OrleansProviders.1.3.0\lib\net451\OrleansProviders.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Orleans.OrleansProviders.1.3.0-beta1\lib\net451\OrleansProviders.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="OrleansRuntime, Version=1.3.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Orleans.OrleansRuntime.1.3.0\lib\net451\OrleansRuntime.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Orleans.OrleansRuntime.1.3.0-beta1\lib\net451\OrleansRuntime.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="OrleansSQLUtils, Version=1.3.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Orleans.OrleansSqlUtils.1.3.0\lib\net451\OrleansSQLUtils.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Orleans.OrleansSqlUtils.1.3.0-beta1\lib\net451\OrleansSQLUtils.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Owin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f0ebd12fd5e55cc5, processorArchitecture=MSIL">

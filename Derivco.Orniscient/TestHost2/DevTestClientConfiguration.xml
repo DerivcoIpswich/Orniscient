@@ -9,7 +9,8 @@
     <!--<Gateway Address="192.168.57.138" Port="40000" />-->
     <Statistics MetricsTableWriteInterval="30s" PerfCounterWriteInterval="30s" LogWriteInterval="300s"
                 WriteLogStatisticsToTable="true" />
-  <SystemStore SystemStoreType ="SqlServer"
+  <!--Add to test with cluster-->
+  <!--<SystemStore SystemStoreType ="SqlServer"
                  DeploymentId="OrleansTest"
-                 DataConnectionString="Data Source=.;Initial Catalog=Orleans;Integrated Security=True;Pooling=False;Max Pool Size=200;Asynchronous Processing=True;MultipleActiveResultSets=True" AdoInvariant="System.Data.SqlClient" />
+                 DataConnectionString="Data Source=.;Initial Catalog=Orleans;Integrated Security=True;Pooling=False;Max Pool Size=200;Asynchronous Processing=True;MultipleActiveResultSets=True" AdoInvariant="System.Data.SqlClient" />-->
 </ClientConfiguration>
