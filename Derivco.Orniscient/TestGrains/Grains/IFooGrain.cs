@@ -11,7 +11,7 @@ namespace TestGrains.Grains
     {
         Task KeepAlive();
 
-        Task KeepAliveOne(int? intOne, string stringOne);
+        Task<Dictionary<string, string>> KeepAliveOne(int? intOne, string stringOne);
 
         Task KeepAliveTwo(ExternalParameterType externalParameterTwo);
 

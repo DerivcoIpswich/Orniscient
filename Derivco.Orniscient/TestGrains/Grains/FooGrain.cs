@@ -35,10 +35,10 @@ namespace TestGrains.Grains
         }
 
         [OrniscientMethod]
-        public Task KeepAliveOne(int? intOne, string stringOne)
+        public Task<Dictionary<string, string>> KeepAliveOne(int? intOne, string stringOne)
         {
             Debug.WriteLine("KeepAliveOne called.");
-            return TaskDone.Done;
+            return Task.FromResult(new Dictionary<string, string> {{"keyone", "keepaliveone"}, {"keytwo", "lolbrew"}});
         }
 
         [OrniscientMethod]

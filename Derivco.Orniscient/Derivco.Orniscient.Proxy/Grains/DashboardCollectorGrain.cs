@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
 using Derivco.Orniscient.Proxy.Attributes;
@@ -25,7 +26,11 @@ namespace Derivco.Orniscient.Proxy.Grains
             _managementGrain = GrainFactory.GetGrain<IManagementGrain>(0);
             //Timer to send the changes down to the dashboard every x minutes....
             await _Hydrate();
-            RegisterTimer(p => GetChanges(), null, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(6));
+
+            var configTimerPeriods = ConfigurationManager.AppSettings["DashboardCollectorGrainTimerPeriods"];
+            var timerPeriods = configTimerPeriods?.Split(',').Select(int.Parse).ToArray() ?? new[] {2, 6};
+
+            RegisterTimer(p => GetChanges(), null, TimeSpan.FromSeconds(timerPeriods[0]), TimeSpan.FromSeconds(timerPeriods[1]));
             await GrainFactory.GetGrain<IFilterGrain>(Guid.Empty).KeepAlive();
         }
 

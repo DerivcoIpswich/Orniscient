@@ -90,7 +90,6 @@ span.Select-value-label {
     background-color: #efefef;
     height: 94vh;
     overflow-y: scroll;
-    
 }
 
     .flyout h4 {
@@ -151,7 +150,7 @@ div.floatButton button {
         right: 0px !important;
     }
 
-      .grainFlyout div.floatButton {
+    .grainFlyout div.floatButton {
         float: right;
         margin-left: -56px;
     }
@@ -221,4 +220,20 @@ div.floatButton button {
     background-color: lightgray;
     top: 0px;
     opacity: 0.6;
+}
+
+.heading {
+    color: white !important;
+    margin-top: 5px;
+    margin-left: -30px;
+}
+
+.brand {
+    margin-left: -12px;
+}
+
+pre.result {
+    white-space: pre;
+    overflow-x: scroll;
+    overflow-y: scroll;
 }

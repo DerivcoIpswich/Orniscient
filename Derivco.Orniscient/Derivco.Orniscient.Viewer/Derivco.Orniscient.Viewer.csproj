@@ -295,6 +295,7 @@
     <None Include="Properties\PublishProfiles\FileDeploy_Front.pubxml" />
     <Content Include="Scripts\Dashboard\DashboardTypeCounts.jsx" />
     <Content Include="Scripts\Dashboard\DashboardGrainMethodParameters.jsx" />
+    <Content Include="Scripts\Dashboard\DashboardGrainMethodReturnData.jsx" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\index.js" />
     <Content Include="Scripts\jquery-1.10.2.js" />
