@@ -1,0 +1,9 @@
+﻿<?xml version="1.0"?>
+<OrleansConfiguration xmlns="urn:orleans" xmlns:xdt="http://schemas.microsoft.com/XML-Document-Transform">
+  <Globals>
+    <BootstrapProviders>
+      <Provider Type="Derivco.Orniscient.Proxy.BootstrapProviders.OrniscientFilterInterceptor" Name="OrniscientFilterInterceptor" xdt:Locator="Match(Name)" xdt:Transform="Remove" />
+    </BootstrapProviders>
+    <BootstrapProviders xdt:Locator="Condition(count(*) = 0)" xdt:Transform="Remove"/>
+  </Globals>
+</OrleansConfiguration>
