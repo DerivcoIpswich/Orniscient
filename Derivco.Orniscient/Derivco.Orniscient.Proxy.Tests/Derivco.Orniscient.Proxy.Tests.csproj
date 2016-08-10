@@ -88,6 +88,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Grains\TypeFilterGrainTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TempTest.cs" />
   </ItemGroup>
