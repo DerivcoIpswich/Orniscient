@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestHost2", "TestHost2\Test
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestGrains", "TestGrains\TestGrains.csproj", "{CF967DF5-6019-4996-8AF9-F47E530DF021}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Derivco.Orniscient.Proxy.Tests", "Derivco.Orniscient.Proxy.Tests\Derivco.Orniscient.Proxy.Tests.csproj", "{FA2C7D9A-3246-4766-92AA-7596004F1DC6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{CF967DF5-6019-4996-8AF9-F47E530DF021}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CF967DF5-6019-4996-8AF9-F47E530DF021}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CF967DF5-6019-4996-8AF9-F47E530DF021}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FA2C7D9A-3246-4766-92AA-7596004F1DC6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FA2C7D9A-3246-4766-92AA-7596004F1DC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FA2C7D9A-3246-4766-92AA-7596004F1DC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FA2C7D9A-3246-4766-92AA-7596004F1DC6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
