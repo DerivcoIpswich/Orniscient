@@ -6,12 +6,26 @@ using System.Threading.Tasks;
 using Derivco.Orniscient.Proxy.Filters;
 using Derivco.Orniscient.Proxy.Grains.Filters;
 using Orleans;
+using Orleans.Core;
 using Orleans.Runtime;
 
 namespace Derivco.Orniscient.Proxy.Grains
 {
     public class TypeFilterGrain : Grain, ITypeFilterGrain
     {
+
+        public TypeFilterGrain()
+        {
+         
+        }
+
+        internal TypeFilterGrain(IGrainIdentity identity, IGrainRuntime runtime)
+            : base(identity, runtime)
+        {
+            OnActivateAsync();
+        }
+
+
         internal List<FilterRow> Filters;
         private Logger _logger;
 
@@ -27,7 +41,7 @@ namespace Derivco.Orniscient.Proxy.Grains
             return base.OnActivateAsync();
         }
 
-        private async Task SendFilters(object arg)
+        internal async Task SendFilters(object arg)
         {
             var filterGrain = GrainFactory.GetGrain<IFilterGrain>(Guid.Empty);
             await filterGrain.UpdateTypeFilters(this.GetPrimaryKeyString(), Filters);
