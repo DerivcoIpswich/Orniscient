@@ -1,6 +1,6 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en-us">
-  <head>
+<head>
     <meta charset="UTF-8">
     <title>Orniscient by DerivcoIpswich</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -8,69 +8,143 @@
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
     <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
-  </head>
-  <body>
+</head>
+<body>
     <section class="page-header">
-      <h1 class="project-name">Orniscient</h1>
-      <h2 class="project-tagline">A visualisation tool for debugging and monitoring Microsoft Orleans applications.</h2>
-      <a href="https://github.com/DerivcoIpswich/Orniscient" class="btn">View on GitHub</a>
-      <a href="https://gitter.im/DerivcoIpswich/Orniscient" class="btn">Chat on Gitter</a>
-      <a href="https://github.com/DerivcoIpswich/Orniscient/zipball/master" class="btn">Download .zip</a>
-      <a href="https://github.com/DerivcoIpswich/Orniscient/tarball/master" class="btn">Download .tar.gz</a>
-      <a href="http://www.derivco.co.uk" class="btn">Derivco Ipswich Website</a>
+        <h1 class="project-name">Orniscient</h1>
+        <h2 class="project-tagline">A visualisation tool for debugging and monitoring Microsoft Orleans applications.</h2>
+        <a href="https://github.com/DerivcoIpswich/Orniscient" class="btn">View on GitHub</a>
+        <a href="https://gitter.im/DerivcoIpswich/Orniscient" class="btn">Chat on Gitter</a>
+        <a href="https://github.com/DerivcoIpswich/Orniscient/zipball/master" class="btn">Download .zip</a>
+        <a href="https://github.com/DerivcoIpswich/Orniscient/tarball/master" class="btn">Download .tar.gz</a>
+        <a href="http://www.derivco.co.uk" class="btn">Derivco Ipswich Website</a>
     </section>
 
     <section class="main-content">
-      <h3>
-<a id="overview" class="anchor" href="#overview" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Overview</h3>
+        <h3>
+            <a id="overview" class="anchor" href="#overview" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Overview
+        </h3>
 
-<p>Orniscient provides an interface for visualising user grains in an Orleans cluster or meta-cluster. Grains can be filtered based on pre-defined public properties, or identifiers such as GUIDs or integer keys, in addition to concrete type definitions.</p>
+        <p>Orniscient provides an interface for visualising user grains in an Orleans cluster or meta-cluster. Grains can be filtered based on pre-defined public properties, or identifiers such as GUIDs or integer keys, in addition to concrete type definitions.</p>
 
-<p>Reflection can also be used to invoke methods on active (or in future inactive) grains.
+        <p>
+            Reflection can also be used to invoke methods on active (or in future inactive) grains.
 
-<h3>
-<a id="status" class="anchor" href="#status" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>PLEASE NOTE: Status</h3>
+            <h3>
+                <a id="status" class="anchor" href="#status" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>PLEASE NOTE: Status
+            </h3>
 
-<p>Orniscient is still in early development and requires a post-1.2 version of Orleans to use, as it relies on a PR submitted to enable the introspection of grain data. From Orleans 1.3 onwards, Orniscient will work with any Orleans cluster.</p>
+        <p>Orniscient is still in early development and requires a post-1.2 version of Orleans to use, as it relies on a PR submitted to enable the introspection of grain data. From Orleans 1.3 onwards, Orniscient will work with any Orleans cluster.</p>
 
-<h3>
-<a id="status" class="anchor" href="#status" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Quick Start (WIP)</h3>
+        <h3>
+            <a id="status" class="anchor" href="#status" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Quick Start (WIP)
+        </h3>
 
-<p>1. Install the Orniscient proxy into your cluster by stating the following into package manager:</p>
-<h6>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Install-Package Derivco.Orniscient.Proxy -Pre</h6>
-<p>2. If not automatically added, manually add this snippet to your Orleans silo configuration file:</p>
-<h6>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;OrleansConfiguration xmlns="urn:orleans"&gt;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Globals&gt;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;BootstrapProviders&gt;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Provider Type="Derivco.Orniscient.Proxy.BootstrapProviders.OrniscientFilterInterceptor" Name="OrniscientFilterInterceptor"/&gt;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/BootstrapProviders&gt;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/Globals&gt;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/OrleansConfiguration&gt;<br>
-</h6>
-<p>3. Download the <a href="https://github.com/DerivcoIpswich/Orniscient">Orniscient Viewer</a> project, configure it to point at the cluster, build it, and execute it.</p>
-<h6>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;More specific details to follow.</h6>
+        <p>1. Install the Orniscient proxy into your cluster by stating the following into package manager:</p>
+        <pre>Install-Package Derivco.Orniscient.Proxy -Pre</pre>
+        
+        <p>2. If not automatically added, manually add this snippet to your Orleans silo configuration file:</p>
+        <pre>&lt;OrleansConfiguration xmlns="urn:orleans"&gt;
+    &lt;Globals&gt;
+        &lt;BootstrapProviders&gt;
+            &lt;Provider Type="Derivco.Orniscient.Proxy.BootstrapProviders.OrniscientFilterInterceptor" 
+                Name="OrniscientFilterInterceptor"/&gt;
+        &lt;/BootstrapProviders&gt;
+    &lt;/Globals&gt;
+&lt;/OrleansConfiguration&gt;
+        </pre>
+        <p>3. Download the <a href="https://github.com/DerivcoIpswich/Orniscient">Orniscient Viewer</a> project, configure it to point at the cluster, build it, and execute it.</p>
+        <h6>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;More specific details to follow.</h6>
 
-<h3>
-<a id="status" class="anchor" href="#status" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Screenshots</h3>
+        <h3>
+            <a id="status" class="anchor" href="#status" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Screenshots
+        </h3>
 
-<p><img src="images/orn1.png"></p>
+        <p><img src="images/orn1.png"></p>
 
-<p><img src="images/orn2.png"></p>
+        <p><img src="images/orn2.png">
+        </p>
 
-<h3>
-<a id="support-or-contact" class="anchor" href="#support-or-contact" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Support or Contact</h3>
+        <h3><a id="HowTo" class="anchor" href="#HowTo"  aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>How To</h3>
 
-<p>Stop by <a href="http://www.gitter.im/DerivcoIpswich/Orniscient">gitter</a> to discuss the tool.</p>
+        <ul>
+            <li>
+                <h4>Global Grain Type Filter</h4>
+                <p>We added the ability to set up a global grain type filter, to ensure that you only see the grains you are interested in. Orleans adds allot of grains that you might not want to see.</p>
+                <p>If you want to set up the global filter, you can call the following method.</p>
+                <pre>OrniscientObserver.Instance.SetTypeFilter(p => p.FullName.Contains("Your namespace"));</pre>
+                <p><i>Currently this method is called in the DashboardController's index method.</i></p>
+            </li>
+            <li>
+                <h4>Invoking Methods from the Dashboard</h4>
+                <p>If you want to invoke methods on a grain from the Dashboard. You need to mark the methods with the <strong>OrniscientMethod</strong> attribute.
+                </p>
+                <pre>[OrniscientMethod]
+public Task YourMethod()
+{}</pre>
+                <p>Please note, that if the dashboard is in summary mode, the option to invoke methods is not available. You will need to use the filters to find the grain on which you would like to invoke the method on.</p>
+            </li>
+            <li>
+                <h4>Set up links between grains</h4>
+                <p>By default grains will not be linked on the dashboard. If you would like to link the grains you need to add the <strong>OrniscientGrain</strong> attribute to your grain implementation.
+                </p>
+                <p>The following parameters is available</p>
+                <ul>
+                    <li>
+                        <p><strong>LinkFromType </strong>- This is the type you would like to link from. If not specified the grain will not be linked to anything
+                        </p></li>
+                    <li>
+                        <p><strong>LinkType</strong> - The link Type, choose between SingleInstance(Links to grain of a specific type, that has only one instance in the system) or SameId(Links to grain of specified type with same id, ideally used for streams)
+                        </p></li>
+                    <li>
+                        <p><strong>Colour</strong> - The border color that will be used to display the grain
+                        </p></li>
+                    <li>
+                        <p><strong>DefaultLinkFromTypeId</strong> - The default to link to when using the SingleInstance linkType. If not specified the default value of the GrainType will be used.
+                        </p></li>
+                </ul>
+                <p><i>example</i>
+                </p>
+                <pre>[OrniscientGrain(typeof(SubGrain), LinkType.SameId, "lightblue")]
+public class FooGrain : Grain, IFooGrain, IFilterableGrain 
+{...}
+                </pre>
+            </li>
+            <li><h4>Setting up client side filters & grain tooltips</h4>
+                <p>You can set up filters for the dashboard, that you can use at runtime to find grains you are interested in. To this, you need to inherit from the <strong>IFilterableGrain</strong> interface.
+                </p>
+                <p>If you have a grain that implements the <strong>IFilterableGrain</strong>, you will get a tooltip with this information when you hover over the grain.</p>
+                <p><i>example</i>
+                </p>
+                <pre>public class FooGrain : Grain, IFooGrain, IFilterableGrain
+{
+    public Task<FilterRow[]> GetFilters()
+    {
+        return Task.FromResult(new[]
+        {
+            new FilterRow {FilterName = "Field to filter 1", Value ="test value"},
+            new FilterRow {FilterName = "Field to filter 2 ", Value = "Some value"}
+        });
+    }
+}
+ 
+</pre>
+            </li>
+        </ul>
+        <h3>
+            <a id="support-or-contact" class="anchor" href="#support-or-contact" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Support or Contact
+        </h3>
 
-      <footer class="site-footer">
-        <span class="site-footer-owner"><a href="https://github.com/DerivcoIpswich/Orniscient">Orniscient</a> is maintained by <a href="https://github.com/DerivcoIpswich">DerivcoIpswich</a>.</span>
+        <p>Stop by <a href="http://www.gitter.im/DerivcoIpswich/Orniscient">gitter</a> to discuss the tool.</p>
 
-        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
-      </footer>
+        <footer class="site-footer">
+            <span class="site-footer-owner"><a href="https://github.com/DerivcoIpswich/Orniscient">Orniscient</a> is maintained by <a href="https://github.com/DerivcoIpswich">DerivcoIpswich</a>.</span>
+
+            <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+        </footer>
 
     </section>
 
-  
-  </body>
+
+</body>
 </html>
