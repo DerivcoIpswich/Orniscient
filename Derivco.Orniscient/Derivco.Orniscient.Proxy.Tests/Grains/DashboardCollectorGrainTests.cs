@@ -11,7 +11,7 @@ using Xunit;
 
 namespace Derivco.Orniscient.Proxy.Tests.Grains
 {
-    public class DashboardCollectorGrainTests : TestCluster
+    public class DashboardCollectorGrainTests : TestCluster ,IDisposable
     {
         public DashboardCollectorGrainTests()
         {
@@ -80,6 +80,11 @@ namespace Derivco.Orniscient.Proxy.Tests.Grains
 
             Assert.NotNull(reply);
             Assert.NotEmpty(reply);
+        }
+
+        public void Dispose()
+        {
+            this.StopAllSilos();
         }
     }
 }

@@ -6,6 +6,7 @@ using Derivco.Orniscient.Proxy.Filters;
 using Derivco.Orniscient.Proxy.Grains.Filters;
 using Derivco.Orniscient.Proxy.Grains.Models;
 using Orleans;
+using Orleans.Core;
 using Orleans.Runtime;
 using Orleans.Streams;
 
@@ -13,6 +14,15 @@ namespace Derivco.Orniscient.Proxy.Grains
 {
     public class DashboardInstanceGrain : Grain, IDashboardInstanceGrain
     {
+        public DashboardInstanceGrain()
+        {}
+
+        internal DashboardInstanceGrain(IGrainIdentity identity, IGrainRuntime runtime) : base(identity, runtime)
+        {
+            OnActivateAsync();
+        }
+
+
         private IDashboardCollectorGrain _dashboardCollectorGrain;
         private AppliedFilter _currentFilter;
         private Logger _logger;

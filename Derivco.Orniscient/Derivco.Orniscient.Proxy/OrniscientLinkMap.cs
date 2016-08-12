@@ -78,7 +78,7 @@ namespace Derivco.Orniscient.Proxy
 
         public Attributes.OrniscientGrain GetLinkFromType(string type)
         {
-            return GetLinkFromType(GetType(type));
+            return GetLinkFromType(GetType(type))??new OrniscientGrain();
         }
 
         public Attributes.OrniscientGrain GetLinkFromType(Type type)
