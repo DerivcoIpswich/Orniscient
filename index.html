@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en-us">
 <head>
     <meta charset="UTF-8">
@@ -37,7 +37,7 @@
         <p>Orniscient is still in early development and requires a post-1.2 version of Orleans to use, as it relies on a PR submitted to enable the introspection of grain data. From Orleans 1.3 onwards, Orniscient will work with any Orleans cluster.</p>
 
         <h3>
-            <a id="status" class="anchor" href="#status" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Quick Start (WIP)
+            <a id="quickstart" class="anchor" href="#quickstart" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Quick Start (WIP)
         </h3>
 
         <p>1. Install the Orniscient proxy into your cluster by stating the following into package manager:</p>
@@ -56,54 +56,47 @@
         <p>3. Download the <a href="https://github.com/DerivcoIpswich/Orniscient">Orniscient Viewer</a> project, configure it to point at the cluster, build it, and execute it.</p>
         <h6>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;More specific details to follow.</h6>
 
-        <h3>
-            <a id="status" class="anchor" href="#status" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Screenshots
-        </h3>
+        <h3><a id="configuringorniscient" class="anchor" href="#configuringorniscient"  aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Configuring Orniscient</h3>
 
         <p><img src="images/orn1.png"></p>
 
-        <p><img src="images/orn2.png">
-        </p>
-
-        <h3><a id="HowTo" class="anchor" href="#HowTo"  aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>How To</h3>
-
         <ul>
             <li>
-                <h4>Global Grain Type Filter</h4>
-                <p>We added the ability to set up a global grain type filter, to ensure that you only see the grains you are interested in. Orleans adds allot of grains that you might not want to see.</p>
-                <p>If you want to set up the global filter, you can call the following method.</p>
+                <h4>Global grain type filters</h4>
+                <p>You can set up a global grain type filter to ensure Orniscient only displays specific grains.</p>
+                <p>To set up the global filter call the following method:</p>
                 <pre>OrniscientObserver.Instance.SetTypeFilter(p => p.FullName.Contains("Your namespace"));</pre>
                 <p><i>Currently this method is called in the DashboardController's index method.</i></p>
             </li>
             <li>
-                <h4>Invoking Methods from the Dashboard</h4>
-                <p>If you want to invoke methods on a grain from the Dashboard. You need to mark the methods with the <strong>OrniscientMethod</strong> attribute.
+                <h4>Invoking methods via the Viewer</h4>
+                <p>If you want to invoke methods on a grain from the Viewer. You need to mark the methods with the <strong>OrniscientMethod</strong> attribute.
                 </p>
                 <pre>[OrniscientMethod]
 public Task YourMethod()
 {}</pre>
-                <p>Please note, that if the dashboard is in summary mode, the option to invoke methods is not available. You will need to use the filters to find the grain on which you would like to invoke the method on.</p>
+                <p><i>Note, if the Viewer is in summary mode, then the option to invoke methods is not available. You will need to use filters to find the grain on which you would like to invoke the method.</i></p>
             </li>
             <li>
-                <h4>Set up links between grains</h4>
-                <p>By default grains will not be linked on the dashboard. If you would like to link the grains you need to add the <strong>OrniscientGrain</strong> attribute to your grain implementation.
+                <h4>Setting up links (edges) between grains</h4>
+                <p>By default grains will not be connected by edges on the Viewer. To link the grains, add the <strong>OrniscientGrain</strong> attribute to your grain implementation.
                 </p>
-                <p>The following parameters is available</p>
+                <p>The following parameters are available:</p>
                 <ul>
                     <li>
-                        <p><strong>LinkFromType </strong>- This is the type you would like to link from. If not specified the grain will not be linked to anything
+                        <p><strong>LinkFromType </strong>- The type you would like to link from. If unspecified, the grain will not be linked to anything else.
                         </p></li>
                     <li>
-                        <p><strong>LinkType</strong> - The link Type, choose between SingleInstance(Links to grain of a specific type, that has only one instance in the system) or SameId(Links to grain of specified type with same id, ideally used for streams)
+                        <p><strong>LinkType</strong> - The link type. <i>SingleInstance</i> links to grain of a specific type, which have only one instance in the system, while <i>SameId</i> links to grains of specific type with same id as the source.
                         </p></li>
                     <li>
-                        <p><strong>Colour</strong> - The border color that will be used to display the grain
+                        <p><strong>Colour</strong> - The colour of the border around the grain node.
                         </p></li>
                     <li>
-                        <p><strong>DefaultLinkFromTypeId</strong> - The default to link to when using the SingleInstance linkType. If not specified the default value of the GrainType will be used.
+                        <p><strong>DefaultLinkFromTypeId</strong> - The default to link to when using the <i>SingleInstance</i> link type. If unspecified, the default value of the <i>GrainType</i> will be used.
                         </p></li>
                 </ul>
-                <p><i>example</i>
+                <p>Example:
                 </p>
                 <pre>[OrniscientGrain(typeof(SubGrain), LinkType.SameId, "lightblue")]
 public class FooGrain : Grain, IFooGrain, IFilterableGrain 
@@ -111,10 +104,10 @@ public class FooGrain : Grain, IFooGrain, IFilterableGrain
                 </pre>
             </li>
             <li><h4>Setting up client side filters & grain tooltips</h4>
-                <p>You can set up filters for the dashboard, that you can use at runtime to find grains you are interested in. To this, you need to inherit from the <strong>IFilterableGrain</strong> interface.
+                <p>You can set up filters which can be configured in the Viewer to enable visualisation of a subset of grains by inheriting from the <strong>IFilterableGrain</strong> interface.
                 </p>
                 <p>If you have a grain that implements the <strong>IFilterableGrain</strong>, you will get a tooltip with this information when you hover over the grain.</p>
-                <p><i>example</i>
+                <p>Example:
                 </p>
                 <pre>public class FooGrain : Grain, IFooGrain, IFilterableGrain
 {
