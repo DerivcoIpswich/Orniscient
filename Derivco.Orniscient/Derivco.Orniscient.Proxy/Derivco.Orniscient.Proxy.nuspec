@@ -1,0 +1,12 @@
+﻿<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>Derivco.Orniscient.Proxy</id>
+        <version>1.0</version>
+        <authors>Derivco Ipswich</authors>
+        <owners>Derivco Ipswich</owners>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Provides monitoring and visualisation support for an Orleans cluster.</description>
+        <tags>Orleans Monitoring Visualisation</tags>
+    </metadata>
+</package>

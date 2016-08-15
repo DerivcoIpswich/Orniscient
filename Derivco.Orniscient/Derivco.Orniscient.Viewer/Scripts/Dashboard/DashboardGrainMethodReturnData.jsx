@@ -1,14 +1,44 @@
 ﻿var DashboardGrainMethodReturnData = React.createClass({
-    render: function () {
-        var methodReturnData = this.props.data;
+    render: function() {
+        if (this.props.data != undefined) {
+            var methodReturnData = this.props.data;
+            var panelClassName = '',
+                panelMessage = '',
+                methodResult = '';
 
-        var renderData = methodReturnData !== null && methodReturnData.indexOf('Error: ') === -1 ?
-            (<div className="panel panel-success"><div className="panel-heading"><strong>The method was invoked successfully.</strong></div><div className="panel-body">{methodReturnData === '' ? 'No data was returned.' : methodReturnData}</div></div>) :
-            (<div className="panel panel-danger"><div className="panel-heading"><strong>An error occured when invoking the method.</strong></div><div className="panel-body">{methodReturnData}</div></div>);
+            if (methodReturnData !== null && methodReturnData.indexOf('Error: ') === -1) {
+                panelClassName = 'panel panel-success';
+                panelMessage = 'The method was invoked successfully.';
+            } else {
+                panelClassName = 'panel panel-danger';
+                panelMessage = 'An error occured when invoking the method.';
+            }
 
-        return (
-            methodReturnData !== null &&
-            (<div className=""><h5>Result</h5>{renderData}</div>)
-        );
+            if (methodReturnData === '') {
+                methodResult = <div className="panel-body">No data was returned.</div>;
+            } else {
+                try {
+
+                    var retObj = JSON.parse(methodReturnData);
+                    methodResult = <div className="panel-body"><pre className="result">{JSON.stringify(retObj, null, '\t')}</pre></div>;
+                } catch (exception) {
+                    methodResult = <div className="panel-body">{methodReturnData}</div>;
+                }
+            }
+
+            return (
+                methodReturnData !== null &&
+                (<div className="">
+                    <h5>Result</h5>
+                    <div className={panelClassName}>
+                        <div className="panel-heading">
+                            <strong>{panelMessage}</strong>
+                        </div>
+                       {methodResult}
+                    </div>
+                </div>)
+            );
+        }
+        return (<div></div>);
     }
 });
