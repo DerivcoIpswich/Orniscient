@@ -100,6 +100,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Grains\TypeMethodGrainTests.cs" />
     <Compile Include="Grains\DashboardCollectorGrainTests.cs" />
     <Compile Include="Grains\DashboardInstanceGrainTests.cs" />
     <Compile Include="Grains\TypeFilterGrainTests.cs" />
@@ -110,6 +111,10 @@
     <ProjectReference Include="..\Derivco.Orniscient.Proxy\Derivco.Orniscient.Proxy.csproj">
       <Project>{72287681-2b57-4aff-9e5a-1016017eb0b1}</Project>
       <Name>Derivco.Orniscient.Proxy</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TestGrains\TestGrains.csproj">
+      <Project>{cf967df5-6019-4996-8af9-f47e530df021}</Project>
+      <Name>TestGrains</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
