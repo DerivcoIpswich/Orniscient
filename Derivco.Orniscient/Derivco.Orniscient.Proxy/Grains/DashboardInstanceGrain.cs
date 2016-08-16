@@ -18,10 +18,7 @@ namespace Derivco.Orniscient.Proxy.Grains
         {}
 
         internal DashboardInstanceGrain(IGrainIdentity identity, IGrainRuntime runtime) : base(identity, runtime)
-        {
-            OnActivateAsync();
-        }
-
+        {}
 
         private IDashboardCollectorGrain _dashboardCollectorGrain;
         private AppliedFilter _currentFilter;
@@ -31,8 +28,8 @@ namespace Derivco.Orniscient.Proxy.Grains
         private int SessionId => (int) this.GetPrimaryKeyLong();
         
         private int _summaryViewLimit = 100; 
-        private List<UpdateModel> _currentStats;
-        private bool InSummaryMode => _currentStats != null && _currentStats.Count > _summaryViewLimit;
+        internal List<UpdateModel> CurrentStats = new List<UpdateModel>();
+        private bool InSummaryMode => CurrentStats != null && CurrentStats.Count > _summaryViewLimit;
         private IAsyncStream<DiffModel> _dashboardInstanceStream;
 
         public override async Task OnActivateAsync()
@@ -52,11 +49,11 @@ namespace Derivco.Orniscient.Proxy.Grains
 
         public async Task<DiffModel> GetAll(AppliedFilter filter = null)
         {
-            _logger.Verbose($"GetAll called DashboardInstance Grain [Id : {this.GetPrimaryKeyLong()}][CurrentStatsCount : {_currentStats?.Count}]");
+            _logger.Verbose($"GetAll called DashboardInstance Grain [Id : {this.GetPrimaryKeyLong()}][CurrentStatsCount : {CurrentStats?.Count}]");
             _currentFilter = filter;
-            _currentStats = await ApplyFilter(await _dashboardCollectorGrain.GetAll());
+            CurrentStats = await ApplyFilter(await _dashboardCollectorGrain.GetAll());
 
-            _logger.Verbose($"GetAll called DashboardInstance Grain [Id : {this.GetPrimaryKeyLong()}][CurrentStatsCount : {_currentStats?.Count}]");
+            _logger.Verbose($"GetAll called DashboardInstance Grain [Id : {this.GetPrimaryKeyLong()}][CurrentStatsCount : {CurrentStats?.Count}]");
 
             //if we are over the summaryViewLimit we need to keep the summary model details, then the counts will be updated every time new items are pushed here from the DashboardCollecterGrain/
             if (InSummaryMode)
@@ -72,7 +69,7 @@ namespace Derivco.Orniscient.Proxy.Grains
             //under normal circumstances we just returned the detail grains.
             return new DiffModel
             {
-                NewGrains = _currentStats
+                NewGrains = CurrentStats
             };
         }
 
@@ -143,7 +140,7 @@ namespace Derivco.Orniscient.Proxy.Grains
         {
             _logger.Verbose($"OnNextAsync called with {item.NewGrains.Count} items");
             var newGrains = await ApplyFilter(item.NewGrains);
-            _currentStats.AddRange(newGrains);
+            CurrentStats?.AddRange(newGrains);
 
             if (InSummaryMode)
             {
@@ -176,12 +173,12 @@ namespace Derivco.Orniscient.Proxy.Grains
             //add the orniscient info here......
             var summaryLinks = new List<Link>();
 
-            foreach (var updateModel in _currentStats)
+            foreach (var updateModel in CurrentStats)
             {
                 var orniscientInfo = OrniscientLinkMap.Instance.GetLinkFromType(updateModel.Type);
                 if (orniscientInfo.HasLinkFromType)
                 {
-                    var linkToGrain = _currentStats.FirstOrDefault(p => p.Id == updateModel.LinkToId);
+                    var linkToGrain = CurrentStats.FirstOrDefault(p => p.Id == updateModel.LinkToId);
                     if (linkToGrain != null)
                     {
                         string linkToGrainSummaryId = $"{linkToGrain.Type}_{linkToGrain.Silo}";
@@ -208,7 +205,7 @@ namespace Derivco.Orniscient.Proxy.Grains
 
         private List<UpdateModel> GetGrainSummaries()
         {
-            var changedSummaries = (from grain in _currentStats
+            var changedSummaries = (from grain in CurrentStats
                                     group grain by new { grain.Type, grain.Silo, grain.Colour }
                                     into grp
                                     select new UpdateModel()

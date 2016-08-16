@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Derivco.Orniscient.Proxy.Filters;
 using Derivco.Orniscient.Proxy.Grains;
@@ -7,8 +8,14 @@ using Derivco.Orniscient.Proxy.Grains.Filters;
 using Derivco.Orniscient.Proxy.Grains.Models;
 using Derivco.Orniscient.Proxy.Tests.Utils;
 using NSubstitute;
+using Orleans;
 using Orleans.Core;
+using Orleans.Providers;
+using Orleans.Providers.Streams.SimpleMessageStream;
 using Orleans.Runtime;
+using Orleans.Streams;
+using Orleans.TestingHost;
+using Orleans.TestingHost.Utils;
 using Xunit;
 
 namespace Derivco.Orniscient.Proxy.Tests.Grains
@@ -20,13 +27,17 @@ namespace Derivco.Orniscient.Proxy.Tests.Grains
         [Fact]
         public async Task GetAll_NoFilter_ShouldReturnAllGrainsFromDashboardCollector()
         {
-            var dashboardCollectedGrain = NSubstitute.Substitute.For<IDashboardCollectorGrain>();
+            var dashboardCollectedGrain = Substitute.For<IDashboardCollectorGrain>();
             dashboardCollectedGrain.GetAll().Returns(GetAllMock());
 
-            var runtime = TestHelpers.MockRuntime();
-            runtime.GrainFactory.GetGrain<IDashboardCollectorGrain>(Guid.Empty).Returns(dashboardCollectedGrain);
+            var grainRuntime = TestHelpers.MockRuntime();
+            var stream = Substitute.For<IAsyncStream<DiffModel>>();
+            grainRuntime.MockStream(stream);
 
-            var grain = new DashboardInstanceGrain(Substitute.For<IGrainIdentity>(), runtime);
+            grainRuntime.GrainFactory.GetGrain<IDashboardCollectorGrain>(Guid.Empty).Returns(dashboardCollectedGrain);
+
+            var grain = new DashboardInstanceGrain(Substitute.For<IGrainIdentity>(), grainRuntime);
+            await grain.OnActivateAsync();
             var result = await grain.GetAll(null);
 
             Assert.NotEmpty(result.NewGrains);
@@ -39,9 +50,13 @@ namespace Derivco.Orniscient.Proxy.Tests.Grains
             dashboardCollectedGrain.GetAll().Returns(GetAllMock());
 
             var runtime = TestHelpers.MockRuntime();
+            var stream = Substitute.For<IAsyncStream<DiffModel>>();
+            runtime.MockStream(stream);
+
             runtime.GrainFactory.GetGrain<IDashboardCollectorGrain>(Guid.Empty).Returns(dashboardCollectedGrain);
 
             var grain = new DashboardInstanceGrain(Substitute.For<IGrainIdentity>(), runtime);
+            await grain.OnActivateAsync();
             var result = await grain.GetAll(new AppliedFilter()
             {
                 GrainId = "1"
@@ -58,12 +73,16 @@ namespace Derivco.Orniscient.Proxy.Tests.Grains
             dashboardCollectedGrain.GetAll().Returns(GetAllMock());
 
             var runtime = TestHelpers.MockRuntime();
+            var stream = Substitute.For<IAsyncStream<DiffModel>>();
+            runtime.MockStream(stream);
+
             runtime.GrainFactory.GetGrain<IDashboardCollectorGrain>(Guid.Empty).Returns(dashboardCollectedGrain);
 
             var grain = new DashboardInstanceGrain(Substitute.For<IGrainIdentity>(), runtime);
+            await grain.OnActivateAsync();
             var result = await grain.GetAll(new AppliedFilter()
             {
-                SelectedSilos = new [] { "Silo1"}
+                SelectedSilos = new[] { "Silo1" }
             });
 
             Assert.NotEmpty(result.NewGrains);
@@ -77,9 +96,14 @@ namespace Derivco.Orniscient.Proxy.Tests.Grains
             dashboardCollectedGrain.GetAll().Returns(GetAllMock());
 
             var runtime = TestHelpers.MockRuntime();
+            var stream = Substitute.For<IAsyncStream<DiffModel>>();
+            runtime.MockStream(stream);
+
             runtime.GrainFactory.GetGrain<IDashboardCollectorGrain>(Guid.Empty).Returns(dashboardCollectedGrain);
 
             var grain = new DashboardInstanceGrain(Substitute.For<IGrainIdentity>(), runtime);
+            await grain.OnActivateAsync();
+
             var result = await grain.GetAll(new AppliedFilter()
             {
                 TypeFilters = new List<AppliedTypeFilter>()
@@ -125,11 +149,16 @@ namespace Derivco.Orniscient.Proxy.Tests.Grains
             });
 
             var runtime = TestHelpers.MockRuntime();
+            var stream = Substitute.For<IAsyncStream<DiffModel>>();
+            runtime.MockStream(stream);
+
             runtime.GrainFactory.GetGrain<IDashboardCollectorGrain>(Guid.Empty).Returns(dashboardCollectedGrain);
             runtime.GrainFactory.GetGrain<IFilterGrain>(Guid.Empty).Returns(filterGrain);
 
 
             var grain = new DashboardInstanceGrain(Substitute.For<IGrainIdentity>(), runtime);
+            await grain.OnActivateAsync();
+
             var result = await grain.GetAll(new AppliedFilter()
             {
                 TypeFilters = new List<AppliedTypeFilter>()
@@ -143,19 +172,24 @@ namespace Derivco.Orniscient.Proxy.Tests.Grains
             });
 
             Assert.NotEmpty(result.NewGrains);
-            Assert.Equal(true, result.NewGrains.TrueForAll(g => g.GrainId=="1"));
+            Assert.Equal(true, result.NewGrains.TrueForAll(g => g.GrainId == "1"));
         }
 
         [Fact]
         public async Task GetAll_WhenOverSummaryViewLimit_ShouldReturnDiffModelWithSummaryViewTrue()
         {
-            var dashboardCollectedGrain = NSubstitute.Substitute.For<IDashboardCollectorGrain>();
+            var dashboardCollectedGrain = Substitute.For<IDashboardCollectorGrain>();
             dashboardCollectedGrain.GetAll().Returns(GetAllMock());
 
             var runtime = TestHelpers.MockRuntime();
+            var stream = Substitute.For<IAsyncStream<DiffModel>>();
+            runtime.MockStream(stream);
+
             runtime.GrainFactory.GetGrain<IDashboardCollectorGrain>(Guid.Empty).Returns(dashboardCollectedGrain);
 
             var grain = new DashboardInstanceGrain(Substitute.For<IGrainIdentity>(), runtime);
+            await grain.OnActivateAsync();
+
             await grain.SetSummaryViewLimit(1);
             var result = await grain.GetAll(null);
 
@@ -165,13 +199,18 @@ namespace Derivco.Orniscient.Proxy.Tests.Grains
         [Fact]
         public async Task GetAll_WhenInSummaryView_ShouldReturnDistinctTypesWithCounts()
         {
-            var dashboardCollectedGrain = NSubstitute.Substitute.For<IDashboardCollectorGrain>();
+            var dashboardCollectedGrain = Substitute.For<IDashboardCollectorGrain>();
             dashboardCollectedGrain.GetAll().Returns(GetAllMock());
 
             var runtime = TestHelpers.MockRuntime();
+            var stream = Substitute.For<IAsyncStream<DiffModel>>();
+            runtime.MockStream(stream);
+
             runtime.GrainFactory.GetGrain<IDashboardCollectorGrain>(Guid.Empty).Returns(dashboardCollectedGrain);
 
             var grain = new DashboardInstanceGrain(Substitute.For<IGrainIdentity>(), runtime);
+            await grain.OnActivateAsync();
+
             await grain.SetSummaryViewLimit(1);
             var result = await grain.GetAll(null);
             Assert.Equal(2, result.NewGrains.Count);
@@ -216,15 +255,89 @@ namespace Derivco.Orniscient.Proxy.Tests.Grains
         public async Task GetGrainTypes_ShouldReturnGrainTypesFromDashboardCollectorGrain()
         {
             var dashboardCollectedGrain = Substitute.For<IDashboardCollectorGrain>();
-            dashboardCollectedGrain.GetGrainTypes().Returns(new GrainType[] {new GrainType("TestType")});
+            dashboardCollectedGrain.GetGrainTypes().Returns(new GrainType[] { new GrainType("TestType") });
 
             var runtime = TestHelpers.MockRuntime();
+            var stream = Substitute.For<IAsyncStream<DiffModel>>();
+            runtime.MockStream(stream);
+
             runtime.GrainFactory.GetGrain<IDashboardCollectorGrain>(Guid.Empty).Returns(dashboardCollectedGrain);
 
-            var grain = new DashboardInstanceGrain(Substitute.For<IGrainIdentity>(),runtime);
+            var grain = new DashboardInstanceGrain(Substitute.For<IGrainIdentity>(), runtime);
+            await grain.OnActivateAsync();
+
             var result = await grain.GetGrainTypes();
 
             Assert.NotEmpty(result);
+        }
+
+        #endregion
+
+        #region OnNextAsync
+
+        [Fact]
+        public async Task OnNextAsync_ShouldAddItemsToCurrentStatsThenPassToDashboardInstanceStream()
+        {
+            var runtime = TestHelpers.MockRuntime();
+
+            var stream = NSubstitute.Substitute.For<IAsyncStream<DiffModel>>();
+            runtime.MockStream(stream);
+            var grain = new DashboardInstanceGrain(Substitute.For<IGrainIdentity>(), runtime);
+            await grain.OnActivateAsync();
+
+            await grain.OnNextAsync(new DiffModel()
+            {
+                NewGrains = new List<UpdateModel>()
+                {
+                    new UpdateModel() {GrainId = "1", Type = "TestType1"}
+                }
+            });
+
+            await stream.Received().OnNextAsync(Arg.Is<DiffModel>(p => p.NewGrains.First().GrainId == "1"));
+        }
+
+        [Fact]
+        public async Task OnNextAsync_ShouldAddItemsToTheCurrentStatsForTheGrain()
+        {
+            var runtime = TestHelpers.MockRuntime();
+
+            var stream = NSubstitute.Substitute.For<IAsyncStream<DiffModel>>();
+            runtime.MockStream(stream);
+            var grain = new DashboardInstanceGrain(Substitute.For<IGrainIdentity>(), runtime);
+            await grain.OnActivateAsync();
+
+            await grain.OnNextAsync(new DiffModel()
+            {
+                NewGrains = new List<UpdateModel>()
+                {
+                    new UpdateModel() {GrainId = "1", Type = "TestType1"}
+                }
+            });
+
+            Assert.NotEmpty(grain.CurrentStats);
+        }
+
+        [Fact]
+        public async Task OnNextAsync_WhenInSummaryMode_ShouldReturnAggregatedGrainsAndSummaryViewShouldbeTrue()
+        {
+            var runtime = TestHelpers.MockRuntime();
+
+            var stream = NSubstitute.Substitute.For<IAsyncStream<DiffModel>>();
+            runtime.MockStream(stream);
+            var grain = new DashboardInstanceGrain(Substitute.For<IGrainIdentity>(), runtime);
+            await grain.OnActivateAsync();
+
+            await grain.SetSummaryViewLimit(1);
+            await grain.OnNextAsync(new DiffModel()
+            {
+                NewGrains = new List<UpdateModel>()
+                {
+                    new UpdateModel() {GrainId = "1", Type = "TestType1"},
+                    new UpdateModel() {GrainId = "2", Type = "TestType1"}
+                }
+            });
+
+            await stream.Received().OnNextAsync(Arg.Is<DiffModel>(p => p.NewGrains.First().Count == 2 && p.SummaryView == true));
         }
 
         #endregion
