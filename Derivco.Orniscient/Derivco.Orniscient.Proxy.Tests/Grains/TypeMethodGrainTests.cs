@@ -6,6 +6,7 @@ using Xunit;
 
 namespace Derivco.Orniscient.Proxy.Tests.Grains
 {
+
     public class TypeMethodGrainTests : TestCluster
     {
         public TypeMethodGrainTests()

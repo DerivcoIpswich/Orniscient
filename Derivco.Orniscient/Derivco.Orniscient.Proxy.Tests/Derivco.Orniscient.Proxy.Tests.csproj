@@ -120,6 +120,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Grains\Filters\FilterGrainTests.cs" />
     <Compile Include="Grains\TypeMethodGrainTests.cs" />
     <Compile Include="Grains\DashboardCollectorGrainTests.cs" />
     <Compile Include="Grains\DashboardInstanceGrainTests.cs" />
