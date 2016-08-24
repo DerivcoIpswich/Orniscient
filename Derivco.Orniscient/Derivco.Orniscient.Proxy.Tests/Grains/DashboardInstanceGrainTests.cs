@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Derivco.Orniscient.Proxy.Attributes;
 using Derivco.Orniscient.Proxy.Filters;
 using Derivco.Orniscient.Proxy.Grains;
 using Derivco.Orniscient.Proxy.Grains.Filters;
@@ -36,7 +37,7 @@ namespace Derivco.Orniscient.Proxy.Tests.Grains
 
             grainRuntime.GrainFactory.GetGrain<IDashboardCollectorGrain>(Guid.Empty).Returns(dashboardCollectedGrain);
 
-            var grain = new DashboardInstanceGrain(Substitute.For<IGrainIdentity>(), grainRuntime);
+            var grain = new DashboardInstanceGrain(Substitute.For<IGrainIdentity>(), grainRuntime, Substitute.For<IOrniscientLinkMap>());
             await grain.OnActivateAsync();
             var result = await grain.GetAll(null);
 
@@ -55,7 +56,7 @@ namespace Derivco.Orniscient.Proxy.Tests.Grains
 
             runtime.GrainFactory.GetGrain<IDashboardCollectorGrain>(Guid.Empty).Returns(dashboardCollectedGrain);
 
-            var grain = new DashboardInstanceGrain(Substitute.For<IGrainIdentity>(), runtime);
+            var grain = new DashboardInstanceGrain(Substitute.For<IGrainIdentity>(), runtime, Substitute.For<IOrniscientLinkMap>());
             await grain.OnActivateAsync();
             var result = await grain.GetAll(new AppliedFilter()
             {
@@ -78,7 +79,7 @@ namespace Derivco.Orniscient.Proxy.Tests.Grains
 
             runtime.GrainFactory.GetGrain<IDashboardCollectorGrain>(Guid.Empty).Returns(dashboardCollectedGrain);
 
-            var grain = new DashboardInstanceGrain(Substitute.For<IGrainIdentity>(), runtime);
+            var grain = new DashboardInstanceGrain(Substitute.For<IGrainIdentity>(), runtime, Substitute.For<IOrniscientLinkMap>());
             await grain.OnActivateAsync();
             var result = await grain.GetAll(new AppliedFilter()
             {
@@ -101,7 +102,7 @@ namespace Derivco.Orniscient.Proxy.Tests.Grains
 
             runtime.GrainFactory.GetGrain<IDashboardCollectorGrain>(Guid.Empty).Returns(dashboardCollectedGrain);
 
-            var grain = new DashboardInstanceGrain(Substitute.For<IGrainIdentity>(), runtime);
+            var grain = new DashboardInstanceGrain(Substitute.For<IGrainIdentity>(), runtime, Substitute.For<IOrniscientLinkMap>());
             await grain.OnActivateAsync();
 
             var result = await grain.GetAll(new AppliedFilter()
@@ -156,7 +157,7 @@ namespace Derivco.Orniscient.Proxy.Tests.Grains
             runtime.GrainFactory.GetGrain<IFilterGrain>(Guid.Empty).Returns(filterGrain);
 
 
-            var grain = new DashboardInstanceGrain(Substitute.For<IGrainIdentity>(), runtime);
+            var grain = new DashboardInstanceGrain(Substitute.For<IGrainIdentity>(), runtime, Substitute.For<IOrniscientLinkMap>());
             await grain.OnActivateAsync();
 
             var result = await grain.GetAll(new AppliedFilter()
@@ -187,7 +188,11 @@ namespace Derivco.Orniscient.Proxy.Tests.Grains
 
             runtime.GrainFactory.GetGrain<IDashboardCollectorGrain>(Guid.Empty).Returns(dashboardCollectedGrain);
 
-            var grain = new DashboardInstanceGrain(Substitute.For<IGrainIdentity>(), runtime);
+            var orniscientLinkMap = Substitute.For<IOrniscientLinkMap>();
+            orniscientLinkMap.GetLinkFromType(Arg.Any<string>()).Returns(new OrniscientGrain());
+
+
+            var grain = new DashboardInstanceGrain(Substitute.For<IGrainIdentity>(), runtime, orniscientLinkMap);
             await grain.OnActivateAsync();
 
             await grain.SetSummaryViewLimit(1);
@@ -200,6 +205,7 @@ namespace Derivco.Orniscient.Proxy.Tests.Grains
         public async Task GetAll_WhenInSummaryView_ShouldReturnDistinctTypesWithCounts()
         {
             var dashboardCollectedGrain = Substitute.For<IDashboardCollectorGrain>();
+            dashboardCollectedGrain.GetAll(Arg.Any<string>()).Returns(GetAllMock());
             dashboardCollectedGrain.GetAll().Returns(GetAllMock());
 
             var runtime = TestHelpers.MockRuntime();
@@ -208,7 +214,10 @@ namespace Derivco.Orniscient.Proxy.Tests.Grains
 
             runtime.GrainFactory.GetGrain<IDashboardCollectorGrain>(Guid.Empty).Returns(dashboardCollectedGrain);
 
-            var grain = new DashboardInstanceGrain(Substitute.For<IGrainIdentity>(), runtime);
+            var orniscientLinkMap = Substitute.For<IOrniscientLinkMap>();
+            orniscientLinkMap.GetLinkFromType(Arg.Any<string>()).Returns(new OrniscientGrain());
+
+            var grain = new DashboardInstanceGrain(Substitute.For<IGrainIdentity>(), runtime, orniscientLinkMap);
             await grain.OnActivateAsync();
 
             await grain.SetSummaryViewLimit(1);
@@ -263,7 +272,7 @@ namespace Derivco.Orniscient.Proxy.Tests.Grains
 
             runtime.GrainFactory.GetGrain<IDashboardCollectorGrain>(Guid.Empty).Returns(dashboardCollectedGrain);
 
-            var grain = new DashboardInstanceGrain(Substitute.For<IGrainIdentity>(), runtime);
+            var grain = new DashboardInstanceGrain(Substitute.For<IGrainIdentity>(), runtime, Substitute.For<IOrniscientLinkMap>());
             await grain.OnActivateAsync();
 
             var result = await grain.GetGrainTypes();
@@ -282,7 +291,7 @@ namespace Derivco.Orniscient.Proxy.Tests.Grains
 
             var stream = NSubstitute.Substitute.For<IAsyncStream<DiffModel>>();
             runtime.MockStream(stream);
-            var grain = new DashboardInstanceGrain(Substitute.For<IGrainIdentity>(), runtime);
+            var grain = new DashboardInstanceGrain(Substitute.For<IGrainIdentity>(), runtime, Substitute.For<IOrniscientLinkMap>());
             await grain.OnActivateAsync();
 
             await grain.OnNextAsync(new DiffModel()
@@ -303,7 +312,7 @@ namespace Derivco.Orniscient.Proxy.Tests.Grains
 
             var stream = NSubstitute.Substitute.For<IAsyncStream<DiffModel>>();
             runtime.MockStream(stream);
-            var grain = new DashboardInstanceGrain(Substitute.For<IGrainIdentity>(), runtime);
+            var grain = new DashboardInstanceGrain(Substitute.For<IGrainIdentity>(), runtime, Substitute.For<IOrniscientLinkMap>());
             await grain.OnActivateAsync();
 
             await grain.OnNextAsync(new DiffModel()
@@ -324,7 +333,11 @@ namespace Derivco.Orniscient.Proxy.Tests.Grains
 
             var stream = NSubstitute.Substitute.For<IAsyncStream<DiffModel>>();
             runtime.MockStream(stream);
-            var grain = new DashboardInstanceGrain(Substitute.For<IGrainIdentity>(), runtime);
+
+            var orniscientLinkMap = Substitute.For<IOrniscientLinkMap>();
+            orniscientLinkMap.GetLinkFromType(Arg.Any<string>()).Returns(new OrniscientGrain());
+
+            var grain = new DashboardInstanceGrain(Substitute.For<IGrainIdentity>(), runtime, orniscientLinkMap);
             await grain.OnActivateAsync();
 
             await grain.SetSummaryViewLimit(1);

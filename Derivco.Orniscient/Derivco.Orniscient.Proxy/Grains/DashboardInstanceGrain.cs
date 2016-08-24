@@ -14,11 +14,15 @@ namespace Derivco.Orniscient.Proxy.Grains
 {
     public class DashboardInstanceGrain : Grain, IDashboardInstanceGrain
     {
+        private IOrniscientLinkMap _orniscientLink;
+
         public DashboardInstanceGrain()
         {}
 
-        internal DashboardInstanceGrain(IGrainIdentity identity, IGrainRuntime runtime) : base(identity, runtime)
-        {}
+        internal DashboardInstanceGrain(IGrainIdentity identity, IGrainRuntime runtime,IOrniscientLinkMap orniscientLink) : base(identity, runtime)
+        {
+            _orniscientLink = orniscientLink;
+        }
 
         private IDashboardCollectorGrain _dashboardCollectorGrain;
         private AppliedFilter _currentFilter;
@@ -34,6 +38,11 @@ namespace Derivco.Orniscient.Proxy.Grains
 
         public override async Task OnActivateAsync()
         {
+            if (_orniscientLink==null)
+            {
+                _orniscientLink = OrniscientLinkMap.Instance;
+            }
+
             await base.OnActivateAsync();
             _logger = GetLogger("DashboardInstanceGrain");
 
@@ -175,7 +184,7 @@ namespace Derivco.Orniscient.Proxy.Grains
 
             foreach (var updateModel in CurrentStats)
             {
-                var orniscientInfo = OrniscientLinkMap.Instance.GetLinkFromType(updateModel.Type);
+                var orniscientInfo = _orniscientLink.GetLinkFromType(updateModel.Type);
                 if (orniscientInfo.HasLinkFromType)
                 {
                     var linkToGrain = CurrentStats.FirstOrDefault(p => p.Id == updateModel.LinkToId);
