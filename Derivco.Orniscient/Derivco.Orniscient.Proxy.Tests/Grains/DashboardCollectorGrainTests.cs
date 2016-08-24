@@ -1,27 +1,27 @@
 ﻿using System;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
-using Derivco.Orniscient.Proxy.Filters;
 using Derivco.Orniscient.Proxy.Grains;
 using Derivco.Orniscient.Proxy.Grains.Models;
+using Derivco.Orniscient.Proxy.Tests.Grains.TestFixtures;
 using Orleans;
-using Orleans.TestingHost;
 using Xunit;
 
 namespace Derivco.Orniscient.Proxy.Tests.Grains
 {
-    public class DashboardCollectorGrainTests : TestCluster ,IDisposable
+    public class DashboardCollectorGrainTests : IClassFixture<DashboardCollectorGrainTestFixture>
     {
-        public DashboardCollectorGrainTests()
+        private readonly DashboardCollectorGrainTestFixture _fixture;
+
+        public DashboardCollectorGrainTests(DashboardCollectorGrainTestFixture fixture)
         {
-            Deploy();
+            _fixture = fixture;
         }
 
         [Fact]
         public async Task GetAll_ShouldReturnMoreThanOneSilo()
         {
-            var grain = GrainFactory.GetGrain<IDashboardCollectorGrain>(Guid.Empty);
+            var grain = _fixture.HostedCluster.GrainFactory.GetGrain<IDashboardCollectorGrain>(Guid.Empty);
 
             var reply = await grain.GetAll();
             
@@ -32,7 +32,7 @@ namespace Derivco.Orniscient.Proxy.Tests.Grains
         [Fact]
         public async Task GetAll_DashboardCollectorGrainType_ShouldReturnOnlyDashboardCollectorGrainSilos()
         {
-            var grain = GrainFactory.GetGrain<IDashboardCollectorGrain>(Guid.Empty);
+            var grain = _fixture.HostedCluster.GrainFactory.GetGrain<IDashboardCollectorGrain>(Guid.Empty);
 
             var reply = await grain.GetAll("Derivco.Orniscient.Proxy.Grains.DashboardCollectorGrain");
 
@@ -42,7 +42,7 @@ namespace Derivco.Orniscient.Proxy.Tests.Grains
         [Fact]
         public async Task GetAll_ManagementGrainType_ShouldReturnOnlyManagementGrainSilos()
         {
-            var grain = GrainFactory.GetGrain<IDashboardCollectorGrain>(Guid.Empty);
+            var grain = _fixture.HostedCluster.GrainFactory.GetGrain<IDashboardCollectorGrain>(Guid.Empty);
 
             var reply = await grain.GetAll("Derivco.Orniscient.Proxy.Grains.ManagementGrain");
 
@@ -52,7 +52,7 @@ namespace Derivco.Orniscient.Proxy.Tests.Grains
         [Fact]
         public async Task GetGrainTypes_ShouldReturnAllActiveGrainTypes()
         {
-            var grain = GrainFactory.GetGrain<IDashboardCollectorGrain>(Guid.Empty);
+            var grain = _fixture.HostedCluster.GrainFactory.GetGrain<IDashboardCollectorGrain>(Guid.Empty);
 
             var reply = await grain.GetGrainTypes();
 
@@ -63,7 +63,7 @@ namespace Derivco.Orniscient.Proxy.Tests.Grains
         [Fact]
         public async Task GetGrainTypes_SetTypeFilterToDashboardCollectorGrainAndManagementGrain_ShouldReturnOnlyDashboardCollectorAndManagementGrains()
         {
-            var grain = GrainFactory.GetGrain<IDashboardCollectorGrain>(Guid.Empty);
+            var grain = _fixture.HostedCluster.GrainFactory.GetGrain<IDashboardCollectorGrain>(Guid.Empty);
 
             await grain.SetTypeFilter(new[] {new GrainType("Derivco.Orniscient.Proxy.Grains.DashboardCollectorGrain"), new GrainType("Derivco.Orniscient.Proxy.Grains.ManagementGrain") });
             var reply = await grain.GetGrainTypes();
@@ -74,17 +74,12 @@ namespace Derivco.Orniscient.Proxy.Tests.Grains
         [Fact]
         public async Task GetSilos_ShouldReturnMoreThanOneSilo()
         {
-            var grain = GrainFactory.GetGrain<IDashboardCollectorGrain>(Guid.Empty);
+            var grain = _fixture.HostedCluster.GrainFactory.GetGrain<IDashboardCollectorGrain>(Guid.Empty);
 
             var reply = await grain.GetSilos();
 
             Assert.NotNull(reply);
             Assert.NotEmpty(reply);
-        }
-
-        public void Dispose()
-        {
-            this.StopAllSilos();
         }
     }
 }
