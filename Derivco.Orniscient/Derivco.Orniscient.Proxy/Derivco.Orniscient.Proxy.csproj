@@ -90,6 +90,7 @@
     <Compile Include="Attributes\OrniscientMethod.cs" />
     <Compile Include="Grains\TypeFilterGrain.cs" />
     <Compile Include="Grains\TypeMethodGrain.cs" />
+    <Compile Include="IOrniscientLinkMap.cs" />
     <Compile Include="OrniscientLinkMap.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StreamKeys.cs" />
