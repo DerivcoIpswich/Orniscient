@@ -1,14 +1,23 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Derivco.Orniscient.Proxy.Filters;
 using Orleans;
+using Orleans.Core;
 using Orleans.Runtime;
 
 namespace Derivco.Orniscient.Proxy.Grains.Filters
 {
     public class FilterGrain : Grain, IFilterGrain
     {
+        public FilterGrain()
+        {}
+
+        internal FilterGrain(IGrainIdentity identity, IGrainRuntime runtime) : base(identity, runtime)
+        {}
+
+
         private List<TypeFilter> _filters;
         private Logger _logger;
 

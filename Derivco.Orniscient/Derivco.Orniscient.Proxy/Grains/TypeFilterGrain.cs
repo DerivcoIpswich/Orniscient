@@ -6,19 +6,33 @@ using System.Threading.Tasks;
 using Derivco.Orniscient.Proxy.Filters;
 using Derivco.Orniscient.Proxy.Grains.Filters;
 using Orleans;
+using Orleans.Core;
 using Orleans.Runtime;
 
 namespace Derivco.Orniscient.Proxy.Grains
 {
     public class TypeFilterGrain : Grain, ITypeFilterGrain
     {
-        private List<FilterRow> _filters;
+
+        public TypeFilterGrain()
+        {
+         
+        }
+
+        internal TypeFilterGrain(IGrainIdentity identity, IGrainRuntime runtime)
+            : base(identity, runtime)
+        {
+            OnActivateAsync();
+        }
+
+
+        internal List<FilterRow> Filters;
         private Logger _logger;
 
         public override Task OnActivateAsync()
         {
             _logger = GetLogger("TypeFilterGrain");
-            _filters = new List<FilterRow>();
+            Filters = new List<FilterRow>();
 
             var configTimerPeriods = ConfigurationManager.AppSettings["TypeFilterGrainTimerPeriods"];
             var timerPeriods = configTimerPeriods?.Split(',').Select(int.Parse).ToArray() ?? new[] { 0, 1 };
@@ -27,11 +41,11 @@ namespace Derivco.Orniscient.Proxy.Grains
             return base.OnActivateAsync();
         }
 
-        private async Task SendFilters(object arg)
+        internal async Task SendFilters(object arg)
         {
             var filterGrain = GrainFactory.GetGrain<IFilterGrain>(Guid.Empty);
-            await filterGrain.UpdateTypeFilters(this.GetPrimaryKeyString(), _filters);
-            _filters.Clear();
+            await filterGrain.UpdateTypeFilters(this.GetPrimaryKeyString(), Filters);
+            Filters.Clear();
         }
 
         public Task RegisterFilter(string typeName, string grainId, FilterRow[] filters)
@@ -44,7 +58,7 @@ namespace Derivco.Orniscient.Proxy.Grains
                 return true;
             });
 
-            _filters.AddRange(filters);
+            Filters.AddRange(filters);
             return TaskDone.Done;
         }
     }
