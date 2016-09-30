@@ -25,21 +25,32 @@ namespace Derivco.Orniscient.Proxy
             _typeMap = new Dictionary<Type, OrniscientGrain>();
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
-                foreach (var type in assembly.GetTypes())
+                try
                 {
-                    //if this type is not a grain we do not want it..
-                    if (!typeof(IGrain).IsAssignableFrom(type))
-                        continue;
-
-                    var attribs = type.GetCustomAttributes(typeof(Attributes.OrniscientGrain), false);
-                    var orniscientInfo = attribs.FirstOrDefault() as OrniscientGrain ?? new OrniscientGrain();
-                    orniscientInfo.IdentityType = GetIdentityType(type);
-
-                    if (orniscientInfo.HasLinkFromType && string.IsNullOrEmpty(orniscientInfo.DefaultLinkFromTypeId))
+                    foreach (var type in assembly.GetTypes())
                     {
-                        orniscientInfo.DefaultLinkFromTypeId = GetDefaultLinkFromTypeId(type);
+
+                        //if this type is not a grain we do not want it..
+                        if (!typeof(IGrain).IsAssignableFrom(type))
+                            continue;
+
+                        var attribs = type.GetCustomAttributes(typeof(Attributes.OrniscientGrain), false);
+                        var orniscientInfo = attribs.FirstOrDefault() as OrniscientGrain ?? new OrniscientGrain();
+                        orniscientInfo.IdentityType = GetIdentityType(type);
+
+                        if (orniscientInfo.HasLinkFromType && string.IsNullOrEmpty(orniscientInfo.DefaultLinkFromTypeId))
+                        {
+                            orniscientInfo.DefaultLinkFromTypeId = GetDefaultLinkFromTypeId(type);
+                        }
+                        _typeMap.Add(type, orniscientInfo);
+
+
                     }
-                    _typeMap.Add(type, orniscientInfo);
+                }
+                catch (Exception)
+                {
+
+                    //throw;
                 }
             }
         }

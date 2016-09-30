@@ -82,6 +82,10 @@
       <HintPath>..\packages\Microsoft.Orleans.OrleansRuntime.1.3.0-beta2\lib\net451\OrleansRuntime.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="OrleansTelemetryConsumers.Counters, Version=1.3.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Orleans.OrleansTelemetryConsumers.Counters.1.3.0-beta2\lib\net451\OrleansTelemetryConsumers.Counters.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="OrleansTestingHost, Version=1.3.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Orleans.TestingHost.1.3.0-beta2\lib\net451\OrleansTestingHost.dll</HintPath>
       <Private>True</Private>
