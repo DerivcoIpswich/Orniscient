@@ -19,11 +19,11 @@ namespace Derivco.Orniscient.Proxy
             }
         }
 
-        
+
         private void CreateTypeMap()
         {
             _typeMap = new Dictionary<Type, OrniscientGrain>();
-            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies()) 
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
                 foreach (var type in assembly.GetTypes())
                 {
@@ -79,7 +79,7 @@ namespace Derivco.Orniscient.Proxy
 
         public OrniscientGrain GetLinkFromType(string type)
         {
-            return GetLinkFromType(GetType(type))??new OrniscientGrain();
+            return GetLinkFromType(GetType(type)) ?? new OrniscientGrain();
         }
 
         public OrniscientGrain GetLinkFromType(Type type)
