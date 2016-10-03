@@ -11,13 +11,7 @@ namespace Derivco.Orniscient.Proxy.Tests.Grains
 {
     public class DashboardCollectorGrainTests : IClassFixture<DashboardCollectorGrainTestFixture>
     {
-        protected static IGrainFactory GrainFactory { get { return GrainClient.GrainFactory; } }
-        //private readonly DashboardCollectorGrainTestFixture _fixture;
-
-        //public DashboardCollectorGrainTests(DashboardCollectorGrainTestFixture fixture)
-        //{
-        //    _fixture = fixture;
-        //}
+        protected static IGrainFactory GrainFactory => GrainClient.GrainFactory;
 
         [Fact]
         public async Task GetAll_ShouldReturnMoreThanOneSilo()

@@ -11,10 +11,8 @@ namespace Derivco.Orniscient.Proxy.Tests.Grains.TestFixtures
         public BaseTestFixture()
         {
             this.HostedCluster = new TestCluster();
-            SerializationManager.InitializeForTesting();
             if (this.HostedCluster.Primary == null)
             {
-                //LogManager.TelemetryConsumers.Add(new OrleansPerfCounterTelemetryConsumer());
                 HostedCluster.Deploy();
             }
         }
@@ -22,7 +20,6 @@ namespace Derivco.Orniscient.Proxy.Tests.Grains.TestFixtures
         public void Dispose()
         {
             this.HostedCluster.StopAllSilos();
-
         }
 
         public TestCluster HostedCluster { get; private set; }

@@ -10,14 +10,7 @@ namespace Derivco.Orniscient.Proxy.Tests.Grains
 {
     public class TypeMethodGrainTests : IClassFixture<TypeMethodGrainTestFixture>
     {
-        //private readonly TypeMethodGrainTestFixture _fixture;
-
-        //public TypeMethodGrainTests(TypeMethodGrainTestFixture fixture)
-        //{
-        //    _fixture = fixture;
-        //}
-
-        protected static IGrainFactory GrainFactory { get { return GrainClient.GrainFactory; } }
+        protected static IGrainFactory GrainFactory => GrainClient.GrainFactory;
 
         [Fact]
         public async Task GetAvailableMethods_FooGrain_ShouldReturnSixMethods()
