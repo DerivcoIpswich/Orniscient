@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Derivco.Orniscient.Proxy.Tests.Grains
 {
-    public class DashboardCollectorGrainTests : IClassFixture<DashboardCollectorGrainTestFixture>,IDisposable
+    public class DashboardCollectorGrainTests : IClassFixture<DashboardCollectorGrainTestFixture>
     {
         private readonly DashboardCollectorGrainTestFixture _fixture;
 
@@ -80,11 +80,6 @@ namespace Derivco.Orniscient.Proxy.Tests.Grains
 
             Assert.NotNull(reply);
             Assert.NotEmpty(reply);
-        }
-
-        public void Dispose()
-        {
-            _fixture.Dispose();
         }
     }
 }

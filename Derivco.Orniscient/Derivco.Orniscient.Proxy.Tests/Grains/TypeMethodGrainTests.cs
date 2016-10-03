@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Derivco.Orniscient.Proxy.Tests.Grains
 {
-    public class TypeMethodGrainTests : IClassFixture<TypeMethodGrainTestFixture>,IDisposable
+    public class TypeMethodGrainTests : IClassFixture<TypeMethodGrainTestFixture>
     {
         private readonly TypeMethodGrainTestFixture _fixture;
 
@@ -38,12 +38,6 @@ namespace Derivco.Orniscient.Proxy.Tests.Grains
             
             Assert.NotNull(reply);
             Assert.Equal(expected, reply.Count);
-        }
-
-
-        public void Dispose()
-        {
-            _fixture.Dispose();
         }
     }
 }

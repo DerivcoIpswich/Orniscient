@@ -1,4 +1,5 @@
-﻿using Orleans.TestingHost;
+﻿using Orleans;
+using Orleans.TestingHost;
 
 namespace Derivco.Orniscient.Proxy.Tests.Grains.TestFixtures
 {
@@ -16,7 +17,7 @@ namespace Derivco.Orniscient.Proxy.Tests.Grains.TestFixtures
         public void Dispose()
         {
             this.HostedCluster.StopAllSilos();
-            
+
         }
 
         public TestCluster HostedCluster { get; private set; }
