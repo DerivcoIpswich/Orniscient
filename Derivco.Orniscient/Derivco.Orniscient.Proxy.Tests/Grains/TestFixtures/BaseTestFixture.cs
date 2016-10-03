@@ -16,6 +16,7 @@ namespace Derivco.Orniscient.Proxy.Tests.Grains.TestFixtures
         public void Dispose()
         {
             this.HostedCluster.StopAllSilos();
+            
         }
 
         public TestCluster HostedCluster { get; private set; }

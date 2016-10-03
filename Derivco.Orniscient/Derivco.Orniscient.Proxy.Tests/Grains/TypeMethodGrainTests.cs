@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Derivco.Orniscient.Proxy.Grains;
 using Derivco.Orniscient.Proxy.Tests.Grains.TestFixtures;
 using Orleans.Runtime;
@@ -6,7 +7,7 @@ using Xunit;
 
 namespace Derivco.Orniscient.Proxy.Tests.Grains
 {
-    public class TypeMethodGrainTests : IClassFixture<TypeMethodGrainTestFixture>
+    public class TypeMethodGrainTests : IClassFixture<TypeMethodGrainTestFixture>,IDisposable
     {
         private readonly TypeMethodGrainTestFixture _fixture;
 
@@ -39,6 +40,10 @@ namespace Derivco.Orniscient.Proxy.Tests.Grains
             Assert.Equal(expected, reply.Count);
         }
 
-       
+
+        public void Dispose()
+        {
+            _fixture.Dispose();
+        }
     }
 }
