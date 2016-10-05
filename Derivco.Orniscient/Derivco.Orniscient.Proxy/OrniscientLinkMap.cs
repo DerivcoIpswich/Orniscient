@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Derivco.Orniscient.Proxy.Attributes;
 using Orleans;
 using Orleans.Runtime;
@@ -14,7 +15,7 @@ namespace Derivco.Orniscient.Proxy
 
         private OrniscientLinkMap()
         {
-            
+
             if (_typeMap == null)
             {
                 CreateTypeMap();
@@ -27,32 +28,26 @@ namespace Derivco.Orniscient.Proxy
             _typeMap = new Dictionary<Type, OrniscientGrain>();
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
-                try
+                foreach (var type in assembly.GetLoadableTypes())
                 {
-                    foreach (var type in assembly.GetTypes())
+                    //if this type is not a grain we do not want it..
+                    if (!typeof(IGrain).IsAssignableFrom(type))
+                        continue;
+
+                    var attribs = type.GetCustomAttributes(typeof(Attributes.OrniscientGrain), false);
+                    var orniscientInfo = attribs.FirstOrDefault() as OrniscientGrain ?? new OrniscientGrain();
+                    orniscientInfo.IdentityType = GetIdentityType(type);
+
+                    if (orniscientInfo.HasLinkFromType && string.IsNullOrEmpty(orniscientInfo.DefaultLinkFromTypeId))
                     {
-                        //if this type is not a grain we do not want it..
-                        if (!typeof(IGrain).IsAssignableFrom(type))
-                            continue;
-
-                        var attribs = type.GetCustomAttributes(typeof(Attributes.OrniscientGrain), false);
-                        var orniscientInfo = attribs.FirstOrDefault() as OrniscientGrain ?? new OrniscientGrain();
-                        orniscientInfo.IdentityType = GetIdentityType(type);
-
-                        if (orniscientInfo.HasLinkFromType && string.IsNullOrEmpty(orniscientInfo.DefaultLinkFromTypeId))
-                        {
-                            orniscientInfo.DefaultLinkFromTypeId = GetDefaultLinkFromTypeId(type);
-                        }
-                        _typeMap.Add(type, orniscientInfo);
+                        orniscientInfo.DefaultLinkFromTypeId = GetDefaultLinkFromTypeId(type);
                     }
+                    _typeMap.Add(type, orniscientInfo);
                 }
-                catch (Exception ex)
-                {
-                    GrainClient.Logger.Info($"Could not load types for {assembly.FullName}, Exception : {ex.InnerException.Message}");
-                }    
-                
             }
         }
+
+
 
         private IdentityTypes GetIdentityType(Type type)
         {
@@ -102,6 +97,21 @@ namespace Derivco.Orniscient.Proxy
         {
             var temp = AppDomain.CurrentDomain.GetAssemblies();
             return temp.Select(a => a.GetType(typeName)).FirstOrDefault(t => t != null);
+        }
+    }
+
+    public static class AssemblyExtensions
+    {
+        public static IEnumerable<Type> GetLoadableTypes(this Assembly assembly)
+        {
+            try
+            {
+                return assembly.GetTypes();
+            }
+            catch (ReflectionTypeLoadException e)
+            {
+                return e.Types.Where(t => t != null);
+            }
         }
     }
 }
