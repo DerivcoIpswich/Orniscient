@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Derivco.Orniscient.Proxy.Attributes;
 using Orleans;
 using Orleans.Runtime;
@@ -97,21 +96,6 @@ namespace Derivco.Orniscient.Proxy
         {
             var temp = AppDomain.CurrentDomain.GetAssemblies();
             return temp.Select(a => a.GetType(typeName)).FirstOrDefault(t => t != null);
-        }
-    }
-
-    public static class AssemblyExtensions
-    {
-        public static IEnumerable<Type> GetLoadableTypes(this Assembly assembly)
-        {
-            try
-            {
-                return assembly.GetTypes();
-            }
-            catch (ReflectionTypeLoadException e)
-            {
-                return e.Types.Where(t => t != null);
-            }
         }
     }
 }

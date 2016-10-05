@@ -67,6 +67,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AssemblyExtensions.cs" />
     <Compile Include="Attributes\OrniscientGrain.cs" />
     <Compile Include="BootstrapProviders\OrniscientFilterInterceptor.cs" />
     <Compile Include="Filters\AppliedFilter.cs" />
