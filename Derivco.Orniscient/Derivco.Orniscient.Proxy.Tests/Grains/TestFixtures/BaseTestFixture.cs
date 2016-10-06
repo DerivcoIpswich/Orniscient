@@ -1,4 +1,5 @@
-﻿using Orleans;
+﻿using Derivco.Orniscient.Proxy.BootstrapProviders;
+using Orleans;
 using Orleans.Runtime;
 using Orleans.Runtime.Configuration;
 using Orleans.Serialization;
@@ -11,8 +12,8 @@ namespace Derivco.Orniscient.Proxy.Tests.Grains.TestFixtures
     {
         public BaseTestFixture()
         {
-            
             var options = new TestClusterOptions(1);
+            options.ClusterConfiguration.Globals.RegisterBootstrapProvider<OrniscientFilterInterceptor>("OrniscientFilterInterceptor");
             //options.ClusterConfiguration.Globals.ResponseTimeout = TimeSpan.FromMinutes(1);
             options.ClusterConfiguration.ApplyToAllNodes(nodeConfig => nodeConfig.MaxActiveThreads = 1);
             this.HostedCluster = new TestCluster(options);

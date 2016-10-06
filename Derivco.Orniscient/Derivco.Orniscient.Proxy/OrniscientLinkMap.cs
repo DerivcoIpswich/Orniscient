@@ -12,22 +12,24 @@ namespace Derivco.Orniscient.Proxy
         private static readonly Lazy<OrniscientLinkMap> _instance = new Lazy<OrniscientLinkMap>(() => new OrniscientLinkMap());
         private Dictionary<Type, Attributes.OrniscientGrain> _typeMap;
 
-        private OrniscientLinkMap()
+        public void Init(Logger _logger)
         {
-
+            this.Logger = _logger;
             if (_typeMap == null)
             {
                 CreateTypeMap();
             }
         }
 
+        public Logger Logger { get; set; }
 
         private void CreateTypeMap()
         {
+            Logger.Info("Building the orniscient Link map.");
             _typeMap = new Dictionary<Type, OrniscientGrain>();
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
-                foreach (var type in assembly.GetLoadableTypes())
+                foreach (var type in assembly.GetLoadableTypes(Logger))
                 {
                     //if this type is not a grain we do not want it..
                     if (!typeof(IGrain).IsAssignableFrom(type))
