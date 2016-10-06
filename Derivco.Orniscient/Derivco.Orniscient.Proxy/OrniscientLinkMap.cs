@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Derivco.Orniscient.Proxy.Attributes;
 using Orleans;
+using Orleans.Runtime;
 
 namespace Derivco.Orniscient.Proxy
 {
@@ -11,21 +12,24 @@ namespace Derivco.Orniscient.Proxy
         private static readonly Lazy<OrniscientLinkMap> _instance = new Lazy<OrniscientLinkMap>(() => new OrniscientLinkMap());
         private Dictionary<Type, Attributes.OrniscientGrain> _typeMap;
 
-        private OrniscientLinkMap()
+        public void Init(Logger _logger)
         {
+            this.Logger = _logger;
             if (_typeMap == null)
             {
                 CreateTypeMap();
             }
         }
 
-        
+        public Logger Logger { get; set; }
+
         private void CreateTypeMap()
         {
+            Logger.Info("Building the orniscient Link map.");
             _typeMap = new Dictionary<Type, OrniscientGrain>();
-            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies()) 
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
-                foreach (var type in assembly.GetTypes())
+                foreach (var type in assembly.GetLoadableTypes(Logger))
                 {
                     //if this type is not a grain we do not want it..
                     if (!typeof(IGrain).IsAssignableFrom(type))
@@ -43,6 +47,8 @@ namespace Derivco.Orniscient.Proxy
                 }
             }
         }
+
+
 
         private IdentityTypes GetIdentityType(Type type)
         {
@@ -79,7 +85,7 @@ namespace Derivco.Orniscient.Proxy
 
         public OrniscientGrain GetLinkFromType(string type)
         {
-            return GetLinkFromType(GetType(type))??new OrniscientGrain();
+            return GetLinkFromType(GetType(type)) ?? new OrniscientGrain();
         }
 
         public OrniscientGrain GetLinkFromType(Type type)

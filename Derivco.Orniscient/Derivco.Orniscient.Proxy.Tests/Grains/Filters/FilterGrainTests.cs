@@ -19,7 +19,7 @@ namespace Derivco.Orniscient.Proxy.Tests.Grains.Filters
         {
             var runtime = TestHelpers.MockRuntime();
             var grain = new FilterGrain(Substitute.For<IGrainIdentity>(),runtime);
-            grain.OnActivateAsync();
+            await grain.OnActivateAsync();
 
             await grain.UpdateTypeFilters("TestType", new List<FilterRow>()
             {
@@ -36,7 +36,7 @@ namespace Derivco.Orniscient.Proxy.Tests.Grains.Filters
         {
             var runtime = TestHelpers.MockRuntime();
             var grain = new FilterGrain(Substitute.For<IGrainIdentity>(), runtime);
-            grain.OnActivateAsync();
+            await grain.OnActivateAsync();
 
             await grain.UpdateTypeFilters("TestType", new List<FilterRow>()
             {
@@ -58,7 +58,7 @@ namespace Derivco.Orniscient.Proxy.Tests.Grains.Filters
         {
             var runtime = TestHelpers.MockRuntime();
             var grain = new FilterGrain(Substitute.For<IGrainIdentity>(), runtime);
-            grain.OnActivateAsync();
+            await grain.OnActivateAsync();
 
             await grain.UpdateTypeFilters("TestType", new List<FilterRow>()
             {
@@ -81,7 +81,7 @@ namespace Derivco.Orniscient.Proxy.Tests.Grains.Filters
         {
             var runtime = TestHelpers.MockRuntime();
             var grain = new FilterGrain(Substitute.For<IGrainIdentity>(), runtime);
-            grain.OnActivateAsync();
+            await grain.OnActivateAsync();
 
             await grain.UpdateTypeFilters("TestType1", new List<FilterRow>()
             {
@@ -105,7 +105,7 @@ namespace Derivco.Orniscient.Proxy.Tests.Grains.Filters
         {
             var runtime = TestHelpers.MockRuntime();
             var grain = new FilterGrain(Substitute.For<IGrainIdentity>(), runtime);
-            grain.OnActivateAsync();
+            await grain.OnActivateAsync();
 
             await grain.UpdateTypeFilters("TestType1", new List<FilterRow>()
             {
@@ -129,7 +129,7 @@ namespace Derivco.Orniscient.Proxy.Tests.Grains.Filters
         {
             var runtime = TestHelpers.MockRuntime();
             var grain = new FilterGrain(Substitute.For<IGrainIdentity>(), runtime);
-            grain.OnActivateAsync();
+            await grain.OnActivateAsync();
 
             await grain.UpdateTypeFilters("TestType1", new List<FilterRow>()
             {
