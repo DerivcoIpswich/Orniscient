@@ -23,7 +23,12 @@ namespace Derivco.Orniscient.Viewer.Controllers
             {
                 if (!GrainClient.IsInitialized)
                 {
-                    GrainClient.Initialize(Server.MapPath("~/DevTestClientConfiguration.xml"));
+                    var path = Server.MapPath("~/DevTestClientConfiguration.xml");
+                    Task.Run(() =>
+                    {
+                        GrainClient.Initialize(path);
+                    }).Wait();
+
                     await OrniscientObserver.Instance.SetTypeFilter(p => p.FullName.Contains(ConfigurationManager.AppSettings["GlobalFilter"]));
                 }
                 return View();
