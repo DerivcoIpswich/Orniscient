@@ -8,6 +8,7 @@ using System.Web.Mvc;
 using Derivco.Orniscient.Proxy.Grains;
 using Derivco.Orniscient.Proxy.Grains.Filters;
 using Derivco.Orniscient.Proxy.Grains.Models;
+using Derivco.Orniscient.Viewer.Clients;
 using Derivco.Orniscient.Viewer.Models.Dashboard;
 using Derivco.Orniscient.Viewer.Observers;
 using Orleans;
@@ -21,16 +22,7 @@ namespace Derivco.Orniscient.Viewer.Controllers
         {
             try
             {
-                if (!GrainClient.IsInitialized)
-                {
-                    var path = Server.MapPath("~/DevTestClientConfiguration.xml");
-                    Task.Run(() =>
-                    {
-                        GrainClient.Initialize(path);
-                    }).Wait();
-
-                    await OrniscientObserver.Instance.SetTypeFilter(p => p.FullName.Contains(ConfigurationManager.AppSettings["GlobalFilter"]));
-                }
+                await GrainClientInitializer.InitializeIfRequired(Server.MapPath("~/DevTestClientConfiguration.xml"));
                 return View();
             }
             catch (Exception)
