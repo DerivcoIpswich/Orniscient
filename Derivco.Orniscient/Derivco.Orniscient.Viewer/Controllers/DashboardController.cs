@@ -18,17 +18,9 @@ namespace Derivco.Orniscient.Viewer.Controllers
     public class DashboardController : Controller
     {
         // GET: Dashboard
-        public async Task<ActionResult> Index(int id = 0)
+        public ActionResult Index(int id = 0)
         {
-            try
-            {
-                await GrainClientInitializer.InitializeIfRequired(Server.MapPath("~/DevTestClientConfiguration.xml"));
-                return View();
-            }
-            catch (Exception)
-            {
-                return View("InitError");
-            }
+            return View();
         }
 
         public async Task<ActionResult> GetDashboardInfo()

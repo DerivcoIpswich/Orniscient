@@ -1,6 +1,7 @@
 ﻿using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
+using Orleans;
 
 namespace Derivco.Orniscient.Viewer
 {
@@ -12,6 +13,15 @@ namespace Derivco.Orniscient.Viewer
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+        }
+
+        public override void Init()
+        {
+            if (!GrainClient.IsInitialized)
+            {
+                GrainClient.Initialize(Server.MapPath("~/DevTestClientConfiguration.xml"));
+            }
+            base.Init();
         }
     }
 }
