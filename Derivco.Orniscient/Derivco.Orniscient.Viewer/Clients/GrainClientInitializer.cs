@@ -1,29 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using Derivco.Orniscient.Viewer.Observers;
-using Orleans;
-using System.Configuration;
+﻿using Orleans;
 using System.Threading.Tasks;
-using Orleans.Runtime;
 
 namespace Derivco.Orniscient.Viewer.Clients
 {
     public static class GrainClientInitializer
     {
         private static object _lock = new object();
+        private static bool _initCalled = false;
 
-        public static async Task InitializeIfRequired(string path)
+        public static Task InitializeIfRequired(string path)
         {
+
             lock (_lock)
             {
-                if (GrainClient.IsInitialized)
-                    return;
+                if (_initCalled || GrainClient.IsInitialized)
+                    return TaskDone.Done;
+                _initCalled = true;
+
                 GrainClient.Initialize(path);
-                GrainClient.Logger.Info("Orniscient Grain Client Initialized");
+                return TaskDone.Done;
             }
-            await OrniscientObserver.Instance.SetTypeFilter(p => p.FullName.Contains(ConfigurationManager.AppSettings["GlobalFilter"]));
+            
         }
     }
 }

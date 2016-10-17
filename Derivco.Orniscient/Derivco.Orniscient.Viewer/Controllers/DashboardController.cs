@@ -1,16 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using Derivco.Orniscient.Proxy.Grains;
 using Derivco.Orniscient.Proxy.Grains.Filters;
-using Derivco.Orniscient.Proxy.Grains.Models;
 using Derivco.Orniscient.Viewer.Clients;
 using Derivco.Orniscient.Viewer.Models.Dashboard;
-using Derivco.Orniscient.Viewer.Observers;
 using Orleans;
 
 namespace Derivco.Orniscient.Viewer.Controllers
@@ -18,9 +13,17 @@ namespace Derivco.Orniscient.Viewer.Controllers
     public class DashboardController : Controller
     {
         // GET: Dashboard
-        public ActionResult Index(int id = 0)
+        public async Task<ActionResult> Index(int id = 0)
         {
-            return View();
+            try
+            {
+                await Task.Run(async()=> await GrainClientInitializer.InitializeIfRequired(Server.MapPath("~/DevTestClientConfiguration.xml")));
+                return View();
+            }
+            catch (Exception ex)
+            {
+                return View("InitError");
+            }
         }
 
         public async Task<ActionResult> GetDashboardInfo()
