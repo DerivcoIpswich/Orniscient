@@ -1,4 +1,4 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClientConfiguration xmlns="urn:orleans" xmlns:xdt="http://schemas.microsoft.com/XML-Document-Transform">
-    <Gateway Address="#{GatewayProvider}" Port="#{GatewayProviderPort}" />
+    <Gateway Address="#{GatewayProvider}" Port="#{GatewayProviderPort}" xdt:Transform="Replace" />
 </ClientConfiguration>
