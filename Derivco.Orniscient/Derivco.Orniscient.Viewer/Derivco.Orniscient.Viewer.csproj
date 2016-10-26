@@ -287,6 +287,9 @@
     <Content Include="Content\react-select.min.css" />
     <Content Include="Content\vis.css" />
     <Content Include="Content\vis.min.css" />
+    <Content Include="DevTestClientConfiguration.Release.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="DevTestClientConfiguration.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
