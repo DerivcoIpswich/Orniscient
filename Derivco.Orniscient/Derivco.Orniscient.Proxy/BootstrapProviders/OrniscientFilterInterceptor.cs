@@ -19,6 +19,7 @@ namespace Derivco.Orniscient.Proxy.BootstrapProviders
         public Task Init(string name, IProviderRuntime providerRuntime, IProviderConfiguration config)
         {
             _logger = providerRuntime.GetLogger(Name);
+            OrniscientLinkMap.Instance.Init(_logger);
             _logger.Info("OrniscientFilterInterceptor started.");
             providerRuntime.SetInvokeInterceptor((method, request, grain, invoker) =>
             {

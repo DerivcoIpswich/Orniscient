@@ -1,12 +1,16 @@
 ﻿<?xml version="1.0"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
-    <metadata>
-        <id>Derivco.Orniscient.Proxy</id>
-        <version>1.0</version>
-        <authors>Derivco Ipswich</authors>
-        <owners>Derivco Ipswich</owners>
-        <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <description>Provides monitoring and visualisation support for an Orleans cluster.</description>
-        <tags>Orleans Monitoring Visualisation</tags>
-    </metadata>
+  <metadata>
+    <id>Derivco.Orniscient.Proxy</id>
+    <version>1.0.0-beta</version>
+    <authors>Derivco Ipswich</authors>
+    <owners>Derivco Ipswich</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Provides monitoring and visualisation support for an Orleans cluster.</description>
+    <tags>Orleans Monitoring Visualisation</tags>
+  </metadata>
+  <files>
+    <file src="OrleansConfiguration.xml.install.xdt" target="content\OrleansConfiguration.xml.install.xdt" />
+    <file src="OrleansConfiguration.xml.uninstall.xdt" target="content\OrleansConfiguration.xml.uninstall.xdt" />
+  </files>
 </package>

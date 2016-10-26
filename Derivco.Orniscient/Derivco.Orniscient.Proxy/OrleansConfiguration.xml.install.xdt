@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<OrleansConfiguration xmlns="urn:orleans" xmlns:xdt="http://schemas.microsoft.com/XML-Document-Transform">
+	<Globals xdt:Transform="InsertIfMissing">
+    <BootstrapProviders xdt:Transform="InsertIfMissing">
+      <Provider Type="Derivco.Orniscient.Proxy.BootstrapProviders.OrniscientFilterInterceptor" Name="OrniscientFilterInterceptor" xdt:Locator="Match(Name)" xdt:Transform="InsertIfMissing" />
+    </BootstrapProviders>
+  </Globals>
+</OrleansConfiguration>
