@@ -5,5 +5,9 @@
       <Provider Type="Derivco.Orniscient.Proxy.BootstrapProviders.OrniscientFilterInterceptor" Name="OrniscientFilterInterceptor" xdt:Locator="Match(Name)" xdt:Transform="Remove" />
     </BootstrapProviders>
     <BootstrapProviders xdt:Locator="Condition(count(*) = 0)" xdt:Transform="Remove"/>
+	<StreamProviders>
+		<Provider Type="Orleans.Providers.Streams.SimpleMessageStream.SimpleMessageStreamProvider" Name="OrniscientSMSProvider" xdt:Locator="Match(Name)" xdt:Transform="Remove" />
+	 </StreamProviders>
+	 <StreamProviders xdt:Locator="Condition(count(*) = 0)" xdt:Transform="Remove"/>
   </Globals>
 </OrleansConfiguration>

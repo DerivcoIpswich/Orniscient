@@ -12,7 +12,8 @@
     </StorageProviders>
     <StreamProviders>
       <Provider Type="Orleans.Providers.Streams.SimpleMessageStream.SimpleMessageStreamProvider" Name="SMSProvider" FireAndForgetDelivery="false"/>
-      <!--<Provider Type="Orleans.Providers.Streams.Persistent.AzureQueueStreamProvider" Name="AzureQueueProvider" DataConnectionString=""/> -->
+      <Provider Type="Orleans.Providers.Streams.SimpleMessageStream.SimpleMessageStreamProvider" Name="OrniscientSMSProvider" />
+      
     </StreamProviders>
     <LogViewProviders>
       <Provider Type="Orleans.Providers.LogViews.CustomStorageProvider" Name="CustomStorage" />

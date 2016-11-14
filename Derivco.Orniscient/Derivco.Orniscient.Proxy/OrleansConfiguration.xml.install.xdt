@@ -4,5 +4,8 @@
     <BootstrapProviders xdt:Transform="InsertIfMissing">
       <Provider Type="Derivco.Orniscient.Proxy.BootstrapProviders.OrniscientFilterInterceptor" Name="OrniscientFilterInterceptor" xdt:Locator="Match(Name)" xdt:Transform="InsertIfMissing" />
     </BootstrapProviders>
+	 <StreamProviders xdt:Transform="InsertIfMissing">
+		<Provider Type="Orleans.Providers.Streams.SimpleMessageStream.SimpleMessageStreamProvider" Name="OrniscientSMSProvider" xdt:Locator="Match(Name)" xdt:Transform="InsertIfMissing" />
+	 </StreamProviders>
   </Globals>
 </OrleansConfiguration>

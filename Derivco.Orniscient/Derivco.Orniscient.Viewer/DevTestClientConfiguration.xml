@@ -11,6 +11,7 @@
                 WriteLogStatisticsToTable="true" />
   <StreamProviders>
     <Provider Type="Orleans.Providers.Streams.SimpleMessageStream.SimpleMessageStreamProvider" Name="SMSProvider" FireAndForgetDelivery="false"/>
+    <Provider Type="Orleans.Providers.Streams.SimpleMessageStream.SimpleMessageStreamProvider" Name="OrniscientSMSProvider" />
     <!--<Provider Type="Orleans.Providers.Streams.Persistent.AzureQueueStreamProvider" Name="AzureQueueProvider" DataConnectionString=""/> -->
   </StreamProviders>
 </ClientConfiguration>
