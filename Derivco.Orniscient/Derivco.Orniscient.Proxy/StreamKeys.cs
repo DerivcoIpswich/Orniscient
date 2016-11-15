@@ -2,7 +2,7 @@
 {
     public class StreamKeys
     {
-        public const string StreamProvider = "SMSProvider";
+        public const string StreamProvider = "OrniscientSMSProvider";
         public const string OrniscientChanges = "OrniscientChanges";
         public const string OrniscientClient = "OrniscientClient";
     }
