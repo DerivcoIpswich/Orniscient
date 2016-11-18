@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Configuration;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Mvc;
+using System.Web.Script.Serialization;
 using Derivco.Orniscient.Proxy.Grains;
 using Derivco.Orniscient.Proxy.Grains.Filters;
 using Derivco.Orniscient.Viewer.Clients;
@@ -17,7 +19,7 @@ namespace Derivco.Orniscient.Viewer.Controllers
         {
             try
             {
-                await Task.Run(async()=> await GrainClientInitializer.InitializeIfRequired(Server.MapPath("~/DevTestClientConfiguration.xml")));
+                await Task.Run(async () => await GrainClientInitializer.InitializeIfRequired(Server.MapPath("~/DevTestClientConfiguration.xml")));
                 return View();
             }
             catch (Exception ex)
@@ -81,12 +83,23 @@ namespace Derivco.Orniscient.Viewer.Controllers
             {
                 var methodReturnData = await methodGrain.InvokeGrainMethod(id, methodId, parametersJson);
                 return Json(methodReturnData, JsonRequestBehavior.AllowGet);
+
             }
             catch (Exception ex)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Error: " + ex.Message);
             }
         }
+
+        [HttpPost]
+        public async Task<ActionResult> NotAllowMethodInvocation()
+        {
+            var notAllow = Convert.ToBoolean(ConfigurationManager.AppSettings["NotAllowMethodsInvocation"]);
+            
+            return Json(notAllow,JsonRequestBehavior.AllowGet);
+        }
+
+        
     }
 
 
