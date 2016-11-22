@@ -21,6 +21,11 @@
     <script src="@Url.Content("~/Scripts/Dashboard/DashboardGrainMethodParameters.jsx")"></script>
     <script src="@Url.Content("~/Scripts/Dashboard/DashboardGrainMethodReturnData.jsx")"></script>
     <script src="@Url.Content("~/Scripts/Dashboard/Dashboard.jsx")"></script>
+<script type="text/javascript">
+    (function (orniscientvalues, $, undefined) {
+        orniscientvalues.allowMethodsInvocation =  "@ViewBag.AllowMethodsInvocation";
+    }(window.orniscientvalues = window.orniscientvalues || {}, jQuery));
+</script>
 }
 
 

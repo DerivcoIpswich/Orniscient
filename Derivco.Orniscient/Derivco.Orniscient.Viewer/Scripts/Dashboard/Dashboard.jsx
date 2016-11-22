@@ -128,7 +128,8 @@
             selectedGrainMethods: [],
             grainMethod: null,
             invokedMethodReturn: null,
-            grainInfoLoading: false
+            grainInfoLoading: false,
+            allowMethodsInvocation: true
         };
     },
     componentWillMount: function () {
@@ -144,16 +145,6 @@
         xhr.send();
     },
 
-    notAllowMethodInvocation: function () {
-        var xhr = new XMLHttpRequest();
-        xhr.open('get', orniscienturls.notAllowMethodInvocation, true);
-        xhr.onload = function () {
-            var data = JSON.parse(hr.responseText);
-            this.setState({ data: data });
-        }.bind(this);
-        xhr.send();
-    }
-,
     orniscientUpdated: function (typeCounts, a, b) {
         this.setState({ typeCounts: typeCounts.detail });
     },
@@ -231,7 +222,7 @@
         }.bind(this);
         xhr.send(JSON.stringify(requestData));
     },
-    render: function (orniscienturls) {
+    render: function () {
         return (
             <div id="filterwrap">
                     <div className="container bigContainer ">
@@ -283,7 +274,7 @@
                     <div className="flyout grainFlyout">
                          <div className="container">
                             <div className="floatButton">
-                                <button className="btn btn-default toggleFlyout "><span className="glyphicon glyph icon-chevron-left"></span></button>
+                                <button className="btn btn-default toggleFlyout "><span className="glyphicon glyphicon-chevron-left"></span></button>
                             </div>
                              {orniscient.summaryView() === false &&
                              <div className="row">
@@ -291,32 +282,38 @@
                                    <div className="col-md-12">
                                        <h4>Grain Information</h4>
                                        <form>
-                                           <fieldset disabled={this.notAllowMethodInvocation}>
-                                           <div className="form-group">
-                                           <h5>Grain Id</h5>
-                                           <label for="grainid">{ this.state.selectedGrainId }</label>
-                                           </div>
-                                           <div className="form-group">
-                                           <h5>Silo</h5>
-                                           <label for="silo">{ this.state.selectedGrainSilo }</label>
-                                           </div>
-                                           <div className="form-group">
-                                           <h5>Grain Type</h5>
-                                           <label for="grainType">{ this.state.selectedGrainType }</label>
-                                           </div>
-                                           <div className="form-group">
-                                           <h5>Grain Methods</h5>
-                                           <Select name="form-field-name" options={this.state.selectedGrainMethods} multi={false} onChange={this.grainMethodSelected} disabled={false} value={ this.state.grainMethod } />
-                                           </div>
-                                           <div className="form-group" id="parameterInputs">
-                                           <DashboardGrainMethodParameters data={this.state.grainMethod} />
-                                           </div>
-                                           <div className="row">
-                                           <div className="col-md-12">
-                                            <button type="submit" className="btn btn-success pull-left" id="invokeMethodButton" onClick={this.invokeGrainMethod}>Invoke Method </button>
-                                           </div>
-                                           </div>
-                                           </fieldset>
+                                            <div className="form-group">
+                                                <h5>Grain Id</h5>
+                                                <label for="grainid">{ this.state.selectedGrainId }</label>
+                                            </div>
+                                            <div className="form-group">
+                                                <h5>Silo</h5>
+                                                <label for="silo">{ this.state.selectedGrainSilo }</label>
+                                            </div>
+                                            <div className="form-group">
+                                                <h5>Grain Type</h5>
+                                                <label for="grainType">{ this.state.selectedGrainType }</label>
+                                            </div>
+                                            {orniscientvalues.allowMethodsInvocation === 'True' ? (
+                                                <div>
+                                                    <div className="form-group">
+                                                        <h5>Grain Methods</h5>
+                                                        <Select name="form-field-name" options={this.state.selectedGrainMethods} multi={false} onChange={this.grainMethodSelected} disabled={false} value={ this.state.grainMethod } />
+                                                    </div>
+                                                    <div className="form-group" id="parameterInputs">
+                                                        <DashboardGrainMethodParameters data={this.state.grainMethod} />
+                                                    </div>
+                                                    <div className="row">
+                                                        <div className="col-md-12">
+                                                            <button type="submit" className="btn btn-success pull-left" id="invokeMethodButton" onClick={this.invokeGrainMethod}>Invoke Method </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className="alert alert-warning">
+                                                    <strong>Warning:</strong> Method Invocation disabled.
+                                                </div>
+                                            )}
                                        </form>
                                        <DashboardGrainMethodReturnData data={this.state.invokedMethodReturn} />
                                    </div>

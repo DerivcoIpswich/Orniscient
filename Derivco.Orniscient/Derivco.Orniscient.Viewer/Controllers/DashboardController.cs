@@ -1,14 +1,13 @@
-﻿using System;
-using System.Configuration;
-using System.Net;
-using System.Threading.Tasks;
-using System.Web.Mvc;
-using System.Web.Script.Serialization;
-using Derivco.Orniscient.Proxy.Grains;
+﻿using Derivco.Orniscient.Proxy.Grains;
 using Derivco.Orniscient.Proxy.Grains.Filters;
 using Derivco.Orniscient.Viewer.Clients;
 using Derivco.Orniscient.Viewer.Models.Dashboard;
 using Orleans;
+using System;
+using System.Configuration;
+using System.Net;
+using System.Threading.Tasks;
+using System.Web.Mvc;
 
 namespace Derivco.Orniscient.Viewer.Controllers
 {
@@ -19,6 +18,13 @@ namespace Derivco.Orniscient.Viewer.Controllers
         {
             try
             {
+                bool allowMethodsInvocation;
+                if(!bool.TryParse(ConfigurationManager.AppSettings["AllowMethodsInvocation"], out allowMethodsInvocation))
+                {
+                    allowMethodsInvocation = true;
+                }
+                this.ViewBag.AllowMethodsInvocation = allowMethodsInvocation;
+
                 await Task.Run(async () => await GrainClientInitializer.InitializeIfRequired(Server.MapPath("~/DevTestClientConfiguration.xml")));
                 return View();
             }
@@ -90,17 +96,5 @@ namespace Derivco.Orniscient.Viewer.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Error: " + ex.Message);
             }
         }
-
-        [HttpPost]
-        public async Task<ActionResult> NotAllowMethodInvocation()
-        {
-            var notAllow = Convert.ToBoolean(ConfigurationManager.AppSettings["NotAllowMethodsInvocation"]);
-            
-            return Json(notAllow,JsonRequestBehavior.AllowGet);
-        }
-
-        
     }
-
-
 }
