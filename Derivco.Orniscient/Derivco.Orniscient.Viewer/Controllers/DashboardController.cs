@@ -18,12 +18,7 @@ namespace Derivco.Orniscient.Viewer.Controllers
         {
             try
             {
-                bool allowMethodsInvocation;
-                if(!bool.TryParse(ConfigurationManager.AppSettings["AllowMethodsInvocation"], out allowMethodsInvocation))
-                {
-                    allowMethodsInvocation = true;
-                }
-                this.ViewBag.AllowMethodsInvocation = allowMethodsInvocation;
+                this.ViewBag.AllowMethodsInvocation = AllowMethodsInvocation();
 
                 await Task.Run(async () => await GrainClientInitializer.InitializeIfRequired(Server.MapPath("~/DevTestClientConfiguration.xml")));
                 return View();
@@ -84,17 +79,32 @@ namespace Derivco.Orniscient.Viewer.Controllers
         [HttpPost]
         public async Task<ActionResult> InvokeGrainMethod(string type, string id, string methodId, string parametersJson)
         {
-            var methodGrain = GrainClient.GrainFactory.GetGrain<ITypeMethodsGrain>(type);
-            try
+            if (AllowMethodsInvocation())
             {
-                var methodReturnData = await methodGrain.InvokeGrainMethod(id, methodId, parametersJson);
-                return Json(methodReturnData, JsonRequestBehavior.AllowGet);
+                var methodGrain = GrainClient.GrainFactory.GetGrain<ITypeMethodsGrain>(type);
+                try
+                {
+                    var methodReturnData = await methodGrain.InvokeGrainMethod(id, methodId, parametersJson);
+                    return Json(methodReturnData, JsonRequestBehavior.AllowGet);
 
+                }
+                catch (Exception ex)
+                {
+                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Error: " + ex.Message);
+                }
             }
-            catch (Exception ex)
+            return new HttpStatusCodeResult(HttpStatusCode.Forbidden, "Error: This method cannot be invoked");
+        }
+
+        private bool AllowMethodsInvocation()
+        {
+            bool allowMethodsInvocation;
+            if (!bool.TryParse(ConfigurationManager.AppSettings["AllowMethodsInvocation"], out allowMethodsInvocation))
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Error: " + ex.Message);
+                allowMethodsInvocation = true;
             }
+
+            return allowMethodsInvocation;
         }
     }
 }
