@@ -128,7 +128,8 @@
             selectedGrainMethods: [],
             grainMethod: null,
             invokedMethodReturn: null,
-            grainInfoLoading: false
+            grainInfoLoading: false,
+            allowMethodsInvocation: true
         };
     },
     componentWillMount: function () {
@@ -143,6 +144,7 @@
         }.bind(this);
         xhr.send();
     },
+
     orniscientUpdated: function (typeCounts, a, b) {
         this.setState({ typeCounts: typeCounts.detail });
     },
@@ -187,7 +189,6 @@
         e.preventDefault();
         var methodData = this.state.grainMethod;
         var parameterValues = [];
-
         $.each(methodData.parameters, function (index, parameter) {
             var parameterValue = $('#' + parameter.Name).val();
             if (parameterValue !== '') {
@@ -200,7 +201,6 @@
                 parameterValues.push({ 'name': parameter.Name, 'type': parameter.Type, 'value': null });
             }
         });
-
         var requestData = {
             type: this.state.selectedGrainType,
             id: this.state.selectedGrainId,
@@ -289,24 +289,31 @@
                                             <div className="form-group">
                                                 <h5>Silo</h5>
                                                 <label for="silo">{ this.state.selectedGrainSilo }</label>
-
                                             </div>
                                             <div className="form-group">
                                                 <h5>Grain Type</h5>
                                                 <label for="grainType">{ this.state.selectedGrainType }</label>
                                             </div>
-                                            <div className="form-group">
-                                                <h5>Grain Methods</h5>
-                                                <Select name="form-field-name" options={this.state.selectedGrainMethods} multi={false} onChange={this.grainMethodSelected} disabled={false} value={ this.state.grainMethod } />
-                                            </div>
-                                           <div className="form-group" id="parameterInputs">
-                                                <DashboardGrainMethodParameters data={this.state.grainMethod} />
-                                           </div>
-                                           <div className="row">
-                                                <div className="col-md-12">
-                                                    <button type="submit" className="btn btn-success pull-left" id="invokeMethodButton" onClick={this.invokeGrainMethod}>Invoke Method</button>
+                                            {orniscientvalues.allowMethodsInvocation === 'True' ? (
+                                                <div>
+                                                    <div className="form-group">
+                                                        <h5>Grain Methods</h5>
+                                                        <Select name="form-field-name" options={this.state.selectedGrainMethods} multi={false} onChange={this.grainMethodSelected} disabled={false} value={ this.state.grainMethod } />
+                                                    </div>
+                                                    <div className="form-group" id="parameterInputs">
+                                                        <DashboardGrainMethodParameters data={this.state.grainMethod} />
+                                                    </div>
+                                                    <div className="row">
+                                                        <div className="col-md-12">
+                                                            <button type="submit" className="btn btn-success pull-left" id="invokeMethodButton" onClick={this.invokeGrainMethod}>Invoke Method </button>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                           </div>
+                                            ) : (
+                                                <div className="alert alert-warning">
+                                                    <strong>Warning:</strong> Method Invocation disabled.
+                                                </div>
+                                            )}
                                        </form>
                                        <DashboardGrainMethodReturnData data={this.state.invokedMethodReturn} />
                                    </div>
