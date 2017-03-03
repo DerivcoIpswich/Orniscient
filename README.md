@@ -3,8 +3,8 @@ Orniscient provides an interface for visualising user grains in an Orleans clust
 
 Reflection can also be used to invoke methods on active (or in future inactive) grains.
 
-## PLEASE NOTE: Status
-Orniscient is still in early development and requires a post-1.2 version of Orleans to use, as it relies on a PR submitted to enable the introspection of grain data. From Orleans 1.3 onwards, Orniscient will work with any Orleans cluster.
+## Compatibility
+From Orleans 1.4 onwards, Orniscient will work with any Orleans cluster.
 
 ## Quick Start (WIP)
 1. Install the Orniscient proxy into your cluster by stating the following into package manager:
