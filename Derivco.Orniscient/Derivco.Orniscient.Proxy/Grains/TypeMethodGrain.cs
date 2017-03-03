@@ -33,8 +33,7 @@ namespace Derivco.Orniscient.Proxy.Grains
                 var grainInterface = GetGrainInterfaceType(GetTypeFromString(this.GetPrimaryKeyString()));
                 var grainKeyType = GetGrainKeyType(grainInterface);
                 var grainKey = GetGrainKeyFromType(grainKeyType, id);
-
-                var grainReference = typeof(GrainFactory)
+                var grainReference = typeof(IGrainFactory)
                                             .GetMethod("GetGrain", new[] { grainKeyType, typeof(string) })
                                             .MakeGenericMethod(grainInterface)
                                             .Invoke(GrainFactory, new[] { grainKey, null }) as IGrain;
