@@ -25,9 +25,9 @@ namespace Derivco.Orniscient.Proxy.Tests.Grains
         }
 
         [Fact]
-        public async Task GetAvailableMethods_FirstGrain_ShouldReturnZeroMethods()
+        public async Task GetAvailableMethods_FirstGrain_ShouldReturnOneMethod()
         {
-            const int expected = 0;
+            const int expected = 1;
             var methodGrain = GrainFactory.GetGrain<ITypeMethodsGrain>("TestGrains.Grains.FirstGrain");
 
             var reply = await methodGrain.GetAvailableMethods();
