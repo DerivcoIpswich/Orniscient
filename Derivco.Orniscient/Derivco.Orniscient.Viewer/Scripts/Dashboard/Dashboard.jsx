@@ -113,21 +113,25 @@
         return { selectedFilters: this.state.selectedFilters };
     },
     getInitialState: function () {
-        return {
-            grainIdFilter: '',
-            selectedSilos: null,
-            selectedTypes: null,
-            silos: [],
-            availableTypes: [],
-            availableFilters: [],
-            selectedFilters: {},
-            typeCounts: [],
-            selectedGrainId: '',
-            selectedGrainSilo: '',
-            selectedGrainType: '',
-            selectedGrainMethods: [],
-            grainMethod: null,
-            invokedMethodReturn: null,
+	    return {
+		    grainIdFilter: '',
+		    selectedSilos: null,
+		    selectedTypes: null,
+		    silos: [],
+		    availableTypes: [],
+		    availableFilters: [],
+		    selectedFilters: {},
+		    typeCounts: [],
+		    selectedGrainId: '',
+		    selectedGrainSilo: '',
+		    selectedGrainType: '',
+		    selectedGrainAvailableMethods: [],
+		    selectedGrainMethod: null,
+		    invokedMethodReturn: null,
+		    invokeGrainMethodOnNewGrain: false,
+		    selectedGrainKeyType: '',
+		    grainIdTextInputValue: '',
+		    disableInvokeMethodButton: false,
             grainInfoLoading: false
         };
     },
@@ -155,37 +159,55 @@
     orniscientNodeSelected: function (node, a, b) {
         this.setState({
             grainInfoLoading: true,
-            invokedMethodReturn: null
+            invokedMethodReturn: null,
+            selectedGrainMethod: null,
+        	invokeGrainMethodOnNewGrain: false
         });
-        var grainDetails = node.detail;
+
         var requestData = {
-            type: grainDetails.graintype
+        	type: node.detail.graintype
         };
 
-        var xhr = new XMLHttpRequest();
-        xhr.open('post', 'dashboard/GetMethods', true);
-        xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-        xhr.onload = function () {
-            var data = JSON.parse(xhr.responseText);
-            this.setState({
-                selectedGrainId: grainDetails.grainId,
-                selectedGrainSilo: grainDetails.silo,
-                selectedGrainType: grainDetails.graintype,
-                selectedGrainMethods: orniscientutils.methodsToSelectOptions(data),
-                grainInfoLoading: false
-            });
-        }.bind(this);
-        xhr.send(JSON.stringify(requestData));
+        this.getMethodsForGrainType(requestData, node.detail);
+        this.getGrainKeyType(requestData);
+    },
+    getMethodsForGrainType: function (requestData, grainDetails) {
+    	var xhr = new XMLHttpRequest();
+    	xhr.open('post', 'dashboard/GetMethods', true);
+    	xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+    	xhr.onload = function () {
+    		var data = JSON.parse(xhr.responseText);
+    		this.setState({
+    			selectedGrainId: grainDetails.grainId,
+    			selectedGrainSilo: grainDetails.silo,
+    			selectedGrainType: grainDetails.graintype,
+    			selectedGrainAvailableMethods: orniscientutils.methodsToSelectOptions(data),
+    			grainInfoLoading: false
+    		});
+    	}.bind(this);
+    	xhr.send(JSON.stringify(requestData));
+    },
+    getGrainKeyType: function (requestData) {
+    	var xhr = new XMLHttpRequest();
+    	xhr.open('post', 'dashboard/GetGrainKeyFromType', true);
+    	xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+    	xhr.onload = function () {
+    		var data = JSON.parse(xhr.responseText);
+    		this.setState({
+    			selectedGrainKeyType: data
+    		});
+    	}.bind(this);
+    	xhr.send(JSON.stringify(requestData));
     },
     grainMethodSelected(val) {
         this.setState({
-            grainMethod: val,
-            invokedMethodReturn: null
-        });
+        	selectedGrainMethod: val,
+        	invokedMethodReturn: null
+        }, this.disableInvokeMethodButton);
     },
     invokeGrainMethod: function (e) {
         e.preventDefault();
-        var methodData = this.state.grainMethod;
+        var methodData = this.state.selectedGrainMethod;
         var parameterValues = [];
 
         $.each(methodData.parameters, function (index, parameter) {
@@ -201,11 +223,17 @@
             }
         });
 
+	    var grainId = this.state.selectedGrainId;
+        if (this.state.invokeGrainMethodOnNewGrain) {
+        	grainId = this.state.grainIdTextInputValue;
+	    }
+
         var requestData = {
             type: this.state.selectedGrainType,
-            id: this.state.selectedGrainId,
+            id: grainId,
             methodId: methodData.value,
-            parametersJson: JSON.stringify(parameterValues)
+            parametersJson: JSON.stringify(parameterValues),
+			invokeOnNewGrain: this.state.invokeGrainMethodOnNewGrain
         };
 
         var xhr = new XMLHttpRequest();
@@ -222,12 +250,24 @@
         }.bind(this);
         xhr.send(JSON.stringify(requestData));
     },
+    invokeMethodOnNewGrainToggle: function (e) {
+    	this.setState({ invokeGrainMethodOnNewGrain: e.target.checked }, this.disableInvokeMethodButton);
+    },
+	grainIdTextInputChange: function(e) {
+		this.setState({ grainIdTextInputValue: e.target.value }, this.disableInvokeMethodButton);
+	},
+	disableInvokeMethodButton: function () {
+		this.setState({ disableInvokeMethodButton: false });
+		if (this.state.invokeGrainMethodOnNewGrain && this.state.selectedGrainKeyType !== "System.Guid" && !this.state.grainIdTextInputValue) {
+			this.setState({ disableInvokeMethodButton: true });
+		}
+	},
     render: function () {
         return (
             <div id="filterwrap">
                     <div className="container bigContainer ">
                         <div className="row">
-                            <div className="" id="mynetwork"></div>
+                            <div id="mynetwork"></div>
                         </div>
                     </div>
                     <div className="flyout filterFlyout">
@@ -289,7 +329,6 @@
                                             <div className="form-group">
                                                 <h5>Silo</h5>
                                                 <label for="silo">{ this.state.selectedGrainSilo }</label>
-
                                             </div>
                                             <div className="form-group">
                                                 <h5>Grain Type</h5>
@@ -297,16 +336,33 @@
                                             </div>
                                             <div className="form-group">
                                                 <h5>Grain Methods</h5>
-                                                <Select name="form-field-name" options={this.state.selectedGrainMethods} multi={false} onChange={this.grainMethodSelected} disabled={false} value={ this.state.grainMethod } />
+                                                <Select name="form-field-name" options={this.state.selectedGrainAvailableMethods} multi={false} onChange={this.grainMethodSelected} disabled={false} value={this.state.selectedGrainMethod} />
                                             </div>
-                                           <div className="form-group" id="parameterInputs">
-                                                <DashboardGrainMethodParameters data={this.state.grainMethod} />
-                                           </div>
-                                           <div className="row">
-                                                <div className="col-md-12">
-                                                    <button type="submit" className="btn btn-success pull-left" id="invokeMethodButton" onClick={this.invokeGrainMethod}>Invoke Method</button>
-                                                </div>
-                                           </div>
+										   {this.state.selectedGrainMethod !== null &&
+											   <div>
+												   <div className="form-group" id="parameterInputs">
+														<DashboardGrainMethodParameters data={this.state.selectedGrainMethod} />
+												   </div>
+												   <div className="form-group row">
+														<div className="col-md-12">
+															<input type="checkbox" id="invokeMethodOnNewGrain" onChange={this.invokeMethodOnNewGrainToggle}/><label>Invoke method on new grain</label>
+														</div>
+													</div>
+			  										{this.state.invokeGrainMethodOnNewGrain === true &&
+														<div>
+															<div className="form-group">
+																<label for="invokeMethodNewGrainId">Grain Id</label>
+																<input type="text" className="form-control width100" id="invokeMethodNewGrainId" placeholder={this.state.selectedGrainKeyType } value={this.state.grainIdTextInputValue} onChange={this.grainIdTextInputChange} disabled={this.state.selectedGrainKeyType === "System.Guid"} />
+															</div>
+														</div>
+			  										}
+												   <div className="row">
+														<div className="col-md-12">
+															<button type="submit" className="btn btn-success pull-left" id="invokeMethodButton" onClick={this.invokeGrainMethod} disabled={this.state.disableInvokeMethodButton}>Invoke Method </button>
+														</div>
+												   </div>
+												</div>
+											}
                                        </form>
                                        <DashboardGrainMethodReturnData data={this.state.invokedMethodReturn} />
                                    </div>

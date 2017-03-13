@@ -12,7 +12,7 @@ using Orleans.Runtime;
 
 namespace Derivco.Orniscient.Proxy.Grains
 {
-    public class TypeMethodGrain : Grain, ITypeMethodsGrain
+    public class GrainInfoGrain : Grain, IGrainInfoGrain
     {
         private List<GrainMethod> _methods = new List<GrainMethod>();
         public override async Task OnActivateAsync()
@@ -26,57 +26,41 @@ namespace Derivco.Orniscient.Proxy.Grains
             return Task.FromResult(_methods);
         }
 
-        private IGrain GetGrainReference(string id, GrainMethod method)
-        {
-            if (method != null)
-            {
-                var grainInterface = GetGrainInterfaceType(GetTypeFromString(this.GetPrimaryKeyString()));
-                var grainKeyType = GetGrainKeyType(grainInterface);
-                var grainKey = GetGrainKeyFromType(grainKeyType, id);
+	    public Task<string> GetGrainKeyType()
+	    {
+			var grainInterface = GetGrainInterfaceType(GetTypeFromString(this.GetPrimaryKeyString()));
+		    return Task.FromResult(GetGrainKeyType(grainInterface).FullName);
+	    }
 
-                var grainReference = typeof(GrainFactory)
-                                            .GetMethod("GetGrain", new[] { grainKeyType, typeof(string) })
-                                            .MakeGenericMethod(grainInterface)
-                                            .Invoke(GrainFactory, new[] { grainKey, null }) as IGrain;
+	    public async Task<object> InvokeGrainMethod(string id, string methodId, string parametersJson,
+		    bool invokeOnNewGrain = false)
+	    {
+		    var method = _methods.FirstOrDefault(p => p.MethodId == methodId);
+		    if (method != null)
+		    {
+			    if (invokeOnNewGrain && string.IsNullOrEmpty(id))
+			    {
+				    id = Guid.NewGuid().ToString();
+			    }
+			    var grain = GetGrainReference(id, method);
+			    if (grain != null)
+			    {
+				    //invoke the method in the grain.
+				    var parameters = BuildParameterObjects(JArray.Parse(parametersJson));
 
-                if (method.InterfaceForMethod == grainInterface.FullName)
-                {
-                    return grainReference;
-                }
+				    dynamic methodInvocation = grain.GetType()
+					    .GetMethod(method.Name, BindingFlags.Instance | BindingFlags.Public, null,
+						    method.Parameters.Select(p => GetTypeFromString(p.Type)).ToArray(), null)
+					    .Invoke(grain, parameters);
 
-                var interfaceForMethod = GetTypeFromString(method.InterfaceForMethod);
+				    return await methodInvocation;
+			    }
+		    }
 
-                return typeof(GrainExtensions)
-                    .GetMethod("AsReference")
-                    .MakeGenericMethod(interfaceForMethod)
-                    .Invoke(grainReference, new object[] { grainReference }) as IGrain;
-            }
-            return null;
-        }
+		    return null;
+	    }
 
-        public async Task<object> InvokeGrainMethod(string id, string methodId, string parametersJson)
-        {
-            var method = _methods.FirstOrDefault(p => p.MethodId == methodId);
-            if (method != null)
-            {
-                var grain = GetGrainReference(id, method);
-                if (grain != null)
-                {
-                    //invoke the method in the grain.
-                    var parameters = BuildParameterObjects(JArray.Parse(parametersJson));
-
-                    dynamic methodInvocation = grain.GetType()
-                        .GetMethod(method.Name, BindingFlags.Instance | BindingFlags.Public, null,
-                            method.Parameters.Select(p => GetTypeFromString(p.Type)).ToArray(), null)
-                        .Invoke(grain, parameters);
-
-                    return await methodInvocation;
-                }
-            }
-            return null;
-        }
-
-        private Task HydrateMethodList()
+	    private Task HydrateMethodList()
         {
             var grainType = GetTypeFromString(this.GetPrimaryKeyString());
             _methods = new List<GrainMethod>();
@@ -109,7 +93,35 @@ namespace Derivco.Orniscient.Proxy.Grains
             return TaskDone.Done;
         }
 
-        private static object[] BuildParameterObjects(JArray parametersArray)
+	    private IGrain GetGrainReference(string id, GrainMethod method)
+	    {
+		    if (method != null)
+		    {
+			    var grainInterface = GetGrainInterfaceType(GetTypeFromString(this.GetPrimaryKeyString()));
+			    var grainKeyType = GetGrainKeyType(grainInterface);
+			    var grainKey = GetGrainKeyFromType(grainKeyType, id);
+
+			    var grainReference = typeof(GrainFactory)
+				    .GetMethod("GetGrain", new[] { grainKeyType, typeof(string) })
+				    .MakeGenericMethod(grainInterface)
+				    .Invoke(GrainFactory, new[] { grainKey, null }) as IGrain;
+
+			    if (method.InterfaceForMethod == grainInterface.FullName)
+			    {
+				    return grainReference;
+			    }
+
+			    var interfaceForMethod = GetTypeFromString(method.InterfaceForMethod);
+
+			    return typeof(GrainExtensions)
+				    .GetMethod("AsReference")
+				    .MakeGenericMethod(interfaceForMethod)
+				    .Invoke(grainReference, new object[] { grainReference }) as IGrain;
+		    }
+		    return null;
+	    }
+
+	    private static object[] BuildParameterObjects(JArray parametersArray)
         {
             var parameterObjects = new List<object>();
             foreach (var parameter in parametersArray)

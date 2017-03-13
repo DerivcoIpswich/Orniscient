@@ -26,6 +26,7 @@ namespace TestGrains.Grains
             await base.OnActivateAsync();
         }
 
+		[OrniscientMethod]
         public async Task KeepAlive()
         {
             await AddGrains(5);

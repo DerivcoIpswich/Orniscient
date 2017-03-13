@@ -68,18 +68,26 @@ namespace Derivco.Orniscient.Viewer.Controllers
         [HttpPost]
         public async Task<ActionResult> GetMethods(string type)
         {
-            var methodGrain = GrainClient.GrainFactory.GetGrain<ITypeMethodsGrain>(type);
-            var methods = await methodGrain.GetAvailableMethods();
+            var grainInfoGrain = GrainClient.GrainFactory.GetGrain<IGrainInfoGrain>(type);
+            var methods = await grainInfoGrain.GetAvailableMethods();
             return Json(methods, JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost]
-        public async Task<ActionResult> InvokeGrainMethod(string type, string id, string methodId, string parametersJson)
+		[HttpPost]
+		public async Task<ActionResult> GetGrainKeyFromType(string type)
+		{
+			var grainInfoGrain = GrainClient.GrainFactory.GetGrain<IGrainInfoGrain>(type);
+			var grainKeyType = await grainInfoGrain.GetGrainKeyType();
+			return Json(grainKeyType, JsonRequestBehavior.AllowGet);
+		}
+
+		[HttpPost]
+        public async Task<ActionResult> InvokeGrainMethod(string type, string id, string methodId, string parametersJson, bool invokeOnNewGrain = false)
         {
-            var methodGrain = GrainClient.GrainFactory.GetGrain<ITypeMethodsGrain>(type);
+            var methodGrain = GrainClient.GrainFactory.GetGrain<IGrainInfoGrain>(type);
             try
             {
-                var methodReturnData = await methodGrain.InvokeGrainMethod(id, methodId, parametersJson);
+                var methodReturnData = await methodGrain.InvokeGrainMethod(id, methodId, parametersJson, invokeOnNewGrain);
                 return Json(methodReturnData, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
