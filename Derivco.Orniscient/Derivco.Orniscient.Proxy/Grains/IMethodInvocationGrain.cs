@@ -5,7 +5,7 @@ using Orleans;
 
 namespace Derivco.Orniscient.Proxy.Grains
 {
-    public interface IGrainInfoGrain : IGrainWithStringKey
+    public interface IMethodInvocationGrain : IGrainWithStringKey
     {
         Task<List<GrainMethod>> GetAvailableMethods();
         Task<string> GetGrainKeyType();

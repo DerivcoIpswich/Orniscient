@@ -27,4 +27,12 @@
         });
     }
 
+	orniscientutils.isNullOrUndefined = function(value) {
+		if (value === null | value === undefined) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 }(window.orniscientutils = window.orniscientutils || {}, jQuery));

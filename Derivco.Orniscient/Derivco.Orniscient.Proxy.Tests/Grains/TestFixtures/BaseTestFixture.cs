@@ -1,10 +1,6 @@
 ﻿using Derivco.Orniscient.Proxy.BootstrapProviders;
-using Orleans;
-using Orleans.Runtime;
 using Orleans.Runtime.Configuration;
-using Orleans.Serialization;
 using Orleans.TestingHost;
-using OrleansTelemetryConsumers.Counters;
 
 namespace Derivco.Orniscient.Proxy.Tests.Grains.TestFixtures
 {

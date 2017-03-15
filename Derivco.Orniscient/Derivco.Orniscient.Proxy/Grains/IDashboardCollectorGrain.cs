@@ -5,12 +5,13 @@ using Orleans;
 
 namespace Derivco.Orniscient.Proxy.Grains
 {
-    public interface IDashboardCollectorGrain : IGrainWithGuidKey
-    {
-        Task<List<UpdateModel>> GetAll();
-        Task<List<UpdateModel>> GetAll(string type);
-        Task SetTypeFilter(GrainType[] types);
-        Task<string[]> GetSilos();
-        Task<GrainType[]> GetGrainTypes();
-    }
+	public interface IDashboardCollectorGrain : IGrainWithGuidKey
+	{
+		Task<List<UpdateModel>> GetAll();
+		Task<List<UpdateModel>> GetAll(string type);
+		Task SetTypeFilter(GrainType[] types);
+		Task<string[]> GetSilos();
+		Task<GrainType[]> GetGrainTypes();
+		Task<List<string>> GetGrainIdsForType(string type);
+	}
 }
