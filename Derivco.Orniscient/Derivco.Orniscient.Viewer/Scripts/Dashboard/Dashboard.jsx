@@ -18,6 +18,7 @@
 			availableFilters: [],
 			selectedFilters: {},
 			typeCounts: [],
+			summaryViewLimit: '',
 			selectedNodeGrainId: '',
 			selectedNodeGrainSilo: '',
 			selectedNodeGrainType: '',
@@ -151,9 +152,7 @@
 		orniscient.getServerData();
 	},
 	setSummaryViewLimitClicked: function (e) {
-		e.preventDefault();
-		//TODO: make this a part of state
-		var limit = $('#summaryviewlimit').val();
+		var limit = this.state.summaryViewLimit;
 		if (!orniscientutils.isNullOrUndefined(limit)) {
 			var requestData = {
 				summaryViewLimit: limit,
@@ -170,7 +169,7 @@
 			xhr.send(JSON.stringify(requestData));
 		}
 	},
-	orniscientUpdated: function (typeCounts, a, b) {
+	orniscientUpdated: function (typeCounts) {
 		this.setState({
 			typeCounts: typeCounts.detail
 		});
@@ -309,6 +308,11 @@
 			grainIdTextInputValue: e.target.value
 		}, this.disableInvokeMethodButton);
 	},
+	setSummaryViewTextInputChange: function (e) {
+		this.setState({
+			summaryViewLimit: e.target.value
+		});
+	},
 	disableInvokeMethodButton: function () {
 		this.setState({
 			disableInvokeMethodButton: false
@@ -361,9 +365,9 @@
 									<div id="summaryViewLimit">
 										<h4>Summary View Limit</h4>
 										<div className="form-group">
-											<input type="text" className="form-control" id="summaryviewlimit" placeholder="Summary View Limit" />
-
-										</div><button type="submit" className="btn btn-success pull-right" onClick={this.setSummaryViewLimitClicked}>Set Limit</button>
+											<input type="text" className="form-control" id="summaryviewlimit" onChange={this.setSummaryViewTextInputChange} value={this.state.summaryViewLimit} placeholder="Summary View Limit" />
+										</div>
+										<button type="submit" className="btn btn-success pull-right" onClick={this.setSummaryViewLimitClicked}>Set Limit</button>
 									</div>
 								</form>
 							</div>
