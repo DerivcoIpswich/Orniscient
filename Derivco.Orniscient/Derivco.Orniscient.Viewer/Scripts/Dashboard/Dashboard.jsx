@@ -190,7 +190,7 @@
 	grainTypeSelected: function (val) {
 		this.resetGrainInformationState();
 		this.setState({
-			selectedGrainType: val
+			selectedGrainType: val.value
 		});
 		if (!orniscientutils.isNullOrUndefined(val)) {
 			this.getInfoForGrainType(val.value);
@@ -268,7 +268,7 @@
 		}
 
 		var requestData = {
-			type: this.state.selectedNodeGrainType,
+			type: this.state.selectedGrainType,
 			id: grainId,
 			methodId: methodData.value,
 			parametersJson: JSON.stringify(parameterValues),
@@ -302,7 +302,7 @@
 		var value = orniscientutils.isNullOrUndefined(val) ? null : val.value;
 		this.setState({
 			selectedNodeGrainId: value
-		});
+		}, this.disableInvokeMethodButton);
 	},
 	grainIdTextInputChange: function (e) {
 		this.setState({
@@ -313,7 +313,9 @@
 		this.setState({
 			disableInvokeMethodButton: false
 		});
-		if (this.state.invokeGrainMethodOnNewGrain && this.state.selectedNodeGrainKeyType !== "System.Guid" && !this.state.grainIdTextInputValue) {
+		if ((orniscientutils.isNullOrUndefinedOrEmpty(this.state.selectedTypeGrainIds) && orniscientutils.isNullOrUndefinedOrEmpty(this.state.grainIdTextInputValue)) ||
+				(this.state.invokeGrainMethodOnNewGrain && this.state.selectedNodeGrainKeyType !== 'System.Guid' && !this.state.grainIdTextInputValue) || 
+				(!this.state.invokeGrainMethodOnNewGrain && orniscientutils.isNullOrUndefinedOrEmpty(this.state.selectedNodeGrainId))) {
 			this.setState({
 				disableInvokeMethodButton: true
 			});
@@ -382,22 +384,33 @@
 										<h5>Grain Type</h5>
 										<Select name="form-field-name" options={this.state.availableTypes} multi={false} onChange={this.grainTypeSelected} value={this.state.selectedGrainType} />
 									</div>
-									<div className="form-group">
+									<div className={orniscientutils.isNullOrUndefinedOrEmpty(this.state.selectedGrainType) ? 'form-group disabledContainer' : 'form-group'}>
 										<h5>Grain Methods</h5>
-										<Select name="form-field-name" options={this.state.selectedNodeGrainAvailableMethods} multi={false} onChange={this.grainMethodSelected} value={this.state.selectedGrainMethod} />
+										<Select name="form-field-name" options={this.state.selectedNodeGrainAvailableMethods} multi={false} onChange={this.grainMethodSelected} value={this.state.selectedGrainMethod} disabled={orniscientutils.isNullOrUndefinedOrEmpty(this.state.selectedGrainType)} />
 									</div>
                     				{this.state.selectedGrainMethod !== null &&
 									<div>
 										<div className="form-group" id="parameterInputs">
 											<DashboardGrainMethodParameters data={this.state.selectedGrainMethod} />
 										</div>
+										<div className="form-group invokeMethodOnNewGrainCheckbox">
+											<label>
+												<input type="checkbox" id="invokeMethodOnNewGrain" onChange={this.invokeMethodOnNewGrainToggle} />
+												Invoke method on new grain
+											</label>
+										</div>
 									</div>
                     				}
-									<div>
-										<h5>Target</h5>
+									<div className={orniscientutils.isNullOrUndefinedOrEmpty(this.state.selectedGrainType) ? ' disabledContainer' : ''}>
+										<h5>Target Grain</h5>
 										<div className="form-group">
 											<h5>Grain Id</h5>
-											<Select name="form-field-name" options={this.state.selectedTypeGrainIds} onChange={this.grainIdSelectChange} multi={false} value={this.state.selectedNodeGrainId} />
+											{this.state.invokeGrainMethodOnNewGrain === false &&
+											<Select name="form-field-name" options={this.state.selectedTypeGrainIds} onChange={this.grainIdSelectChange} multi={false} value={this.state.selectedNodeGrainId} disabled={orniscientutils.isNullOrUndefinedOrEmpty(this.state.selectedGrainType)} />
+											}
+											{this.state.invokeGrainMethodOnNewGrain === true &&
+											<input type="text" className="form-control width100" id="invokeMethodNewGrainId" placeholder={orniscientutils.isNullOrUndefinedOrEmpty(this.state.selectedGrainMethod) ? 'No Grain Method Selected' : this.state.selectedNodeGrainKeyType} value={this.state.grainIdTextInputValue} onChange={this.grainIdTextInputChange} disabled={this.state.selectedNodeGrainKeyType === 'System.Guid' || orniscientutils.isNullOrUndefinedOrEmpty(this.state.selectedGrainMethod)} />
+											}
 										</div>
 										<div className="form-group">
 											<h5>Silo</h5>
@@ -406,19 +419,6 @@
 									</div>
 									{this.state.selectedGrainMethod !== null &&
 									<div>
-										<h5>Method Invocation</h5>
-										<table>
-											<tr>
-												<td><input type="checkbox" id="invokeMethodOnNewGrain" onChange={this.invokeMethodOnNewGrainToggle} /></td>
-												<td><label>Invoke method on new grain</label></td>
-											</tr>
-										</table>
-										{this.state.invokeGrainMethodOnNewGrain === true &&
-										<div className="form-group">
-											<label for="invokeMethodNewGrainId">New Grain Id</label>
-											<input type="text" className="form-control width100" id="invokeMethodNewGrainId" placeholder={this.state.selectedNodeGrainKeyType } value={this.state.grainIdTextInputValue} onChange={this.grainIdTextInputChange} disabled={this.state.selectedNodeGrainKeyType==="System.Guid" } />
-										</div>
-										}
 										<div className="row">
 											<div className="col-md-12">
 												<button type="submit" className="btn btn-success pull-left" id="invokeMethodButton" onClick={this.invokeGrainMethod} disabled={this.state.disableInvokeMethodButton}>Invoke Method </button>

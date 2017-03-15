@@ -25,7 +25,6 @@ namespace Derivco.Orniscient.Proxy.Grains
             OnActivateAsync();
         }
 
-
         internal List<FilterRow> Filters;
         private Logger _logger;
 

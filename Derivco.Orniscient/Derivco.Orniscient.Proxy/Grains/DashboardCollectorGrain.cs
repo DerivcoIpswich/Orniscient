@@ -22,10 +22,11 @@ namespace Derivco.Orniscient.Proxy.Grains
         public override async Task OnActivateAsync()
         {
             await base.OnActivateAsync();
-            _logger = GetLogger();
+
+			_managementGrain = GrainFactory.GetGrain<IManagementGrain>(0);
+			_logger = GetLogger();
             CurrentStats = new List<UpdateModel>();
-            _managementGrain = GrainFactory.GetGrain<IManagementGrain>(0);
-            //Timer to send the changes down to the dashboard every x minutes....
+
             await Hydrate();
 
             var configTimerPeriods = ConfigurationManager.AppSettings["DashboardCollectorGrainTimerPeriods"];
@@ -111,7 +112,7 @@ namespace Derivco.Orniscient.Proxy.Grains
             var model = new UpdateModel
             {
                 Type = grainStatistic.GrainType,
-                Silo = grainStatistic.SiloAddress.ToString(),
+                Silo = grainStatistic.SiloAddress.ToString()
             };
 
             var orniscientInfo = OrniscientLinkMap.Instance.GetLinkFromType(model.Type);

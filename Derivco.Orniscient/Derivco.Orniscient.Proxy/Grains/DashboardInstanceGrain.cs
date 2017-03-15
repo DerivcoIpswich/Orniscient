@@ -67,7 +67,7 @@ namespace Derivco.Orniscient.Proxy.Grains
             //if we are over the summaryViewLimit we need to keep the summary model details, then the counts will be updated every time new items are pushed here from the DashboardCollecterGrain/
             if (InSummaryMode)
             {
-                return new DiffModel()
+                return new DiffModel
                 {
                     SummaryView = InSummaryMode,
                     NewGrains = GetGrainSummaries(),
@@ -153,7 +153,7 @@ namespace Derivco.Orniscient.Proxy.Grains
 
             if (InSummaryMode)
             {
-                await _dashboardInstanceStream.OnNextAsync(new DiffModel()
+                await _dashboardInstanceStream.OnNextAsync(new DiffModel
                 {
                     SummaryView = InSummaryMode,
                     TypeCounts = item.TypeCounts,
@@ -199,7 +199,7 @@ namespace Derivco.Orniscient.Proxy.Grains
                         }
                         else
                         {
-                            summaryLinks.Add(new Link()
+                            summaryLinks.Add(new Link
                             {
                                 Count = 1,
                                 FromId = fromGrainSummaryId,
@@ -217,7 +217,7 @@ namespace Derivco.Orniscient.Proxy.Grains
             var changedSummaries = (from grain in CurrentStats
                                     group grain by new { grain.Type, grain.Silo, grain.Colour }
                                     into grp
-                                    select new UpdateModel()
+                                    select new UpdateModel
                                     {
                                         Type = grp.Key.Type,
                                         Silo = grp.Key.Silo,

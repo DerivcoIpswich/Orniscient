@@ -5,6 +5,6 @@ namespace TestGrains.Grains
 {
 	public interface IInactiveGrain : IGrainWithIntegerKey
 	{
-		Task DoFuckAll();
+		Task DoNothing();
 	}
 }

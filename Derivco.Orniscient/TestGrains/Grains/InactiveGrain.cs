@@ -7,7 +7,7 @@ namespace TestGrains.Grains
 	public class InactiveGrain: Grain, IInactiveGrain
 	{
 		[OrniscientMethod]
-		public Task DoFuckAll()
+		public Task DoNothing()
 		{
 			return TaskDone.Done;
 		}

@@ -10,11 +10,11 @@ namespace Derivco.Orniscient.Proxy
     public class OrniscientLinkMap : IOrniscientLinkMap
     {
         private static readonly Lazy<OrniscientLinkMap> _instance = new Lazy<OrniscientLinkMap>(() => new OrniscientLinkMap());
-        private Dictionary<Type, Attributes.OrniscientGrain> _typeMap;
+        private Dictionary<Type, OrniscientGrain> _typeMap;
 
         public void Init(Logger _logger)
         {
-            this.Logger = _logger;
+            Logger = _logger;
             if (_typeMap == null)
             {
                 CreateTypeMap();
@@ -35,7 +35,7 @@ namespace Derivco.Orniscient.Proxy
                     if (!typeof(IGrain).IsAssignableFrom(type))
                         continue;
 
-                    var attribs = type.GetCustomAttributes(typeof(Attributes.OrniscientGrain), false);
+                    var attribs = type.GetCustomAttributes(typeof(OrniscientGrain), false);
                     var orniscientInfo = attribs.FirstOrDefault() as OrniscientGrain ?? new OrniscientGrain();
                     orniscientInfo.IdentityType = GetIdentityType(type);
 
@@ -56,16 +56,16 @@ namespace Derivco.Orniscient.Proxy
             {
                 return IdentityTypes.Guid;
             }
-            else if (typeof(IGrainWithIntegerKey).IsAssignableFrom(type))
-            {
-                return IdentityTypes.Int;
+	        if (typeof(IGrainWithIntegerKey).IsAssignableFrom(type))
+	        {
+		        return IdentityTypes.Int;
 
-            }
-            else if (typeof(IGrainWithStringKey).IsAssignableFrom(type))
-            {
-                return IdentityTypes.String;
-            }
-            return IdentityTypes.NotFound;
+	        }
+	        if (typeof(IGrainWithStringKey).IsAssignableFrom(type))
+	        {
+		        return IdentityTypes.String;
+	        }
+	        return IdentityTypes.NotFound;
         }
 
         private string GetDefaultLinkFromTypeId(Type type)
@@ -74,11 +74,11 @@ namespace Derivco.Orniscient.Proxy
             {
                 return Guid.Empty.ToString();
             }
-            else if (typeof(IGrainWithIntegerKey).IsAssignableFrom(type))
-            {
-                return "0";
-            }
-            return string.Empty;
+	        if (typeof(IGrainWithIntegerKey).IsAssignableFrom(type))
+	        {
+		        return "0";
+	        }
+	        return string.Empty;
         }
 
         public static OrniscientLinkMap Instance => _instance.Value;
