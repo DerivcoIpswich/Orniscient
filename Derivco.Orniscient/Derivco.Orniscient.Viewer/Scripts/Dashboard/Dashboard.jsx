@@ -397,8 +397,7 @@
 										<h5>Grain Type</h5>
 										<Select name="form-field-name" options={this.state.availableGrainTypes} multi={false} onChange={this.grainTypeSelectionChanged} value={this.state.selectedGrainType} />
 									</div>
-									
-									{orniscientvalues.allowMethodsInvocation === 'false' ?
+									{orniscientvalues.allowMethodsInvocation === 'True' ?
 									(<div>
 										<div className={orniscientutils.isNullOrUndefinedOrEmpty(this.state.selectedGrainType) ? 'form-group disabledContainer' : 'form-group'}>
 											<h5>Grain Methods</h5>
