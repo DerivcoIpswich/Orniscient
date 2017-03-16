@@ -1,12 +1,13 @@
-﻿using System;
-using System.Net;
-using System.Threading.Tasks;
-using System.Web.Mvc;
-using Derivco.Orniscient.Proxy.Grains;
+﻿using Derivco.Orniscient.Proxy.Grains;
 using Derivco.Orniscient.Proxy.Grains.Filters;
 using Derivco.Orniscient.Viewer.Clients;
 using Derivco.Orniscient.Viewer.Models.Dashboard;
 using Orleans;
+using System;
+using System.Configuration;
+using System.Net;
+using System.Threading.Tasks;
+using System.Web.Mvc;
 
 namespace Derivco.Orniscient.Viewer.Controllers
 {
@@ -17,7 +18,9 @@ namespace Derivco.Orniscient.Viewer.Controllers
         {
             try
             {
-                await Task.Run(async()=> await GrainClientInitializer.InitializeIfRequired(Server.MapPath("~/DevTestClientConfiguration.xml")));
+                this.ViewBag.AllowMethodsInvocation = AllowMethodsInvocation();
+
+                await Task.Run(async () => await GrainClientInitializer.InitializeIfRequired(Server.MapPath("~/DevTestClientConfiguration.xml")));
                 return View();
             }
             catch (Exception)
@@ -105,18 +108,32 @@ namespace Derivco.Orniscient.Viewer.Controllers
 		[HttpPost]
         public async Task<ActionResult> InvokeGrainMethod(string type, string id, string methodId, string parametersJson, bool invokeOnNewGrain = false)
         {
-            try
+            if (AllowMethodsInvocation())
             {
-				var methodGrain = GrainClient.GrainFactory.GetGrain<IMethodInvocationGrain>(type);
-				var methodReturnData = await methodGrain.InvokeGrainMethod(id, methodId, parametersJson, invokeOnNewGrain);
-                return Json(methodReturnData, JsonRequestBehavior.AllowGet);
+                var methodGrain = GrainClient.GrainFactory.GetGrain<ITypeMethodsGrain>(type);
+                try
+                {
+                    var methodReturnData = await methodGrain.InvokeGrainMethod(id, methodId, parametersJson);
+                    return Json(methodReturnData, JsonRequestBehavior.AllowGet);
+
+                }
+                catch (Exception ex)
+                {
+                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Error: " + ex.Message);
+                }
             }
-            catch (Exception ex)
+            return new HttpStatusCodeResult(HttpStatusCode.Forbidden, "Error: This method cannot be invoked");
+        }
+
+        private bool AllowMethodsInvocation()
+        {
+            bool allowMethodsInvocation;
+            if (!bool.TryParse(ConfigurationManager.AppSettings["AllowMethodsInvocation"], out allowMethodsInvocation))
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Error: " + ex.Message);
+                allowMethodsInvocation = true;
             }
+
+            return allowMethodsInvocation;
         }
     }
-
-
 }

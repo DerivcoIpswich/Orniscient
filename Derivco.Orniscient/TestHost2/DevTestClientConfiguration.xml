@@ -5,10 +5,10 @@
 	For a detailed reference, see "Orleans Configuration Reference.html".
 -->
 <ClientConfiguration xmlns="urn:orleans">
-    <GatewayProvider ProviderType="Config" />
-    <!--<Gateway Address="192.168.57.138" Port="40000" />-->
-    <Statistics MetricsTableWriteInterval="30s" PerfCounterWriteInterval="30s" LogWriteInterval="300s"
-                WriteLogStatisticsToTable="true" />
+  <GatewayProvider ProviderType="Config" />
+  <Gateway Address="localhost" Port="40001" />
+  <Statistics MetricsTableWriteInterval="30s" PerfCounterWriteInterval="30s" LogWriteInterval="300s"
+              WriteLogStatisticsToTable="true" />
   <!--Add to test with cluster-->
   <!--<SystemStore SystemStoreType ="SqlServer"
                  DeploymentId="OrleansTest"

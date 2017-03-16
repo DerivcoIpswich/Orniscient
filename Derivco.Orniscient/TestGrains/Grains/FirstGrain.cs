@@ -44,5 +44,11 @@ namespace TestGrains.Grains
                 await _streamProvider.GetStream<Guid>(grainId, "TestStream").OnNextAsync(grainId);
             }
         }
+
+        [OrniscientMethod]
+        public Task MockMethod()
+        {
+            return TaskDone.Done;
+        }
     }
 }
