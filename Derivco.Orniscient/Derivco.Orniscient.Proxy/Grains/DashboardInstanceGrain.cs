@@ -103,7 +103,7 @@ namespace Derivco.Orniscient.Proxy.Grains
             //1. Grain Id & Silo
             var grainQuery =
                 grains.Where(
-                    p => (string.IsNullOrEmpty(_currentFilter.GrainId) || p.GrainId.Contains(_currentFilter.GrainId)) &&
+                    p => (string.IsNullOrEmpty(_currentFilter.GrainId) || p.GrainId.ToLower().Contains(_currentFilter.GrainId.ToLower())) &&
                          (_currentFilter.SelectedSilos == null || _currentFilter.SelectedSilos.Length == 0 ||
                           _currentFilter.SelectedSilos.Contains(p.Silo)));
 

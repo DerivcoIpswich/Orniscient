@@ -10,27 +10,31 @@
 	},
 	getInitialState: function () {
 		return {
-			grainIdFilter: '',
+			//Textbox inputs
+			grainIdTextInputValue: '',
+			grainIdFilterTextInputValue: '',
+			summaryViewLimitTextInputValue: '',
+			//Selects
+			silos: [],
+			availableGrainTypes: [],
+			availableGrainTypeFilters: [],
+			grainTypeCounts: [],
+			availableMethodsForGrainType: [],
+			selectedGrainTypeGrainIds: [],
+			//Selected values
 			selectedSilos: null,
 			selectedTypes: null,
-			silos: [],
-			availableTypes: [],
-			availableFilters: [],
 			selectedFilters: {},
-			typeCounts: [],
-			summaryViewLimit: '',
-			selectedNodeGrainId: '',
-			selectedNodeGrainSilo: '',
-			selectedNodeGrainType: '',
-			selectedNodeGrainAvailableMethods: [],
-			selectedTypeGrainIds: [],
+			selectedGrainType: null,
+			targetGrainId: '',
+			targetGrainSilo: '',
 			selectedGrainMethod: null,
-			invokedMethodReturn: null,
-			invokeGrainMethodOnNewGrain: false,
-			selectedNodeGrainKeyType: '',
-			grainIdTextInputValue: '',
+			selectedGrainTypeKeyType: '',
+
+			invokedMethodResult: null,
+			invokeMethodOnNewGrain: false,
 			disableInvokeMethodButton: false,
-			grainInfoLoading: false
+			grainMethodInvocationDataLoading: false
 		};
 	},
 	componentWillMount: function () {
@@ -40,7 +44,7 @@
 			var data = JSON.parse(xhr.responseText);
 			this.setState({
 				silos: orniscientutils.stringArrToSelectOptions(data.Silos),
-				availableTypes: orniscientutils.stringArrToFilterNames(data.AvailableTypes)
+				availableGrainTypes: orniscientutils.stringArrToFilterNames(data.AvailableTypes)
 			});
 		}.bind(this);
 		xhr.send();
@@ -50,20 +54,11 @@
 		orniscient.init();
 
 		window.addEventListener('nodeSelected', this.orniscientNodeSelected);
-		window.addEventListener('nodeDeselected', this.resetGrainInformationState);
+		window.addEventListener('nodeDeselected', this.resetGrainMethodInvocationPanel);
 	},
 	//end React methods
 
-	filterByGrainId: function (event) {
-		this.setState({
-			grainIdFilter: event.target.value
-		});
-	},
-	siloSelected(val) {
-		this.setState({
-			selectedSilos: val
-		});
-	},
+	//Populate selects
 	getFilters: function (selectedTypes) {
 		var requestData = {
 			Types: selectedTypes != null && selectedTypes.length > 0 ? selectedTypes.map(function (a) {
@@ -82,22 +77,101 @@
 
 			//TODO :  delete all the types from the selectedFilters so that state is not maintained
 			this.setState({
-				availableFilters: filters,
+				availableGrainTypeFilters: filters,
 				selectedTypes: selectedTypes
 			});
 		}.bind(this);
 		xhr.send(JSON.stringify(requestData));
 	},
+	getInfoForGrainType: function (grainType) {
+		var requestData = {
+			type: grainType
+		};
+		var xhr = new XMLHttpRequest();
+		xhr.open('post', orniscienturls.getInfoForGrainType, true);
+		xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+		xhr.onload = function () {
+			var data = JSON.parse(xhr.responseText);
+			this.setState({
+				availableMethodsForGrainType: orniscientutils.methodsToSelectOptions(data.Methods),
+				selectedGrainTypeGrainIds: orniscientutils.stringArrToSelectOptions(data.Ids),
+				selectedGrainTypeKeyType: data.KeyType
+			});
+		}.bind(this);
+		xhr.send(JSON.stringify(requestData));
+	},
+	//Event handler
+	orniscientUpdated: function (grainTypeCounts) {
+		this.setState({
+			grainTypeCounts: grainTypeCounts.detail
+		});
+	},
+	//OnChange
+	grainIdFilterTextInputChanged: function (e) {
+		this.setState({
+			grainIdFilterTextInputValue: e.target.value
+		});
+	},
+	grainIdSelectChanged: function (grainId) {
+		var value = orniscientutils.isNullOrUndefined(val) ? null : grainId.value;
+		this.setState({
+			targetGrainId: value
+		}, this.disableInvokeMethodButton);
+	},
+	grainIdTextInputChanged: function (e) {
+		this.setState({
+			grainIdTextInputValue: e.target.value
+		}, this.disableInvokeMethodButton);
+	},
+	setSummaryViewTextInputChanged: function (e) {
+		this.setState({
+			summaryViewLimitTextInputValue: e.target.value
+		});
+	},
+	grainMethodSelectionChanged(method) {
+		this.setState({
+			selectedGrainMethod: method,
+			invokedMethodResult: null
+		}, this.disableInvokeMethodButton);
+	},
+	grainTypeSelectionChanged: function (grainType) {
+		this.resetGrainMethodInvocationPanel();
+		this.setState({
+			selectedGrainType: grainType.value
+		});
+		if (!orniscientutils.isNullOrUndefined(grainType)) {
+			this.getInfoForGrainType(grainType.value);
+		}
+	},
+	siloSelectionChanged(silo) {
+		this.setState({
+			selectedSilos: silo
+		});
+	},
+	invokeMethodOnNewGrainOptionChanged: function (e) {
+		this.setState({
+			invokeMethodOnNewGrain: e.target.checked
+		}, this.disableInvokeMethodButton);
+	},
+	//Selected
+	orniscientNodeSelected: function (node) {
+		this.resetGrainMethodInvocationPanel();
+		this.getInfoForGrainType(node.detail.graintype);
+		this.setState({
+			targetGrainId: node.detail.grainId,
+			targetGrainSilo: node.detail.silo,
+			selectedGrainType: node.detail.graintype
+		});
+	},
 	filterSelected: function (type, filterName, selected) {
-
 		var selectedFilters = this.state.selectedFilters;
 		var filterid = filterName.replace(/[^\w]/gi, '.'); //remove special characters
 
-		if (selectedFilters[type] === undefined) {
+		if (orniscientutils.isNullOrUndefined(selectedFilters[type])) {
 			selectedFilters[type] = {};
 		}
 
-		if (selectedFilters[type][filterid] === undefined) {
+		if (orniscientutils.isNullOrUndefined(selectedFilters[type][filterid])) {
 			selectedFilters[type][filterid] = {};
 		}
 
@@ -106,12 +180,13 @@
 			selectedFilters: selectedFilters
 		});
 	},
-	searchClicked: function (e) {
+	//Click
+	searchButtonClicked: function (e) {
 		e.preventDefault();
 		//build the filter here.
 		var selectedFilters = this.state.selectedFilters;
 		var filter = {
-			GrainId: this.state.grainIdFilter
+			GrainId: this.state.grainIdFilterTextInputValue
 		}
 
 		if (!orniscientutils.isNullOrUndefined(this.state.selectedSilos)) {
@@ -138,21 +213,22 @@
 
 		orniscient.getServerData(filter);
 	},
-	clearFiltersClicked: function (e) {
+	clearFiltersButtonClicked: function (e) {
 		e.preventDefault();
 		//clear everything that was set with this.setState({})
 		this.setState({
-			grainIdFilter: '',
+			grainIdFilterTextInputValue: '',
 			selectedSilos: null,
 			selectedTypes: null,
-			availableFilters: [],
+			availableGrainTypeFilters: [],
 			selectedFilters: {}
 		});
 
 		orniscient.getServerData();
 	},
-	setSummaryViewLimitClicked: function (e) {
-		var limit = this.state.summaryViewLimit;
+	setSummaryViewLimitButtonClicked: function (e) {
+		e.preventDefault();
+		var limit = this.state.summaryViewLimitTextInputValue;
 		if (!orniscientutils.isNullOrUndefined(limit)) {
 			var requestData = {
 				summaryViewLimit: limit,
@@ -160,78 +236,16 @@
 			};
 
 			var xhr = new XMLHttpRequest();
-			xhr.open('post', 'dashboard/SetSummaryViewLimit', true);
+			xhr.open('post', orniscienturls.setSummaryViewLimit, true);
 			xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
 			xhr.onload = function () {
-				this.searchClicked(e);
+				this.searchButtonClicked(e);
 				this.forceUpdate();
 			}.bind(this);
 			xhr.send(JSON.stringify(requestData));
 		}
 	},
-	orniscientUpdated: function (typeCounts) {
-		this.setState({
-			typeCounts: typeCounts.detail
-		});
-	},
-	resetGrainInformationState: function () {
-		this.setState({
-			selectedGrainType: null,
-			invokedMethodReturn: null,
-			selectedGrainMethod: null,
-			selectedTypeGrainIds: [],
-			selectedNodeGrainAvailableMethods: [],
-			invokeGrainMethodOnNewGrain: false,
-			selectedNodeGrainId: '',
-			selectedNodeGrainSilo: ''
-		});
-	},
-	grainTypeSelected: function (val) {
-		this.resetGrainInformationState();
-		this.setState({
-			selectedGrainType: val.value
-		});
-		if (!orniscientutils.isNullOrUndefined(val)) {
-			this.getInfoForGrainType(val.value);
-		}
-	},
-	orniscientNodeSelected: function (node) {
-		this.resetGrainInformationState();
-		this.setState({
-			selectedGrainType: node.detail.graintype
-		});
-		this.getInfoForGrainType(node.detail.graintype);
-		this.setState({
-			selectedNodeGrainId: node.detail.grainId,
-			selectedNodeGrainSilo: node.detail.silo,
-			selectedNodeGrainType: node.detail.graintype
-		});
-	},
-	getInfoForGrainType: function (grainType) {
-		var requestData = {
-			type: grainType
-		};
-		var xhr = new XMLHttpRequest();
-		xhr.open('post', 'dashboard/GetInfoForGrainType', true);
-		xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-		xhr.onload = function () {
-			var data = JSON.parse(xhr.responseText);
-			this.setState({
-				selectedNodeGrainAvailableMethods: orniscientutils.methodsToSelectOptions(data.Methods),
-				selectedTypeGrainIds: orniscientutils.stringArrToSelectOptions(data.Ids),
-				selectedNodeGrainKeyType: data.KeyType,
-				grainInfoLoading: false
-			});
-		}.bind(this);
-		xhr.send(JSON.stringify(requestData));
-	},
-	grainMethodSelected(val) {
-		this.setState({
-			selectedGrainMethod: val,
-			invokedMethodReturn: null
-		}, this.disableInvokeMethodButton);
-	},
-	invokeGrainMethod: function (e) {
+	invokeGrainMethodButtonClicked: function (e) {
 		e.preventDefault();
 		var methodData = this.state.selectedGrainMethod;
 		var parameterValues = [];
@@ -261,8 +275,8 @@
 			}
 		});
 
-		var grainId = this.state.selectedNodeGrainId;
-		if (this.state.invokeGrainMethodOnNewGrain) {
+		var grainId = this.state.targetGrainId;
+		if (this.state.invokeMethodOnNewGrain) {
 			grainId = this.state.grainIdTextInputValue;
 		}
 
@@ -271,60 +285,53 @@
 			id: grainId,
 			methodId: methodData.value,
 			parametersJson: JSON.stringify(parameterValues),
-			invokeOnNewGrain: this.state.invokeGrainMethodOnNewGrain
+			invokeOnNewGrain: this.state.invokeMethodOnNewGrain
 		};
 
 		var xhr = new XMLHttpRequest();
-		xhr.open('post', 'dashboard/InvokeGrainMethod', true);
+		xhr.open('post', orniscienturls.invokeGrainMethod, true);
 		xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
 		xhr.onreadystatechange = function () {
 			if (xhr.readyState === 4) {
 				if (xhr.status === 200) {
 					this.setState({
-						invokedMethodReturn: xhr.responseText
+						invokedMethodResult: xhr.responseText
 					});
 				} else {
 					this.setState({
-						invokedMethodReturn: xhr.statusText
+						invokedMethodResult: xhr.statusText
 					});
 				}
 			}
 		}.bind(this);
 		xhr.send(JSON.stringify(requestData));
 	},
-	invokeMethodOnNewGrainToggle: function (e) {
+	//Misc
+	resetGrainMethodInvocationPanel: function () {
 		this.setState({
-			invokeGrainMethodOnNewGrain: e.target.checked
-		}, this.disableInvokeMethodButton);
-	},
-	grainIdSelectChange: function (val) {
-		var value = orniscientutils.isNullOrUndefined(val) ? null : val.value;
-		this.setState({
-			selectedNodeGrainId: value
-		}, this.disableInvokeMethodButton);
-	},
-	grainIdTextInputChange: function (e) {
-		this.setState({
-			grainIdTextInputValue: e.target.value
-		}, this.disableInvokeMethodButton);
-	},
-	setSummaryViewTextInputChange: function (e) {
-		this.setState({
-			summaryViewLimit: e.target.value
+			selectedGrainType: null,
+			invokedMethodResult: null,
+			selectedGrainMethod: null,
+			selectedGrainTypeGrainIds: [],
+			availableMethodsForGrainType: [],
+			invokeMethodOnNewGrain: false,
+			targetGrainId: '',
+			targetGrainSilo: ''
 		});
 	},
 	disableInvokeMethodButton: function () {
 		this.setState({
 			disableInvokeMethodButton: false
 		});
-		if ((orniscientutils.isNullOrUndefinedOrEmpty(this.state.selectedTypeGrainIds) && orniscientutils.isNullOrUndefinedOrEmpty(this.state.grainIdTextInputValue)) ||
-				(this.state.invokeGrainMethodOnNewGrain && this.state.selectedNodeGrainKeyType !== 'System.Guid' && !this.state.grainIdTextInputValue) || 
-				(!this.state.invokeGrainMethodOnNewGrain && orniscientutils.isNullOrUndefinedOrEmpty(this.state.selectedNodeGrainId))) {
+		if ((orniscientutils.isNullOrUndefinedOrEmpty(this.state.selectedGrainTypeGrainIds) && orniscientutils.isNullOrUndefinedOrEmpty(this.state.grainIdTextInputValue)) ||
+				(this.state.invokeMethodOnNewGrain && this.state.selectedGrainTypeKeyType !== 'System.Guid' && !this.state.grainIdTextInputValue) || 
+				(!this.state.invokeMethodOnNewGrain && orniscientutils.isNullOrUndefinedOrEmpty(this.state.targetGrainId))) {
 			this.setState({
 				disableInvokeMethodButton: true
 			});
 		}
 	},
+
     render: function () {
         return (
 			<div id="filterwrap">
@@ -344,30 +351,30 @@
 								<form>
 									<div className="form-group">
 										<label for="grainid">Grain Id</label>
-										<input type="text" className="form-control width100" id="grainid" placeholder="Grain Id" onChange={this.filterByGrainId} value={this.state.grainIdFilter} />
+										<input type="text" className="form-control width100" id="grainid" placeholder="Grain Id" onChange={this.grainIdFilterTextInputChanged} value={this.state.grainIdFilterTextInputValue} />
 									</div>
 									<div className="form-group">
 										<label for="silo">Silo</label>
-										<Select name="form-field-name" options={this.state.silos} multi={true} onChange={this.siloSelected} disabled={false} value={this.state.selectedSilos} />
+										<Select name="form-field-name" options={this.state.silos} multi={true} onChange={this.siloSelectionChanged} disabled={false} value={this.state.selectedSilos} />
 									</div>
 									<div className="form-group">
 										<label for="grainType">Grain Type</label>
-										<Select name="form-field-name" options={this.state.availableTypes} multi={true} onChange={this.getFilters} disabled={false} value={this.state.selectedTypes} />
+										<Select name="form-field-name" options={this.state.availableGrainTypes} multi={true} onChange={this.getFilters} disabled={false} value={this.state.selectedTypes} />
 									</div>
-									<DashboardTypeFilterList data={this.state.availableFilters} filterSelected={this.filterSelected} />
+									<DashboardTypeFilterList data={this.state.availableGrainTypeFilters} filterSelected={this.filterSelected} />
 									<div className="row">
 										<div className="col-md-12">
-											<button type="submit" className="btn btn-success pull-right" onClick={this.searchClicked}>Search</button>
-											<button type="submit" className="btn btn-danger pull-left" onClick={this.clearFiltersClicked}>Clear Filters</button>
+											<button type="submit" className="btn btn-success pull-right" onClick={this.searchButtonClicked}>Search</button>
+											<button type="submit" className="btn btn-danger pull-left" onClick={this.clearFiltersButtonClicked}>Clear Filters</button>
 										</div>
 									</div>
-									<DashboardTypeCounts data={this.state.typeCounts} />
+									<DashboardTypeCounts data={this.state.grainTypeCounts} />
 									<div id="summaryViewLimit">
 										<h4>Summary View Limit</h4>
 										<div className="form-group">
-											<input type="text" className="form-control" id="summaryviewlimit" onChange={this.setSummaryViewTextInputChange} value={this.state.summaryViewLimit} placeholder="Summary View Limit" />
+											<input type="text" className="form-control" id="summaryviewlimit" onChange={this.setSummaryViewTextInputChanged} value={this.state.summaryViewLimitTextInputValue} placeholder="Summary View Limit" />
 										</div>
-										<button type="submit" className="btn btn-success pull-right" onClick={this.setSummaryViewLimitClicked}>Set Limit</button>
+										<button type="submit" className="btn btn-success pull-right" onClick={this.setSummaryViewLimitButtonClicked}>Set Limit</button>
 									</div>
 								</form>
 							</div>
@@ -386,11 +393,11 @@
 								<form>
 									<div className="form-group">
 										<h5>Grain Type</h5>
-										<Select name="form-field-name" options={this.state.availableTypes} multi={false} onChange={this.grainTypeSelected} value={this.state.selectedGrainType} />
+										<Select name="form-field-name" options={this.state.availableGrainTypes} multi={false} onChange={this.grainTypeSelectionChanged} value={this.state.selectedGrainType} />
 									</div>
 									<div className={orniscientutils.isNullOrUndefinedOrEmpty(this.state.selectedGrainType) ? 'form-group disabledContainer' : 'form-group'}>
 										<h5>Grain Methods</h5>
-										<Select name="form-field-name" options={this.state.selectedNodeGrainAvailableMethods} multi={false} onChange={this.grainMethodSelected} value={this.state.selectedGrainMethod} disabled={orniscientutils.isNullOrUndefinedOrEmpty(this.state.selectedGrainType)} />
+										<Select name="form-field-name" options={this.state.availableMethodsForGrainType} multi={false} onChange={this.grainMethodSelectionChanged} value={this.state.selectedGrainMethod} disabled={orniscientutils.isNullOrUndefinedOrEmpty(this.state.selectedGrainType)} />
 									</div>
                     				{this.state.selectedGrainMethod !== null &&
 									<div>
@@ -399,7 +406,7 @@
 										</div>
 										<div className="form-group invokeMethodOnNewGrainCheckbox">
 											<label>
-												<input type="checkbox" id="invokeMethodOnNewGrain" onChange={this.invokeMethodOnNewGrainToggle} />
+												<input type="checkbox" id="invokeMethodOnNewGrain" onChange={this.invokeMethodOnNewGrainOptionChanged} />
 												Invoke method on new grain
 											</label>
 										</div>
@@ -409,29 +416,29 @@
 										<h5>Target Grain</h5>
 										<div className="form-group">
 											<h5>Grain Id</h5>
-											{this.state.invokeGrainMethodOnNewGrain === false &&
-											<Select name="form-field-name" options={this.state.selectedTypeGrainIds} onChange={this.grainIdSelectChange} multi={false} value={this.state.selectedNodeGrainId} disabled={orniscientutils.isNullOrUndefinedOrEmpty(this.state.selectedGrainType)} />
+											{this.state.invokeMethodOnNewGrain === false &&
+											<Select name="form-field-name" options={this.state.selectedGrainTypeGrainIds} onChange={this.grainIdSelectChanged} multi={false} value={this.state.targetGrainId} disabled={orniscientutils.isNullOrUndefinedOrEmpty(this.state.selectedGrainType)} />
 											}
-											{this.state.invokeGrainMethodOnNewGrain === true &&
-											<input type="text" className="form-control width100" id="invokeMethodNewGrainId" placeholder={orniscientutils.isNullOrUndefinedOrEmpty(this.state.selectedGrainMethod) ? 'No Grain Method Selected' : this.state.selectedNodeGrainKeyType} value={this.state.grainIdTextInputValue} onChange={this.grainIdTextInputChange} disabled={this.state.selectedNodeGrainKeyType === 'System.Guid' || orniscientutils.isNullOrUndefinedOrEmpty(this.state.selectedGrainMethod)} />
+											{this.state.invokeMethodOnNewGrain === true &&
+											<input type="text" className="form-control width100" id="invokeMethodNewGrainId" placeholder={orniscientutils.isNullOrUndefinedOrEmpty(this.state.selectedGrainMethod) ? 'No Grain Method Selected' : this.state.selectedGrainTypeKeyType} value={this.state.grainIdTextInputValue} onChange={this.grainIdTextInputChanged} disabled={this.state.selectedGrainTypeKeyType === 'System.Guid' || orniscientutils.isNullOrUndefinedOrEmpty(this.state.selectedGrainMethod)} />
 											}
 										</div>
 										<div className="form-group">
 											<h5>Silo</h5>
-											<label for="silo">{this.state.selectedNodeGrainSilo !== '' ? this.state.selectedNodeGrainSilo : 'No grain selected.'}</label>
+											<label for="silo">{this.state.targetGrainSilo !== '' ? this.state.targetGrainSilo : 'No grain selected.'}</label>
 										</div>
 									</div>
 									{this.state.selectedGrainMethod !== null &&
 									<div>
 										<div className="row">
 											<div className="col-md-12">
-												<button type="submit" className="btn btn-success pull-left" id="invokeMethodButton" onClick={this.invokeGrainMethod} disabled={this.state.disableInvokeMethodButton}>Invoke Method </button>
+												<button type="submit" className="btn btn-success pull-left" id="invokeMethodButton" onClick={this.invokeGrainMethodButtonClicked} disabled={this.state.disableInvokeMethodButton}>Invoke Method </button>
 											</div>
 										</div>
 									</div>
 									}
 								</form>
-								<DashboardGrainMethodReturnData data={this.state.invokedMethodReturn} />
+								<DashboardGrainMethodReturnData data={this.state.invokedMethodResult} />
 							</div>
 						</div>
         				} {orniscient.summaryView() === true &&
@@ -440,7 +447,7 @@
 						</div>
         				}
 					</div>
-    				{this.state.grainInfoLoading &&
+    				{this.state.grainMethodInvocationDataLoading &&
 					<div className="loader"></div>
     				}
 				</div>
