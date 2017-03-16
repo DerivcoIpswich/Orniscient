@@ -15,7 +15,8 @@ namespace Derivco.Orniscient.Viewer.Controllers
 {
 	public class DashboardController : Controller
 	{
-		private bool _allowMethodsInvocation;
+		private static bool _allowMethodsInvocation;
+
 		// GET: Dashboard
 		public async Task<ActionResult> Index(int id = 0)
 		{
