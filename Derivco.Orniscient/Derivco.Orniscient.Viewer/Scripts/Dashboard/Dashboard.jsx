@@ -200,9 +200,11 @@
 				var selectedValues = {};
 				var selectedValuesForType = selectedFilters[type.value];
 				for (var key in selectedValuesForType) {
-					selectedValues[key] = selectedValuesForType[key].map(function (i) {
-						return i.value;
-					});
+					if (!orniscientutils.isNullOrUndefined(selectedValuesForType[key])) {
+						selectedValues[key] = selectedValuesForType[key].map(function(i) {
+							return i.value;
+						});
+					}
 				}
 				return {
 					TypeName: type.value,
@@ -395,10 +397,19 @@
 										<h5>Grain Type</h5>
 										<Select name="form-field-name" options={this.state.availableGrainTypes} multi={false} onChange={this.grainTypeSelectionChanged} value={this.state.selectedGrainType} />
 									</div>
-									<div className={orniscientutils.isNullOrUndefinedOrEmpty(this.state.selectedGrainType) ? 'form-group disabledContainer' : 'form-group'}>
-										<h5>Grain Methods</h5>
-										<Select name="form-field-name" options={this.state.availableMethodsForGrainType} multi={false} onChange={this.grainMethodSelectionChanged} value={this.state.selectedGrainMethod} disabled={orniscientutils.isNullOrUndefinedOrEmpty(this.state.selectedGrainType)} />
-									</div>
+									
+									{orniscientvalues.allowMethodsInvocation === 'false' ?
+									(<div>
+										<div className={orniscientutils.isNullOrUndefinedOrEmpty(this.state.selectedGrainType) ? 'form-group disabledContainer' : 'form-group'}>
+											<h5>Grain Methods</h5>
+											<Select name="form-field-name" options={this.state.availableMethodsForGrainType} multi={false} onChange={this.grainMethodSelectionChanged} value={this.state.selectedGrainMethod} disabled={orniscientutils.isNullOrUndefinedOrEmpty(this.state.selectedGrainType)} />
+										</div>
+									</div>) :
+									(
+									<div className="alert alert-warning">
+										<strong>Warning:</strong> Method Invocation disabled.
+									</div>)
+									}
                     				{this.state.selectedGrainMethod !== null &&
 									<div>
 										<div className="form-group" id="parameterInputs">
