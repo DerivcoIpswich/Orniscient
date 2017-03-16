@@ -13,7 +13,8 @@ namespace Derivco.Orniscient.Proxy.BootstrapProviders
 {
     public class OrniscientFilterInterceptor : IBootstrapProvider
     {
-        private readonly List<string> _grainsWhereTimerWasRegistered = new List<string>();
+		public string Name => "OrniscientFilterInterceptor";
+		private readonly List<string> _grainsWhereTimerWasRegistered = new List<string>();
         private Logger _logger;
 
         public Task Init(string name, IProviderRuntime providerRuntime, IProviderConfiguration config)
@@ -24,7 +25,7 @@ namespace Derivco.Orniscient.Proxy.BootstrapProviders
             providerRuntime.SetInvokeInterceptor((method, request, grain, invoker) =>
             {
                 if (!(grain is IFilterableGrain) ||
-                    _grainsWhereTimerWasRegistered.Contains(((Orleans.Grain)grain).IdentityString))
+                    _grainsWhereTimerWasRegistered.Contains(((Grain)grain).IdentityString))
                 {
                     return invoker.Invoke(grain, request);
                 }
@@ -34,13 +35,13 @@ namespace Derivco.Orniscient.Proxy.BootstrapProviders
                     BindingFlags.Instance | BindingFlags.NonPublic);
                 dynamicMethod.Invoke(grain, new object[]
                 {
-                    getTimerFunc(providerRuntime,grain),
+                    GetTimerFunc(providerRuntime,grain),
                     null,
                     TimeSpan.FromSeconds(0),
                     TimeSpan.FromSeconds(20)
                 });
 
-                _grainsWhereTimerWasRegistered.Add(((Orleans.Grain)grain).IdentityString);
+                _grainsWhereTimerWasRegistered.Add(((Grain)grain).IdentityString);
                 _logger.Verbose($"Currently we have {_grainsWhereTimerWasRegistered.Count} grains where timer was registered");
                 return invoker.Invoke(grain, request);
 
@@ -48,7 +49,7 @@ namespace Derivco.Orniscient.Proxy.BootstrapProviders
             return Task.FromResult(0);
         }
 
-        private Func<object, Task> getTimerFunc(IProviderRuntime providerRuntime, IGrain grain)
+        private Func<object, Task> GetTimerFunc(IProviderRuntime providerRuntime, IGrain grain)
         {
             var grainName = grain.GetType().FullName;
             return async o =>
@@ -74,7 +75,5 @@ namespace Derivco.Orniscient.Proxy.BootstrapProviders
         {
             return Task.FromResult(0);
         }
-
-        public string Name => "OrniscientFilterInterceptor";
     }
 }

@@ -14,11 +14,11 @@ namespace Derivco.Orniscient.Viewer.Observers
 {
     public class OrniscientObserver : IAsyncObserver<DiffModel>
     {
-        private static readonly Lazy<OrniscientObserver> _instance = new Lazy<OrniscientObserver>(() => new OrniscientObserver());
-        public static OrniscientObserver Instance => _instance.Value;
-        private IAsyncStream<DiffModel> _stream;
+		private static readonly Lazy<OrniscientObserver> LazyInstance = new Lazy<OrniscientObserver>(() => new OrniscientObserver());
+        private readonly IAsyncStream<DiffModel> _stream;
 
-        public Guid StreamId => _stream.Guid;
+		public Guid StreamId => _stream.Guid;
+		public static OrniscientObserver Instance => LazyInstance.Value;
 
         public OrniscientObserver()
         {
@@ -33,8 +33,6 @@ namespace Derivco.Orniscient.Viewer.Observers
             var diffmodel = await dashboardInstanceGrain.GetAll(filter);
             return diffmodel;
         }
-
-        
 
         public Task OnNextAsync(DiffModel item, StreamSequenceToken token = null)
         {
@@ -67,4 +65,3 @@ namespace Derivco.Orniscient.Viewer.Observers
 
     }
 }
-

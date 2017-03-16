@@ -47,6 +47,9 @@
             //this is where we will set id for grain details menu.
             window.dispatchEvent(new CustomEvent('nodeSelected', { detail: nodes.get(params.nodes)[0] }));
         });
+        network.on('deselectNode', function () {
+			window.dispatchEvent(new Event('nodeDeselected'));
+        });
 
         $.extend(hub.client, {grainActivationChanged: grainActivationChanged});
         $.connection.hub.logging = true;

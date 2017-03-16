@@ -2,8 +2,10 @@
 {
     public class FilterRow
     {
-        public FilterRow()
-        {}
+	    public FilterRow()
+	    {
+	    }
+
         public FilterRow(string name,string value)
         {
             FilterName = name;
