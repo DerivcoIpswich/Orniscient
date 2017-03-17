@@ -178,8 +178,10 @@ namespace Derivco.Orniscient.Proxy.Grains
 		private static Type GetGrainInterfaceType(Type grainType)
 		{
 			return grainType?.GetInterfaces()
-				.FirstOrDefault(i => grainType.GetInterfaceMap(i).TargetMethods.Any(m => m.DeclaringType == grainType) &&
-				                     i.Name.Contains(grainType.Name));
+				       .FirstOrDefault(
+					       i => grainType.GetInterfaceMap(i).TargetMethods.Any(m => m.DeclaringType == grainType) &&
+					            i.Name.Contains(grainType.Name)) ??
+			       grainType?.GetInterfaces().FirstOrDefault(i => i.Name.Contains(grainType.Name));
 		}
 
 		private static Type GetGrainKeyType(Type grainInterface)

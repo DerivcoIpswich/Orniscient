@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Derivco.Orniscient.Proxy.Attributes;
-using Derivco.Orniscient.Proxy.Filters;
 using Orleans;
 
 namespace TestGrains.Grains

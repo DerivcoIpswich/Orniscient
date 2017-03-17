@@ -37,8 +37,8 @@ namespace TestGrains.Grains
         [OrniscientMethod]
         public Task<Dictionary<string, string>> KeepAliveOne(int? intOne, string stringOne)
         {
-            Debug.WriteLine("KeepAliveOne called.");
-            return Task.FromResult(new Dictionary<string, string> {{"keyone", "keepaliveone"}, {"keytwo", "lolbrew"}});
+            Debug.WriteLine($"KeepAliveOne called on {this.GetPrimaryKeyString()}. intOne: {intOne} stringOne: {stringOne}");
+            return Task.FromResult(new Dictionary<string, string> {{"keyone", this.GetPrimaryKey().ToString() }, {"keytwo", stringOne}});
         }
 
         [OrniscientMethod]
