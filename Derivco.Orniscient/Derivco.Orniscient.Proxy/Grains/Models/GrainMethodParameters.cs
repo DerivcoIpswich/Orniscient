@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Derivco.Orniscient.Proxy.Grains.Models
+﻿namespace Derivco.Orniscient.Proxy.Grains.Models
 {
     public class GrainMethodParameters
     {

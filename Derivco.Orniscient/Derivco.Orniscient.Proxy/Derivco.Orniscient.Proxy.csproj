@@ -89,7 +89,7 @@
     <Compile Include="Grains\IDashboardCollectorGrain.cs" />
     <Compile Include="Grains\IDashboardInstanceGrain.cs" />
     <Compile Include="Grains\ITypeFilterGrain.cs" />
-    <Compile Include="Grains\ITypeMethodsGrain.cs" />
+    <Compile Include="Grains\IMethodInvocationGrain.cs" />
     <Compile Include="Grains\Models\DiffModel.cs" />
     <Compile Include="Grains\Models\GrainType.cs" />
     <Compile Include="Grains\Models\Link.cs" />
@@ -98,7 +98,7 @@
     <Compile Include="Grains\Models\UpdateModel.cs" />
     <Compile Include="Attributes\OrniscientMethod.cs" />
     <Compile Include="Grains\TypeFilterGrain.cs" />
-    <Compile Include="Grains\TypeMethodGrain.cs" />
+    <Compile Include="Grains\MethodInvocationGrain.cs" />
     <Compile Include="IOrniscientLinkMap.cs" />
     <Compile Include="OrniscientLinkMap.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

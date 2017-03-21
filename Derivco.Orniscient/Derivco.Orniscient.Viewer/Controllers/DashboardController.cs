@@ -4,107 +4,139 @@ using Derivco.Orniscient.Viewer.Clients;
 using Derivco.Orniscient.Viewer.Models.Dashboard;
 using Orleans;
 using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Mvc;
+using Derivco.Orniscient.Proxy.Grains.Models;
 
 namespace Derivco.Orniscient.Viewer.Controllers
 {
-    public class DashboardController : Controller
-    {
-        // GET: Dashboard
-        public async Task<ActionResult> Index(int id = 0)
-        {
-            try
-            {
-                this.ViewBag.AllowMethodsInvocation = AllowMethodsInvocation();
+	public class DashboardController : Controller
+	{
+		private static bool _allowMethodsInvocation;
 
-                await Task.Run(async () => await GrainClientInitializer.InitializeIfRequired(Server.MapPath("~/DevTestClientConfiguration.xml")));
-                return View();
-            }
-            catch (Exception ex)
-            {
-                return View("InitError");
-            }
-        }
+		// GET: Dashboard
+		public async Task<ActionResult> Index(int id = 0)
+		{
+			try
+			{
+				_allowMethodsInvocation = AllowMethodsInvocation();
+				ViewBag.AllowMethodsInvocation = _allowMethodsInvocation;
 
-        public async Task<ActionResult> GetDashboardInfo()
-        {
-            var dashboardCollectorGrain = GrainClient.GrainFactory.GetGrain<IDashboardCollectorGrain>(Guid.Empty);
+				await Task.Run(
+					async () => await GrainClientInitializer.InitializeIfRequired(Server.MapPath("~/DevTestClientConfiguration.xml")));
+				return View();
+			}
+			catch (Exception)
+			{
+				return View("InitError");
+			}
+		}
 
-            var types = await dashboardCollectorGrain.GetGrainTypes();
-            var dashboardInfo = new DashboardInfo
-            {
-                Silos = await dashboardCollectorGrain.GetSilos(),
-                AvailableTypes = types
-            };
+		public async Task<ActionResult> GetDashboardInfo()
+		{
+			var dashboardCollectorGrain = GrainClient.GrainFactory.GetGrain<IDashboardCollectorGrain>(Guid.Empty);
 
-            return Json(dashboardInfo, JsonRequestBehavior.AllowGet);
-        }
+			var types = await dashboardCollectorGrain.GetGrainTypes();
+			var dashboardInfo = new DashboardInfo
+			{
+				Silos = await dashboardCollectorGrain.GetSilos(),
+				AvailableTypes = types
+			};
 
-        public async Task<ActionResult> GetFilters(GetFiltersRequest filtersRequest)
-        {
-            if (filtersRequest?.Types == null)
-                return null;
+			return Json(dashboardInfo, JsonRequestBehavior.AllowGet);
+		}
 
-            var filterGrain = GrainClient.GrainFactory.GetGrain<IFilterGrain>(Guid.Empty);
-            var filters = await filterGrain.GetGroupedFilterValues(filtersRequest.Types);
-            return Json(filters, JsonRequestBehavior.AllowGet);
-        }
+		public async Task<ActionResult> GetFilters(GetFiltersRequest filtersRequest)
+		{
+			if (filtersRequest?.Types == null)
+				return null;
 
-        [HttpPost]
-        public async Task<ActionResult> GetGrainInfo(GetGrainInfoRequest grainInfoRequest)
-        {
-            var typeFilterGrain = GrainClient.GrainFactory.GetGrain<IFilterGrain>(Guid.Empty);
-            var filters = await typeFilterGrain.GetFilters(grainInfoRequest.GrainType, grainInfoRequest.GrainId);
-            return Json(filters);
-        }
+			var filterGrain = GrainClient.GrainFactory.GetGrain<IFilterGrain>(Guid.Empty);
+			var filters = await filterGrain.GetGroupedFilterValues(filtersRequest.Types);
+			return Json(filters, JsonRequestBehavior.AllowGet);
+		}
 
-        [HttpPost]
-        public async Task SetSummaryViewLimit(int summaryViewLimit, int sessionId = 0)
-        {
-            var dashboardInstanceGrain = GrainClient.GrainFactory.GetGrain<IDashboardInstanceGrain>(sessionId);
-            await dashboardInstanceGrain.SetSummaryViewLimit(summaryViewLimit);
-        }
+		[HttpPost]
+		public async Task<ActionResult> GetGrainInfo(GetGrainInfoRequest grainInfoRequest)
+		{
+			var typeFilterGrain = GrainClient.GrainFactory.GetGrain<IFilterGrain>(Guid.Empty);
+			var filters = await typeFilterGrain.GetFilters(grainInfoRequest.GrainType, grainInfoRequest.GrainId);
+			return Json(filters);
+		}
 
-        [HttpPost]
-        public async Task<ActionResult> GetMethods(string type)
-        {
-            var methodGrain = GrainClient.GrainFactory.GetGrain<ITypeMethodsGrain>(type);
-            var methods = await methodGrain.GetAvailableMethods();
-            return Json(methods, JsonRequestBehavior.AllowGet);
-        }
+		[HttpPost]
+		public async Task SetSummaryViewLimit(int summaryViewLimit, int sessionId = 0)
+		{
+			var dashboardInstanceGrain = GrainClient.GrainFactory.GetGrain<IDashboardInstanceGrain>(sessionId);
+			await dashboardInstanceGrain.SetSummaryViewLimit(summaryViewLimit);
+		}
 
-        [HttpPost]
-        public async Task<ActionResult> InvokeGrainMethod(string type, string id, string methodId, string parametersJson)
-        {
-            if (AllowMethodsInvocation())
-            {
-                var methodGrain = GrainClient.GrainFactory.GetGrain<ITypeMethodsGrain>(type);
-                try
-                {
-                    var methodReturnData = await methodGrain.InvokeGrainMethod(id, methodId, parametersJson);
-                    return Json(methodReturnData, JsonRequestBehavior.AllowGet);
+		[HttpPost]
+		public async Task<ActionResult> GetInfoForGrainType(string type)
+		{
+			var dashboardCollectorGrain = GrainClient.GrainFactory.GetGrain<IDashboardCollectorGrain>(Guid.Empty);
+			var ids = await dashboardCollectorGrain.GetGrainIdsForType(type);
 
-                }
-                catch (Exception ex)
-                {
-                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Error: " + ex.Message);
-                }
-            }
-            return new HttpStatusCodeResult(HttpStatusCode.Forbidden, "Error: This method cannot be invoked");
-        }
+			var grainInfoGrain = GrainClient.GrainFactory.GetGrain<IMethodInvocationGrain>(type);
+			var methods = new List<GrainMethod>();
+			if (_allowMethodsInvocation)
+			{
+				methods = await grainInfoGrain.GetAvailableMethods();
+			}
+			var keyType = await grainInfoGrain.GetGrainKeyType();
 
-        private bool AllowMethodsInvocation()
-        {
-            bool allowMethodsInvocation;
-            if (!bool.TryParse(ConfigurationManager.AppSettings["AllowMethodsInvocation"], out allowMethodsInvocation))
-            {
-                allowMethodsInvocation = true;
-            }
+			return Json(new {Methods = methods, Ids = ids, KeyType = keyType}, JsonRequestBehavior.AllowGet);
+		}
 
-            return allowMethodsInvocation;
-        }
-    }
+		[HttpGet]
+		public async Task<ActionResult> GetAllGrainTypes()
+		{
+			var dashboardCollectorGrain = GrainClient.GrainFactory.GetGrain<IDashboardCollectorGrain>(Guid.Empty);
+			var types = await dashboardCollectorGrain.GetGrainTypes();
+			return Json(types, JsonRequestBehavior.AllowGet);
+		}
+
+		[HttpPost]
+		public async Task<ActionResult> GetGrainKeyFromType(string type)
+		{
+			var grainInfoGrain = GrainClient.GrainFactory.GetGrain<IMethodInvocationGrain>(type);
+			var grainKeyType = await grainInfoGrain.GetGrainKeyType();
+			return Json(grainKeyType, JsonRequestBehavior.AllowGet);
+		}
+
+		[HttpPost]
+		public async Task<ActionResult> InvokeGrainMethod(string type, string id, string methodId, string parametersJson,
+			bool invokeOnNewGrain = false)
+		{
+			if (_allowMethodsInvocation)
+			{
+				try
+				{
+					var methodGrain = GrainClient.GrainFactory.GetGrain<IMethodInvocationGrain>(type);
+					var methodReturnData = await methodGrain.InvokeGrainMethod(id, methodId, parametersJson);
+					return Json(methodReturnData, JsonRequestBehavior.AllowGet);
+
+				}
+				catch (Exception ex)
+				{
+					return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Error: " + ex.Message);
+				}
+			}
+			return new HttpStatusCodeResult(HttpStatusCode.Forbidden, "Error: This method cannot be invoked");
+		}
+
+		private static bool AllowMethodsInvocation()
+		{
+			bool allowMethodsInvocation;
+			if (!bool.TryParse(ConfigurationManager.AppSettings["AllowMethodsInvocation"], out allowMethodsInvocation))
+			{
+				allowMethodsInvocation = true;
+			}
+
+			return allowMethodsInvocation;
+		}
+	}
 }

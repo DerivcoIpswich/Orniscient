@@ -12,7 +12,7 @@ namespace Derivco.Orniscient.Viewer.Hubs
     {
         public override Task OnConnected()
         {
-            Groups.Add(this.Context.ConnectionId, SessionId.ToString());
+            Groups.Add(Context.ConnectionId, SessionId.ToString());
             return base.OnConnected();
         }
 
@@ -26,8 +26,8 @@ namespace Derivco.Orniscient.Viewer.Hubs
         {
             get
             {
-                var sessionId = 0;
-                int.TryParse(this.Context.Request.QueryString["id"], out sessionId);
+                int sessionId;
+                int.TryParse(Context.Request.QueryString["id"], out sessionId);
                 return sessionId;
             }
         }

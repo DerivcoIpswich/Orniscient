@@ -1,4 +1,5 @@
 using System.Linq;
+
 namespace Derivco.Orniscient.Proxy.Grains.Models
 {
     public class UpdateModel
@@ -18,6 +19,4 @@ namespace Derivco.Orniscient.Proxy.Grains.Models
             return $"Type : {Type},GrainId : {GrainId}";
         }
     }
-
-
 }

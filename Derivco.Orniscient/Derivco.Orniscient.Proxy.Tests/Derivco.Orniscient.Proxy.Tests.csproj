@@ -211,11 +211,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Grains\ITestGrain.cs" />
     <Compile Include="Grains\TestFixtures\BaseTestFixture.cs" />
     <Compile Include="Grains\TestFixtures\DashboardCollectorGrainTestFixture.cs" />
     <Compile Include="Grains\Filters\FilterGrainTests.cs" />
     <Compile Include="Grains\TestFixtures\TypeMethodGrainTestFixture.cs" />
-    <Compile Include="Grains\TypeMethodGrainTests.cs" />
+    <Compile Include="Grains\MethodInvocationGrainTests.cs" />
     <Compile Include="Grains\DashboardCollectorGrainTests.cs" />
     <Compile Include="Grains\DashboardInstanceGrainTests.cs" />
     <Compile Include="Grains\TypeFilterGrainTests.cs" />
