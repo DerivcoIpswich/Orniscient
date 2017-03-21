@@ -113,7 +113,7 @@
 		});
 	},
 	grainIdSelectChanged: function (grainId) {
-		var value = orniscientutils.isNullOrUndefined(val) ? null : grainId.value;
+		var value = orniscientutils.isNullOrUndefined(grainId) ? null : grainId.value;
 		this.setState({
 			targetGrainId: value
 		}, this.disableInvokeMethodButton);

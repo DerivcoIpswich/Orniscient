@@ -8,16 +8,35 @@ using Derivco.Orniscient.Proxy.Grains.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Orleans;
+using Orleans.Core;
 using Orleans.Runtime;
 
 namespace Derivco.Orniscient.Proxy.Grains
 {
 	public class MethodInvocationGrain : Grain, IMethodInvocationGrain
 	{
+		private string _grainType;
+		private IGrainFactory _grainFactory;
 		private List<GrainMethod> _methods = new List<GrainMethod>();
+
+		public MethodInvocationGrain()
+		{
+		}
+
+		internal MethodInvocationGrain(string type, IGrainIdentity identity,
+			IGrainRuntime runtime, IGrainFactory factory) : base(identity, runtime)
+		{
+			_grainType = type;
+			_grainFactory = factory;
+		}
 
 		public override async Task OnActivateAsync()
 		{
+			if (_grainType == null)
+				_grainType = this.GetPrimaryKeyString();
+			if (_grainFactory == null)
+				_grainFactory = GrainFactory;
+
 			await HydrateMethodList();
 			await base.OnActivateAsync();
 		}
@@ -29,7 +48,7 @@ namespace Derivco.Orniscient.Proxy.Grains
 
 		public Task<string> GetGrainKeyType()
 		{
-			var grainInterface = GetGrainInterfaceType(GetTypeFromString(this.GetPrimaryKeyString()));
+			var grainInterface = GetGrainInterfaceType(GetTypeFromString(_grainType));
 			return grainInterface != null
 				? Task.FromResult(GetGrainKeyType(grainInterface)?.FullName)
 				: Task.FromResult(string.Empty);
@@ -65,7 +84,7 @@ namespace Derivco.Orniscient.Proxy.Grains
 
 		private Task HydrateMethodList()
 		{
-			var grainType = GetTypeFromString(this.GetPrimaryKeyString());
+			var grainType = GetTypeFromString(_grainType);
 			_methods = new List<GrainMethod>();
 
 			foreach (var @interface in grainType.GetInterfaces())
@@ -100,14 +119,14 @@ namespace Derivco.Orniscient.Proxy.Grains
 		{
 			if (method != null)
 			{
-				var grainInterface = GetGrainInterfaceType(GetTypeFromString(this.GetPrimaryKeyString()));
+				var grainInterface = GetGrainInterfaceType(GetTypeFromString(_grainType));
 				var grainKeyType = GetGrainKeyType(grainInterface);
 				var grainKey = GetGrainKeyFromType(grainKeyType, id);
 
 				var grainReference = typeof(IGrainFactory)
 					.GetMethod("GetGrain", new[] {grainKeyType, typeof(string)})
 					.MakeGenericMethod(grainInterface)
-					.Invoke(GrainFactory, new[] {grainKey, null}) as IGrain;
+					.Invoke(_grainFactory, new[] {grainKey, null}) as IGrain;
 
 				if (method.InterfaceForMethod == grainInterface.FullName)
 				{
@@ -162,7 +181,7 @@ namespace Derivco.Orniscient.Proxy.Grains
 
 		private static Type GetTypeFromString(string typeName)
 		{
-			var type = Type.GetType(typeName);
+			var type = System.Type.GetType(typeName);
 			if (type == null)
 			{
 				foreach (var a in AppDomain.CurrentDomain.GetAssemblies())

@@ -211,6 +211,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Grains\ITestGrain.cs" />
     <Compile Include="Grains\TestFixtures\BaseTestFixture.cs" />
     <Compile Include="Grains\TestFixtures\DashboardCollectorGrainTestFixture.cs" />
     <Compile Include="Grains\Filters\FilterGrainTests.cs" />
