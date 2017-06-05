@@ -13,17 +13,23 @@ namespace Derivco.Orniscient.Viewer.Controllers
     public class DashboardController : Controller
     {
         // GET: Dashboard
-        public async Task<ActionResult> Index(int id = 0)
+        public Task<ViewResult> Index()
         {
             try
             {
-                await Task.Run(async()=> await GrainClientInitializer.InitializeIfRequired(Server.MapPath("~/DevTestClientConfiguration.xml")));
-                return View();
+                return Task.FromResult(View());
             }
             catch (Exception ex)
             {
-                return View("InitError");
+                return Task.FromResult(View("InitError"));
             }
+        }
+
+        public Task<ActionResult> Disconnect()
+        {
+            GrainClientInitializer.Disconnect();
+            ActionResult result = RedirectToAction("Index", "Connection");
+            return Task.FromResult(result);
         }
 
         public async Task<ActionResult> GetDashboardInfo()

@@ -1,0 +1,33 @@
+﻿@model Derivco.Orniscient.Viewer.Models.Connection.ConnectionInfo
+
+<br />
+<p style="color: red;">@ViewBag.Error</p>
+@using (Html.BeginForm("Index", "Connection", FormMethod.Post))
+{  
+<div class="container">
+    <div class="login-box">
+        <div class="row">
+            <div class="input-sm">
+                @Html.LabelFor(m=> m.Address)
+            </div>
+            <div class="input-sm">
+                @Html.TextBoxFor(m=> m.Address)
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="input-sm">
+                @Html.LabelFor(m=> m.Port)
+            </div>
+            <div class="input-sm">
+                @Html.TextBoxFor(m=> m.Port)
+            </div>
+        </div>
+        <div class="row">
+            <div>
+                <input type="submit" value="Connect" class="btn btn-primary btn-lg" />
+            </div>
+        </div>
+    </div>
+</div>
+}
