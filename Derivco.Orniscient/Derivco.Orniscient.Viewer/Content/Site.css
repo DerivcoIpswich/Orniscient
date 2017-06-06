@@ -3,26 +3,25 @@
 }
 
 body {
-    padding-top: 50px;
-    padding-bottom: 20px;
     overflow-y: hidden;
     overflow-x: hidden;
 }
 
 #mynetwork {
-    height: 900px;
+    height: 100%;
     /*border: 1px solid lightgray;*/
-}
-
-/* Set padding to keep content from hitting the edges */
-.body-content {
-    padding-left: 15px;
-    padding-right: 15px;
 }
 
 /*Override bootstrap styles  */
 .navbar-inverse {
     background-color: rgba(13,38,55,1) !important;
+}
+
+.disconnect-btn {
+    position: fixed;
+    top: 13px;
+    right: 13px;
+    z-index: 1000;
 }
 
 /* Override the default bootstrap behavior where horizontal description lists 
