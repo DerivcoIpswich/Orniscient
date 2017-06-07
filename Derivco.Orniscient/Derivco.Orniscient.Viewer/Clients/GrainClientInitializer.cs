@@ -2,6 +2,7 @@
 using Orleans;
 using Orleans.Runtime.Configuration;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -32,7 +33,7 @@ namespace Derivco.Orniscient.Viewer.Clients
             lock (_lock)
             {
                 var host = Dns.GetHostEntry(address);
-                var ipAddress = host.AddressList[1];
+                var ipAddress = host.AddressList.Last();
                 var ipEndpoint = new IPEndPoint(ipAddress, port);
                 var config = new ClientConfiguration();
                 config.Gateways = new List<IPEndPoint>();
