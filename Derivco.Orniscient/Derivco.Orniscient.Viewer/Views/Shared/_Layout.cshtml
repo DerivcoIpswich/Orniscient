@@ -11,17 +11,15 @@
     <link rel="icon" href="@Url.Content("~/Content/img/favicon.ico")">
 </head>
 <body>
-<header class="navbar navbar-inverse" style="margin-bottom: 0px; height: 60px;">
-    <nav class="container">
-        <div class="navbar-header">
-            <a class="navbar-brand brand" href="#">
-                <img alt="Brand" src="@Url.Content("~/Content/img/derivco.png")">
-            </a>
-            @Html.ActionLink("Orniscient", "Index", "Dashboard", new {area = ""}, new {@class = "navbar-brand heading"})
-        </div>
-    </nav>
+<header class="navbar navbar-inverse" style="margin-bottom: 0px; height: 60px; border-radius: 0 0 4px 4px;">
+    <div class="container navbar-header">
+        <a class="navbar-brand brand" href="#">
+            <img alt="Brand" src="@Url.Content("~/Content/img/derivco.png")">
+        </a>
+        @Html.ActionLink("Orniscient", "Index", "Dashboard", new {area = ""}, new {@class = "navbar-brand heading"})
+    </div>
 </header>
-<div class="container-fluid" style="height: 100%; padding-bottom: 60px">
+<div class="container-fluid" style="padding-bottom: 60px">
     @RenderBody()
 </div>
 @Scripts.Render("~/bundles/jquery")
