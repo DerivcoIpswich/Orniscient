@@ -251,7 +251,9 @@
 		e.preventDefault();
 		var methodData = this.state.selectedGrainMethod;
 		var parameterValues = [];
-
+		this.setState({
+			disableInvokeMethodButton: true
+		});
 		$.each(methodData.parameters, function (index, parameter) {
 			var parameterValue = $('#' + parameter.Name).val();
 			if (parameterValue !== '') {
@@ -276,12 +278,10 @@
 				});
 			}
 		});
-
 		var grainId = this.state.targetGrainId;
 		if (this.state.invokeMethodOnNewGrain) {
 			grainId = this.state.grainIdTextInputValue;
 		}
-
 		var requestData = {
 			type: this.state.selectedGrainType,
 			id: grainId,
@@ -289,12 +289,14 @@
 			parametersJson: JSON.stringify(parameterValues),
 			invokeOnNewGrain: this.state.invokeMethodOnNewGrain
 		};
-
 		var xhr = new XMLHttpRequest();
 		xhr.open('post', orniscienturls.invokeGrainMethod, true);
 		xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
 		xhr.onreadystatechange = function () {
 			if (xhr.readyState === 4) {
+				this.setState({
+					disableInvokeMethodButton: false
+				});
 				if (xhr.status === 200) {
 					this.setState({
 						invokedMethodResult: xhr.responseText
