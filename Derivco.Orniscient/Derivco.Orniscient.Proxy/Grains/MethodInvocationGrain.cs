@@ -75,8 +75,8 @@ namespace Derivco.Orniscient.Proxy.Grains
 							method.Parameters.Select(p => GetTypeFromString(p.Type)).ToArray(), null)
 						.Invoke(grain, parameters);
 
-					return await methodInvocation;
-				}
+				    return JsonConvert.SerializeObject(await methodInvocation);
+                }
 			}
 
 			return null;
