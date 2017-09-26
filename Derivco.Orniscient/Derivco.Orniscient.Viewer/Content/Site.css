@@ -3,8 +3,6 @@
 }
 
 body {
-    padding-top: 50px;
-    padding-bottom: 20px;
     overflow-y: hidden;
     overflow-x: hidden;
 }
@@ -14,15 +12,16 @@ body {
     /*border: 1px solid lightgray;*/
 }
 
-/* Set padding to keep content from hitting the edges */
-.body-content {
-    padding-left: 15px;
-    padding-right: 15px;
-}
-
 /*Override bootstrap styles  */
 .navbar-inverse {
     background-color: rgba(13,38,55,1) !important;
+}
+
+.disconnect-btn {
+    position: fixed;
+    top: 13px;
+    right: 13px;
+    z-index: 1000;
 }
 
 /* Override the default bootstrap behavior where horizontal description lists 
@@ -82,8 +81,7 @@ span.Select-value-label {
     max-width: 99% !important;
 }
 
-
-/* Flyout*/
+/* Flyout */
 .flyout {
     position: absolute;
     top: 60px;
@@ -92,29 +90,29 @@ span.Select-value-label {
     overflow-y: scroll;
 }
 
-    .flyout h4 {
-        color: #00c0ff;
-        border-bottom: 2px solid lightgray;
-        padding-bottom: 5px;
-    }
+.flyout h4 {
+    color: #00c0ff;
+    border-bottom: 2px solid lightgray;
+    padding-bottom: 5px;
+}
 
-    .flyout h5 {
-        padding-top: 14px;
-        color: #00c0ff;
-        font-weight: bold;
-        border-bottom: 1px solid lightgray;
-        padding-bottom: 5px;
-    }
+.flyout h5 {
+    padding-top: 14px;
+    color: #00c0ff;
+    font-weight: bold;
+    border-bottom: 1px solid lightgray;
+    padding-bottom: 5px;
+}
 
-    .flyout label {
-        font-weight: bolder;
-        font-size: 9pt;
-    }
+.flyout label {
+    font-weight: bolder;
+    font-size: 9pt;
+}
 
-    .flyout div.form-group {
-        padding-left: 8px;
-        padding-right: 5px;
-    }
+.flyout div.form-group {
+    padding-left: 8px;
+    padding-right: 5px;
+}
 
 .floatButton {
     margin-top: 117px;
@@ -132,12 +130,7 @@ div.floatButton button {
     background-color: #efefef !important;
 }
 
-
-
-/*
-    grain details
-*/
-
+/* Grain details */
 .grainFlyout {
     float: right;
     width: 400px;
@@ -145,22 +138,21 @@ div.floatButton button {
     transition: right 0.5s ease;
 }
 
-    .grainFlyout.shown {
-        transition: right 0.5s ease;
-        right: 0px !important;
-    }
+.grainFlyout.shown {
+    transition: right 0.5s ease;
+    right: 0px !important;
+}
 
-    .grainFlyout div.floatButton {
-        float: right;
-        margin-left: -56px;
-    }
+.grainFlyout div.floatButton {
+    float: right;
+    margin-left: -56px;
+}
 
-        .grainFlyout div.floatButton button {
-            border-right: 0px;
-        }
+.grainFlyout div.floatButton button {
+    border-right: 0px;
+}
 
-/*filtermenu*/
-
+/* Filter menu */
 .filterFlyout {
     float: left;
     width: 400px;
@@ -168,22 +160,21 @@ div.floatButton button {
     transition: left 0.5s ease;
 }
 
+.filterFlyout.shown {
+    transition: left 0.5s ease;
+    left: 0px;
+}
 
-    .filterFlyout.shown {
-        transition: left 0.5s ease;
-        left: 0px;
-    }
+.filterFlyout div.floatButton {
+    float: left;
+    margin-left: 384px;
+}
 
-    .filterFlyout div.floatButton {
-        float: left;
-        margin-left: 384px;
-    }
+.filterFlyout div.floatButton button {
+    border-left: 0px;
+}
 
-        .filterFlyout div.floatButton button {
-            border-left: 0px;
-        }
-
-/*vis overrides*/
+/* Vis overrides */
 .vis-left {
     left: 55px !important;
 }

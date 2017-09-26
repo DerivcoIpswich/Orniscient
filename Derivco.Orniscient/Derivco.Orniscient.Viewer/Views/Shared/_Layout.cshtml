@@ -11,19 +11,21 @@
     <link rel="icon" href="@Url.Content("~/Content/img/favicon.ico")">
 </head>
 <body>
-    <div class="navbar navbar-inverse navbar-fixed-top">
-        <div class="navbar-header">
-            <a class="navbar-brand brand" href="#">
-                <img alt="Brand" src="@Url.Content("~/Content/img/derivco.png")">
-            </a>
-            @Html.ActionLink("Orniscient", "Index", "Dashboard", new {area = ""}, new {@class = "navbar-brand heading"})
-        </div>
+<header class="navbar navbar-inverse" style="margin-bottom: 0px; height: 60px; border-radius: 0 0 4px 4px;">
+    <div class="container navbar-header">
+        <a class="navbar-brand brand" href="#">
+            <img alt="Brand" src="@Url.Content("~/Content/img/derivco.png")">
+        </a>
+        @Html.ActionLink("Orniscient", "Index", "Dashboard", new {area = ""}, new {@class = "navbar-brand heading"})
     </div>
+</header>
+<div class="container-fluid" style="padding-bottom: 60px">
     @RenderBody()
-    @Scripts.Render("~/bundles/jquery")
-    @Scripts.Render("~/bundles/bootstrap")
-    @Scripts.Render("~/bundles/vis")
-    @Html.Partial("_GlobalUrls")
-    @RenderSection("scripts", required: false)
+</div>
+@Scripts.Render("~/bundles/jquery")
+@Scripts.Render("~/bundles/bootstrap")
+@Scripts.Render("~/bundles/vis")
+@Html.Partial("_GlobalUrls")
+@RenderSection("scripts", required: false)
 </body>
 </html>

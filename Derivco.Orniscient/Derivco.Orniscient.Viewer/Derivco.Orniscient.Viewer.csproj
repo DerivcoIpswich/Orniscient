@@ -306,11 +306,13 @@
     <Compile Include="App_Start\ReactConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Clients\GrainClientInitializer.cs" />
+    <Compile Include="Controllers\ConnectionController.cs" />
     <Compile Include="Controllers\DashboardController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Hubs\OrniscientHub.cs" />
+    <Compile Include="Models\Connection\ConnectionInfo.cs" />
     <Compile Include="Models\Dashboard\DashboardInfo.cs" />
     <Compile Include="Models\Dashboard\GetFiltersRequest.cs" />
     <Compile Include="Models\Dashboard\GetGrainInfoRequest.cs" />
@@ -386,6 +388,7 @@
     <Content Include="Scripts\vis.js" />
     <Content Include="Scripts\vis.min.js" />
     <Content Include="Scripts\_references.js" />
+    <None Include="Views\Connection\Index.cshtml" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>

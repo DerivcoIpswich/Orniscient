@@ -13,27 +13,31 @@ using Derivco.Orniscient.Proxy.Grains.Models;
 
 namespace Derivco.Orniscient.Viewer.Controllers
 {
-	public class DashboardController : Controller
-	{
-		private static bool _allowMethodsInvocation;
+    public class DashboardController : Controller
+    {
+        private static bool _allowMethodsInvocation;
 
-		// GET: Dashboard
-		public async Task<ActionResult> Index(int id = 0)
-		{
-			try
-			{
-				_allowMethodsInvocation = AllowMethodsInvocation();
-				ViewBag.AllowMethodsInvocation = _allowMethodsInvocation;
+        // GET: Dashboard
+        public Task<ViewResult> Index()
+        {
+            try
+            {
+                _allowMethodsInvocation = AllowMethodsInvocation();
+                ViewBag.AllowMethodsInvocation = _allowMethodsInvocation;
+                return Task.FromResult(View());
+            }
+            catch (Exception ex)
+            {
+                return Task.FromResult(View("InitError"));
+            }
+        }
 
-				await Task.Run(
-					async () => await GrainClientInitializer.InitializeIfRequired(Server.MapPath("~/DevTestClientConfiguration.xml")));
-				return View();
-			}
-			catch (Exception)
-			{
-				return View("InitError");
-			}
-		}
+        public Task<ActionResult> Disconnect()
+        {
+            GrainClientInitializer.Disconnect();
+            ActionResult result = RedirectToAction("Index", "Connection");
+            return Task.FromResult(result);
+        }
 
 		public async Task<ActionResult> GetDashboardInfo()
 		{
