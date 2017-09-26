@@ -228,3 +228,14 @@ pre.result {
     overflow-x: scroll;
     overflow-y: scroll;
 }
+
+.invokeMethodOnNewGrainCheckbox input {
+	vertical-align: middle;
+	position: relative;
+	bottom: 3px;
+	margin-right: 5px;		
+}
+
+.disabledContainer {
+	opacity: 0.3;
+}

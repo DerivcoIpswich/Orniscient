@@ -13,7 +13,6 @@
     <StreamProviders>
       <Provider Type="Orleans.Providers.Streams.SimpleMessageStream.SimpleMessageStreamProvider" Name="SMSProvider" />
       <Provider Type="Orleans.Providers.Streams.SimpleMessageStream.SimpleMessageStreamProvider" Name="OrniscientSMSProvider" />
-     
     </StreamProviders>
     <LogViewProviders>
       <Provider Type="Orleans.Providers.LogViews.CustomStorageProvider" Name="CustomStorage" />
@@ -22,8 +21,10 @@
     <BootstrapProviders>
       <Provider Type="Derivco.Orniscient.Proxy.BootstrapProviders.OrniscientFilterInterceptor" Name="OrniscientFilterInterceptor" />
     </BootstrapProviders>
-  <!--Add to test with cluster-->
-  <!--<SystemStore SystemStoreType="SqlServer" DeploymentId="OrleansTest" DataConnectionString="Data Source=.;Initial Catalog=Orleans;Integrated Security=True;Pooling=False;Max Pool Size=200;Asynchronous Processing=True;MultipleActiveResultSets=True" AdoInvariant="System.Data.SqlClient" />-->  </Globals>
+    <!--Add to test with cluster-->
+    <!--<SystemStore SystemStoreType="SqlServer" DeploymentId="OrleansTest"
+    DataConnectionString="Data Source=.;Initial Catalog=Orleans;Integrated Security=True;Pooling=False;Max Pool Size=200;Asynchronous Processing=True;MultipleActiveResultSets=True" AdoInvariant="System.Data.SqlClient" />-->
+  </Globals>
   <Defaults>
     <Networking Address="localhost" Port="11111" />
     <ProxyingGateway Address="localhost" Port="40000" />
