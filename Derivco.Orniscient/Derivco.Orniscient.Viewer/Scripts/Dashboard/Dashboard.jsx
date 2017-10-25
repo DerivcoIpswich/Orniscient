@@ -233,8 +233,7 @@
 		var limit = this.state.summaryViewLimitTextInputValue;
 		if (!orniscientutils.isNullOrUndefined(limit)) {
 			var requestData = {
-				summaryViewLimit: limit,
-				sessionId: orniscient.getSessionId()
+				summaryViewLimit: limit
 			};
 
 			var xhr = new XMLHttpRequest();

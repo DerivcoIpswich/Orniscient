@@ -1,6 +1,9 @@
-﻿using Derivco.Orniscient.Viewer.Clients;
+﻿using System;
+using System.Linq;
+using Derivco.Orniscient.Viewer.Clients;
 using Derivco.Orniscient.Viewer.Models.Connection;
 using System.Threading.Tasks;
+using System.Web;
 using System.Web.Mvc;
 
 namespace Derivco.Orniscient.Viewer.Controllers
@@ -18,10 +21,10 @@ namespace Derivco.Orniscient.Viewer.Controllers
             try
             {
                 ValidateModel(connection);
-                await GrainClientInitializer.InitializeIfRequired(connection.Address, connection.Port);
+
                 return RedirectToAction("Index", "Dashboard", connection);
             }
-            catch
+            catch(Exception ex)
             {
                 ViewBag.Error = "Connection Unsuccessful";
                 return View();

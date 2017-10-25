@@ -6,10 +6,14 @@ using Orleans;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using System.Web;
 using System.Web.Mvc;
 using Derivco.Orniscient.Proxy.Grains.Models;
+using Derivco.Orniscient.Viewer.Models.Connection;
+using Derivco.Orniscient.Viewer.Observers;
 
 namespace Derivco.Orniscient.Viewer.Controllers
 {
@@ -17,33 +21,54 @@ namespace Derivco.Orniscient.Viewer.Controllers
     {
         private static bool _allowMethodsInvocation;
 
+        private string GrainSessionId
+        {
+            get
+            {
+                if (HttpContext.Request.Cookies.AllKeys.Contains("GrainSessionId"))
+                {
+                    return HttpContext.Request.Cookies["GrainSessionId"]?.Value;
+                }
+                return String.Empty;
+            }
+        }
+
         // GET: Dashboard
-        public Task<ViewResult> Index()
+        public async Task<ViewResult> Index(ConnectionInfo connection)
         {
             try
             {
+                if (!HttpContext.Request.Cookies.AllKeys.Contains("GrainSessionId"))
+                {
+                    var grainSessionIdKey = GrainClientMultiton.RegisterClient(connection.Address, connection.Port);
+                    HttpContext.Response.Cookies.Add(new HttpCookie("GrainSessionId", grainSessionIdKey));
+                }
+
                 _allowMethodsInvocation = AllowMethodsInvocation();
                 ViewBag.AllowMethodsInvocation = _allowMethodsInvocation;
-                return Task.FromResult(View());
+                return View();
             }
             catch (Exception ex)
             {
-                return Task.FromResult(View("InitError"));
+                return View("InitError");
             }
         }
 
-        public Task<ActionResult> Disconnect()
+        public async Task<ActionResult> Disconnect()
         {
-            GrainClientInitializer.Disconnect();
-            ActionResult result = RedirectToAction("Index", "Connection");
-            return Task.FromResult(result);
+            await OrniscientObserver.Instance.UnregisterGrainClient(GrainSessionId);
+            GrainClientMultiton.RemoveClient(GrainSessionId);
+            RemoveCookie("GrainSessionId");
+            return RedirectToAction("Index", "Connection");
         }
 
-		public async Task<ActionResult> GetDashboardInfo()
+        public async Task<ActionResult> GetDashboardInfo()
 		{
-			var dashboardCollectorGrain = GrainClient.GrainFactory.GetGrain<IDashboardCollectorGrain>(Guid.Empty);
+            var clusterClient = await GrainClientMultiton.GetClient(GrainSessionId);
+            var dashboardCollectorGrain = clusterClient.GetGrain<IDashboardCollectorGrain>(Guid.Empty);
 
-			var types = await dashboardCollectorGrain.GetGrainTypes();
+		    var types = await dashboardCollectorGrain.GetGrainTypes();
+
 			var dashboardInfo = new DashboardInfo
 			{
 				Silos = await dashboardCollectorGrain.GetSilos(),
@@ -58,7 +83,8 @@ namespace Derivco.Orniscient.Viewer.Controllers
 			if (filtersRequest?.Types == null)
 				return null;
 
-			var filterGrain = GrainClient.GrainFactory.GetGrain<IFilterGrain>(Guid.Empty);
+		    var clusterClient = await GrainClientMultiton.GetClient(GrainSessionId);
+            var filterGrain = clusterClient.GetGrain<IFilterGrain>(Guid.Empty);
 			var filters = await filterGrain.GetGroupedFilterValues(filtersRequest.Types);
 			return Json(filters, JsonRequestBehavior.AllowGet);
 		}
@@ -66,25 +92,28 @@ namespace Derivco.Orniscient.Viewer.Controllers
 		[HttpPost]
 		public async Task<ActionResult> GetGrainInfo(GetGrainInfoRequest grainInfoRequest)
 		{
-			var typeFilterGrain = GrainClient.GrainFactory.GetGrain<IFilterGrain>(Guid.Empty);
+		    var clusterClient = await GrainClientMultiton.GetClient(GrainSessionId);
+            var typeFilterGrain = clusterClient.GetGrain<IFilterGrain>(Guid.Empty);
 			var filters = await typeFilterGrain.GetFilters(grainInfoRequest.GrainType, grainInfoRequest.GrainId);
 			return Json(filters);
 		}
 
 		[HttpPost]
-		public async Task SetSummaryViewLimit(int summaryViewLimit, int sessionId = 0)
+		public async Task SetSummaryViewLimit(int summaryViewLimit)
 		{
-			var dashboardInstanceGrain = GrainClient.GrainFactory.GetGrain<IDashboardInstanceGrain>(sessionId);
+		    var clusterClient = await GrainClientMultiton.GetClient(GrainSessionId);
+            var dashboardInstanceGrain = clusterClient.GetGrain<IDashboardInstanceGrain>(0);
 			await dashboardInstanceGrain.SetSummaryViewLimit(summaryViewLimit);
 		}
 
 		[HttpPost]
 		public async Task<ActionResult> GetInfoForGrainType(string type)
 		{
-			var dashboardCollectorGrain = GrainClient.GrainFactory.GetGrain<IDashboardCollectorGrain>(Guid.Empty);
+		    var clusterClient = await GrainClientMultiton.GetClient(GrainSessionId);
+            var dashboardCollectorGrain = clusterClient.GetGrain<IDashboardCollectorGrain>(Guid.Empty);
 			var ids = await dashboardCollectorGrain.GetGrainIdsForType(type);
 
-			var grainInfoGrain = GrainClient.GrainFactory.GetGrain<IMethodInvocationGrain>(type);
+            var grainInfoGrain = clusterClient.GetGrain<IMethodInvocationGrain>(type);
 			var methods = new List<GrainMethod>();
 			if (_allowMethodsInvocation)
 			{
@@ -98,7 +127,8 @@ namespace Derivco.Orniscient.Viewer.Controllers
 		[HttpGet]
 		public async Task<ActionResult> GetAllGrainTypes()
 		{
-			var dashboardCollectorGrain = GrainClient.GrainFactory.GetGrain<IDashboardCollectorGrain>(Guid.Empty);
+		    var clusterClient = await GrainClientMultiton.GetClient(GrainSessionId);
+            var dashboardCollectorGrain = clusterClient.GetGrain<IDashboardCollectorGrain>(Guid.Empty);
 			var types = await dashboardCollectorGrain.GetGrainTypes();
 			return Json(types, JsonRequestBehavior.AllowGet);
 		}
@@ -106,7 +136,8 @@ namespace Derivco.Orniscient.Viewer.Controllers
 		[HttpPost]
 		public async Task<ActionResult> GetGrainKeyFromType(string type)
 		{
-			var grainInfoGrain = GrainClient.GrainFactory.GetGrain<IMethodInvocationGrain>(type);
+		    var clusterClient = await GrainClientMultiton.GetClient(GrainSessionId);
+            var grainInfoGrain = clusterClient.GetGrain<IMethodInvocationGrain>(type);
 			var grainKeyType = await grainInfoGrain.GetGrainKeyType();
 			return Json(grainKeyType, JsonRequestBehavior.AllowGet);
 		}
@@ -119,7 +150,8 @@ namespace Derivco.Orniscient.Viewer.Controllers
 			{
 				try
 				{
-					var methodGrain = GrainClient.GrainFactory.GetGrain<IMethodInvocationGrain>(type);
+				    var clusterClient = await GrainClientMultiton.GetClient(GrainSessionId);
+                    var methodGrain = clusterClient.GetGrain<IMethodInvocationGrain>(type);
 					var methodReturnData = await methodGrain.InvokeGrainMethod(id, methodId, parametersJson);
 					return Json(methodReturnData, JsonRequestBehavior.AllowGet);
 
@@ -132,7 +164,16 @@ namespace Derivco.Orniscient.Viewer.Controllers
 			return new HttpStatusCodeResult(HttpStatusCode.Forbidden, "Error: This method cannot be invoked");
 		}
 
-		private static bool AllowMethodsInvocation()
+        private void RemoveCookie(string cookieName)
+        {
+            if (Request.Cookies[cookieName] != null)
+            {
+                HttpCookie myCookie = new HttpCookie(cookieName) {Expires = DateTime.Now.AddDays(-1d)};
+                Response.Cookies.Add(myCookie);
+            }
+        }
+
+        private static bool AllowMethodsInvocation()
 		{
 			bool allowMethodsInvocation;
 			if (!bool.TryParse(ConfigurationManager.AppSettings["AllowMethodsInvocation"], out allowMethodsInvocation))
