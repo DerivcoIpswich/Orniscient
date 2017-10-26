@@ -14,9 +14,7 @@ namespace Derivco.Orniscient.Viewer.Clients
     public static class GrainClientMultiton
     {
         private static readonly Dictionary<string, IClusterClient> _clients = new Dictionary<string, IClusterClient>();
-
-        private static readonly SemaphoreSlim _semaphoreSlim = new SemaphoreSlim(1);
-        private static readonly object _lock = new object();
+        private static readonly SemaphoreSlim _semaphoreSlim = new SemaphoreSlim(1,1);
 
         public static async Task<IClusterClient> GetClient(string key)
         {
@@ -39,17 +37,23 @@ namespace Derivco.Orniscient.Viewer.Clients
         public static string RegisterClient(string address, int port)
         {
             var grainClientKey = Guid.NewGuid().ToString();
-            lock (_lock)
+            _semaphoreSlim.Wait();
+            try
             {
                 _clients.Add(grainClientKey,
                     new ClientBuilder().UseConfiguration(GetConfiguration(address, port)).Build());
+            }
+            finally
+            {
+                _semaphoreSlim.Release();
             }
             return grainClientKey;
         }
 
         public static void RemoveClient(string key)
         {
-            lock (_lock)
+            _semaphoreSlim.Wait();
+            try
             {
                 if (_clients.ContainsKey(key))
                 {
@@ -57,6 +61,10 @@ namespace Derivco.Orniscient.Viewer.Clients
                     _clients.Remove(key);
                     client.Dispose();
                 }
+            }
+            finally
+            {
+                _semaphoreSlim.Release();
             }
         }
 
