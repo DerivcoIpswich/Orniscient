@@ -119,9 +119,6 @@
     <Reference Include="Orleans, Version=1.5.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Orleans.Core.1.5.0\lib\net461\Orleans.dll</HintPath>
     </Reference>
-    <Reference Include="OrleansCodeGenerator, Version=1.5.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Orleans.OrleansCodeGenerator.1.5.0\lib\net461\OrleansCodeGenerator.dll</HintPath>
-    </Reference>
     <Reference Include="OrleansProviders, Version=1.5.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Orleans.OrleansProviders.1.5.0\lib\net461\OrleansProviders.dll</HintPath>
     </Reference>

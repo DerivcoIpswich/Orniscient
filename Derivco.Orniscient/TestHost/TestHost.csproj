@@ -64,9 +64,6 @@
     <Reference Include="Orleans, Version=1.5.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Orleans.Core.1.5.0\lib\net461\Orleans.dll</HintPath>
     </Reference>
-    <Reference Include="OrleansCodeGenerator, Version=1.5.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Orleans.OrleansCodeGenerator.1.5.0\lib\net461\OrleansCodeGenerator.dll</HintPath>
-    </Reference>
     <Reference Include="OrleansCounterControl, Version=1.5.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Orleans.CounterControl.1.5.0\lib\net461\OrleansCounterControl.exe</HintPath>
     </Reference>
@@ -223,9 +220,11 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Microsoft.Orleans.CounterControl.1.5.0\build\Microsoft.Orleans.CounterControl.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Orleans.CounterControl.1.5.0\build\Microsoft.Orleans.CounterControl.targets'))" />
     <Error Condition="!Exists('..\packages\Microsoft.Orleans.OrleansHost.1.5.0\build\Microsoft.Orleans.OrleansHost.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Orleans.OrleansHost.1.5.0\build\Microsoft.Orleans.OrleansHost.targets'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.Orleans.OrleansCodeGenerator.Build.1.5.0\build\Microsoft.Orleans.OrleansCodeGenerator.Build.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Orleans.OrleansCodeGenerator.Build.1.5.0\build\Microsoft.Orleans.OrleansCodeGenerator.Build.targets'))" />
   </Target>
   <Import Project="..\packages\Microsoft.Orleans.CounterControl.1.5.0\build\Microsoft.Orleans.CounterControl.targets" Condition="Exists('..\packages\Microsoft.Orleans.CounterControl.1.5.0\build\Microsoft.Orleans.CounterControl.targets')" />
   <Import Project="..\packages\Microsoft.Orleans.OrleansHost.1.5.0\build\Microsoft.Orleans.OrleansHost.targets" Condition="Exists('..\packages\Microsoft.Orleans.OrleansHost.1.5.0\build\Microsoft.Orleans.OrleansHost.targets')" />
+  <Import Project="..\packages\Microsoft.Orleans.OrleansCodeGenerator.Build.1.5.0\build\Microsoft.Orleans.OrleansCodeGenerator.Build.targets" Condition="Exists('..\packages\Microsoft.Orleans.OrleansCodeGenerator.Build.1.5.0\build\Microsoft.Orleans.OrleansCodeGenerator.Build.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
