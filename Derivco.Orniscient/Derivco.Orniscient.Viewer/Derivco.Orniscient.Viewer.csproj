@@ -387,7 +387,7 @@
     <Content Include="Scripts\vis.js" />
     <Content Include="Scripts\vis.min.js" />
     <Content Include="Scripts\_references.js" />
-    <None Include="Views\Connection\Index.cshtml" />
+    <Content Include="Views\Connection\Index.cshtml" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
