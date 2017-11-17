@@ -16,14 +16,20 @@ namespace Derivco.Orniscient.Viewer.Clients
         private static readonly Dictionary<string, IClusterClient> _clients = new Dictionary<string, IClusterClient>();
         private static readonly SemaphoreSlim _semaphoreSlim = new SemaphoreSlim(1,1);
 
-        public static async Task<IClusterClient> GetClient(string key)
+        public static IClusterClient GetClient(string key)
+        {
+            return _clients.ContainsKey(key) ? _clients[key] : null;
+        }
+
+        public static async Task<IClusterClient> GetAndConnectClient(string key)
         {
             await _semaphoreSlim.WaitAsync();
             try
             {
-                if (!_clients[key].IsInitialized)
+                var client = GetClient(key);
+                if (client != null && !client.IsInitialized)
                 {
-                    await _clients[key].Connect();
+                    await client.Connect();
                 }
             }
             finally
