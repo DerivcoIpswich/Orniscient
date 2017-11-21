@@ -1,7 +1,8 @@
 ﻿@{
     ViewBag.Title = "Orleans Orniscient Dashboard";
 }
-<div id="dashboard"></div>
+<div id="dashboard" class="container-fluid" style="height: 100%"></div>
+@Html.ActionLink("Disconnect", "Disconnect", "Dashboard", new { @class = "disconnect-btn btn btn-primary" }) )
 @section scripts{
 	<script type="text/javascript" src="@Url.Content("~/Scripts/jquery.signalR-2.2.0.min.js")"></script>
 	<script src="@Url.Content("~/signalr/hubs")"></script>

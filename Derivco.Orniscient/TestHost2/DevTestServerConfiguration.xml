@@ -17,7 +17,7 @@
     <LogViewProviders>
       <Provider Type="Orleans.Providers.LogViews.CustomStorageProvider" Name="CustomStorage" />
     </LogViewProviders>
-    <SeedNode Address="localhost" Port="11111" />
+    <SeedNode Address="localhost" Port="11112" />
     <BootstrapProviders>
       <Provider Type="Derivco.Orniscient.Proxy.BootstrapProviders.OrniscientFilterInterceptor" Name="OrniscientFilterInterceptor" />
     </BootstrapProviders>
