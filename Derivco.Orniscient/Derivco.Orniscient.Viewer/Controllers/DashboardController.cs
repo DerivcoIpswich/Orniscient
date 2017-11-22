@@ -61,6 +61,9 @@ namespace Derivco.Orniscient.Viewer.Controllers
             if (HttpContext.Request.Cookies.AllKeys.Contains("GrainSessionId"))
             {
                 var client = GrainClientMultiton.GetClient(GrainSessionId);
+                if (client == null)
+                    return;
+
                 var gateway = client.Configuration.Gateways.First();
                 if (gateway.Address.ToString() != connection.Address ||
                     gateway.Port != connection.Port)
