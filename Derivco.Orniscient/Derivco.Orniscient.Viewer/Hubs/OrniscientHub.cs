@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using Derivco.Orniscient.Proxy.Filters;
 using Derivco.Orniscient.Proxy.Grains.Models;
 using Derivco.Orniscient.Viewer.Observers;
@@ -10,26 +11,28 @@ namespace Derivco.Orniscient.Viewer.Hubs
     [HubName("orniscientHub")]
     public class OrniscientHub : Hub
     {
-        public override Task OnConnected()
+        public override async Task OnConnected()
         {
-            Groups.Add(Context.ConnectionId, SessionId.ToString());
-            return base.OnConnected();
+            await Groups.Add(Context.ConnectionId, "userGroup");
+
+            var grainsSessionCookie = Context.RequestCookies.FirstOrDefault(x => x.Key == "GrainSessionId").Value;
+            await OrniscientObserver.Instance.RegisterGrainClient(grainsSessionCookie.Value);
+            
+            await base.OnConnected();
+        }
+
+        public override async Task OnDisconnected(bool stopCalled)
+        {
+            var grainsSessionCookie = Context.RequestCookies.FirstOrDefault(x => x.Key == "GrainSessionId").Value;
+            await OrniscientObserver.Instance.UnregisterGrainClient(grainsSessionCookie.Value);
+            await base.OnDisconnected(stopCalled);
         }
 
         [HubMethodName("GetCurrentSnapshot")]
         public async Task<DiffModel> GetCurrentSnapshot(AppliedFilter filter = null)
         {
-            return await OrniscientObserver.Instance.GetCurrentSnapshot(filter, SessionId);
-        }
-
-        private int SessionId
-        {
-            get
-            {
-                int sessionId;
-                int.TryParse(Context.Request.QueryString["id"], out sessionId);
-                return sessionId;
-            }
+            var grainsSessionCookie = Context.RequestCookies.FirstOrDefault(x => x.Key == "GrainSessionId").Value;
+            return await OrniscientObserver.Instance.GetCurrentSnapshot(filter, grainsSessionCookie.Value);
         }
     }
 }

@@ -233,8 +233,7 @@
 		var limit = this.state.summaryViewLimitTextInputValue;
 		if (!orniscientutils.isNullOrUndefined(limit)) {
 			var requestData = {
-				summaryViewLimit: limit,
-				sessionId: orniscient.getSessionId()
+				summaryViewLimit: limit
 			};
 
 			var xhr = new XMLHttpRequest();
@@ -338,9 +337,9 @@
 
     render: function () {
         return (
-			<div id="filterwrap">
-				<div className="container bigContainer ">
-					<div className="row">
+			<div id="filterwrap" style={{height: "100%"}}>
+				<div className="container bigContainer " style={{height: "100%"}}>
+					<div className="row" style={{height: "100%"}}>
 						<div id="mynetwork"></div>
 					</div>
 				</div>

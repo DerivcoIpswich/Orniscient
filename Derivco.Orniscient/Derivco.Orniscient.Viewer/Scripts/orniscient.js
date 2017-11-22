@@ -85,10 +85,6 @@
             });
     }
 
-    orniscient.getSessionId = function () {
-        return getParameterByName('id');
-    }
-
     function init() {
         return orniscient.getServerData();
     }

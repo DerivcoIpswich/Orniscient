@@ -61,9 +61,6 @@
     <Reference Include="Orleans, Version=1.5.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Orleans.Core.1.5.0\lib\net461\Orleans.dll</HintPath>
     </Reference>
-    <Reference Include="OrleansCodeGenerator, Version=1.5.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Orleans.OrleansCodeGenerator.1.5.0\lib\net461\OrleansCodeGenerator.dll</HintPath>
-    </Reference>
     <Reference Include="Owin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f0ebd12fd5e55cc5, processorArchitecture=MSIL">
       <HintPath>..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
       <Private>True</Private>
@@ -194,11 +191,17 @@
     <Compile Include="StreamKeys.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
+    <None Include="app.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Derivco.Orniscient.Proxy.nuspec" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.1.1.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.Analyzers.dll" />
+    <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.1.1.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.CSharp.Analyzers.dll" />
   </ItemGroup>
   <ItemGroup>
     <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.1.1.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.Analyzers.dll" />
@@ -211,5 +214,12 @@
   </Target>
   -->
   <Target Name="AfterBuild">
+  </Target>
+  <Import Project="..\packages\Microsoft.Orleans.OrleansCodeGenerator.Build.1.5.0\build\Microsoft.Orleans.OrleansCodeGenerator.Build.targets" Condition="Exists('..\packages\Microsoft.Orleans.OrleansCodeGenerator.Build.1.5.0\build\Microsoft.Orleans.OrleansCodeGenerator.Build.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Microsoft.Orleans.OrleansCodeGenerator.Build.1.5.0\build\Microsoft.Orleans.OrleansCodeGenerator.Build.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Orleans.OrleansCodeGenerator.Build.1.5.0\build\Microsoft.Orleans.OrleansCodeGenerator.Build.targets'))" />
   </Target>
 </Project>

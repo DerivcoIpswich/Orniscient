@@ -1,10 +1,14 @@
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Derivco.Orniscient.Proxy;
 using Derivco.Orniscient.Proxy.Filters;
 using Derivco.Orniscient.Proxy.Grains;
 using Derivco.Orniscient.Proxy.Grains.Models;
+using Derivco.Orniscient.Viewer.Clients;
 using Derivco.Orniscient.Viewer.Hubs;
 using Microsoft.AspNet.SignalR;
 using Orleans;
@@ -15,22 +19,18 @@ namespace Derivco.Orniscient.Viewer.Observers
     public class OrniscientObserver : IAsyncObserver<DiffModel>
     {
 		private static readonly Lazy<OrniscientObserver> LazyInstance = new Lazy<OrniscientObserver>(() => new OrniscientObserver());
-        private readonly IAsyncStream<DiffModel> _stream;
+        private static readonly Dictionary<string,StreamSubscriptionHandle<DiffModel>> StreamHandles = new Dictionary<string,StreamSubscriptionHandle<DiffModel>>();
 
-		public Guid StreamId => _stream.Guid;
+        private readonly SemaphoreSlim _semaphoreSlim = new SemaphoreSlim(1);
 		public static OrniscientObserver Instance => LazyInstance.Value;
 
-        public OrniscientObserver()
+        public async Task<DiffModel> GetCurrentSnapshot(AppliedFilter filter, string grainSessionId)
         {
-            var streamprovider = GrainClient.GetStreamProvider(StreamKeys.StreamProvider);
-            _stream = streamprovider.GetStream<DiffModel>(Guid.Empty, StreamKeys.OrniscientClient);
-            _stream.SubscribeAsync(this);
-        }
-
-        public async Task<DiffModel> GetCurrentSnapshot(AppliedFilter filter = null,int sessionId=0)
-        {
-            var dashboardInstanceGrain = GrainClient.GrainFactory.GetGrain<IDashboardInstanceGrain>(sessionId);
+            var clusterClient = await GrainClientMultiton.GetAndConnectClient(grainSessionId);
+            var dashboardInstanceGrain = clusterClient.GetGrain<IDashboardInstanceGrain>(0);
+            
             var diffmodel = await dashboardInstanceGrain.GetAll(filter);
+
             return diffmodel;
         }
 
@@ -38,30 +38,56 @@ namespace Derivco.Orniscient.Viewer.Observers
         {
             if (item != null)
             {
-                GlobalHost.ConnectionManager.GetHubContext<OrniscientHub>().Clients.Group(item.SessionId.ToString()).grainActivationChanged(item);
+                GlobalHost.ConnectionManager.GetHubContext<OrniscientHub>().Clients.Group("userGroup").grainActivationChanged(item);
             }
-            return TaskDone.Done;
+            return Task.CompletedTask;
         }
 
         public Task OnCompletedAsync()
         {
-            return TaskDone.Done;
+            return Task.CompletedTask;
         }
 
         public Task OnErrorAsync(Exception ex)
         {
-            return TaskDone.Done;
+            return Task.CompletedTask;
         }
 
-        public async Task SetTypeFilter(Func<GrainType, bool> filter)
+        public async Task RegisterGrainClient(string grainSessionId)
         {
-            if (filter != null)
+            await _semaphoreSlim.WaitAsync();
+            try
             {
-                var dashboardCollecterGrain = GrainClient.GrainFactory.GetGrain<IDashboardCollectorGrain>(Guid.Empty);
-                var availableTypes = await dashboardCollecterGrain.GetGrainTypes();
-                await dashboardCollecterGrain.SetTypeFilter(availableTypes.Where(filter).ToArray());
+                if (!StreamHandles.ContainsKey(grainSessionId))
+                {
+                    var clusterClient = await GrainClientMultiton.GetAndConnectClient(grainSessionId);
+                    var streamprovider = clusterClient.GetStreamProvider(StreamKeys.StreamProvider);
+                    var stream = streamprovider.GetStream<DiffModel>(Guid.Empty, StreamKeys.OrniscientClient);
+                    StreamHandles.Add(grainSessionId, await stream.SubscribeAsync(this));
+                }
+            }
+            finally
+            {
+                _semaphoreSlim.Release();
             }
         }
 
+        public async Task UnregisterGrainClient(string grainSessionId)
+        {
+            await _semaphoreSlim.WaitAsync();
+            try
+            {
+                if (StreamHandles.ContainsKey(grainSessionId))
+                {
+                    var streamHandle = StreamHandles[grainSessionId];
+                    StreamHandles.Remove(grainSessionId);
+                    await streamHandle.UnsubscribeAsync();
+                }
+            }
+            finally
+            {
+                _semaphoreSlim.Release();
+            }
+        }
     }
 }
