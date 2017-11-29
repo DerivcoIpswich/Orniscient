@@ -30,9 +30,9 @@ namespace Derivco.Orniscient.Viewer.Controllers
             {
                 await CleanupConnection(connection);
 
-                if(!HttpContext.Request.Cookies.AllKeys.Contains("GrainSessionId"))
+                if(!HttpContext.Request.Cookies.AllKeys.Contains("GrainSessionId") || GrainClientMultiton.GetClient(GrainSessionId) == null)
                 {
-                    var grainSessionIdKey = GrainClientMultiton.RegisterClient(connection.Address, connection.Port);
+                    var grainSessionIdKey = GrainClientMultiton.RegisterClient(connection.Address, connection.Port, GrainSessionId);
                     HttpContext.Response.Cookies.Add(new HttpCookie("GrainSessionId", grainSessionIdKey));
                 }
 
@@ -62,7 +62,6 @@ namespace Derivco.Orniscient.Viewer.Controllers
                     if (gateway.Port != connection.Port)
                     {
                         await CleanupClient();
-                        RemoveCookie("GrainSessionId");
                     }
                 }
             }
@@ -77,7 +76,7 @@ namespace Derivco.Orniscient.Viewer.Controllers
 
         private async Task CleanupClient()
         {
-            await OrniscientObserver.Instance.UnregisterGrainClient(GrainSessionId);
+            await OrniscientObserver.Instance.UnregisterGrainClient(GrainSessionId);    
             GrainClientMultiton.RemoveClient(GrainSessionId);
         }
 
