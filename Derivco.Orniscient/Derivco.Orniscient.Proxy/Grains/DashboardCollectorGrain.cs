@@ -164,7 +164,7 @@ namespace Derivco.Orniscient.Proxy.Grains
 
         private async Task<List<UpdateModel>> _GetAllFromCluster()
         {
-            _logger.Info("_GetAllFromCluster called");
+            _logger.Verbose("_GetAllFromCluster called");
             var detailedStats = await _managementGrain.GetDetailedGrainStatistics(_filteredTypes?.Select(p => p.FullName).ToArray()); ;
             if (detailedStats != null && detailedStats.Any())
             {
