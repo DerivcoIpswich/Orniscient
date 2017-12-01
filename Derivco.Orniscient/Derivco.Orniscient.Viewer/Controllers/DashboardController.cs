@@ -2,12 +2,12 @@
 using Derivco.Orniscient.Proxy.Grains.Filters;
 using Derivco.Orniscient.Viewer.Clients;
 using Derivco.Orniscient.Viewer.Models.Dashboard;
-using Orleans;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Net;
+using System.Net.Sockets;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
@@ -21,17 +21,7 @@ namespace Derivco.Orniscient.Viewer.Controllers
     {
         private static bool _allowMethodsInvocation;
 
-        private string GrainSessionId
-        {
-            get
-            {
-                if (HttpContext.Request.Cookies.AllKeys.Contains("GrainSessionId"))
-                {
-                    return HttpContext.Request.Cookies["GrainSessionId"]?.Value;
-                }
-                return String.Empty;
-            }
-        }
+        private string GrainSessionId => HttpContext.Request.Cookies.AllKeys.Contains("GrainSessionId") ? HttpContext.Request.Cookies["GrainSessionId"]?.Value : string.Empty;
 
         // GET: Dashboard
         public async Task<ViewResult> Index(ConnectionInfo connection)
@@ -40,9 +30,9 @@ namespace Derivco.Orniscient.Viewer.Controllers
             {
                 await CleanupConnection(connection);
 
-                if(!HttpContext.Request.Cookies.AllKeys.Contains("GrainSessionId"))
+                if(!HttpContext.Request.Cookies.AllKeys.Contains("GrainSessionId") || GrainClientMultiton.GetClient(GrainSessionId) == null)
                 {
-                    var grainSessionIdKey = GrainClientMultiton.RegisterClient(connection.Address, connection.Port);
+                    var grainSessionIdKey = GrainClientMultiton.RegisterClient(connection.Address, connection.Port, GrainSessionId);
                     HttpContext.Response.Cookies.Add(new HttpCookie("GrainSessionId", grainSessionIdKey));
                 }
 
@@ -65,11 +55,14 @@ namespace Derivco.Orniscient.Viewer.Controllers
                     return;
 
                 var gateway = client.Configuration.Gateways.First();
-                if (gateway.Address.ToString() != connection.Address ||
-                    gateway.Port != connection.Port)
+                
+                if (gateway.Address.ToString() != connection.Address &&
+                    !Equals(Dns.GetHostEntry(connection.Address).AddressList.FirstOrDefault(ip => ip.AddressFamily == AddressFamily.InterNetwork), gateway.Address))
                 {
-                    await CleanupClient();
-                    RemoveCookie("GrainSessionId");
+                    if (gateway.Port != connection.Port)
+                    {
+                        await CleanupClient();
+                    }
                 }
             }
         }
@@ -83,7 +76,7 @@ namespace Derivco.Orniscient.Viewer.Controllers
 
         private async Task CleanupClient()
         {
-            await OrniscientObserver.Instance.UnregisterGrainClient(GrainSessionId);
+            await OrniscientObserver.Instance.UnregisterGrainClient(GrainSessionId);    
             GrainClientMultiton.RemoveClient(GrainSessionId);
         }
 
