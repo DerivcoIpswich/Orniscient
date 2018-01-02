@@ -378,9 +378,11 @@
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="Scripts\modernizr-2.6.2.js" />
     <Content Include="Scripts\orniscient.js" />
+    <Content Include="Scripts\react-dom.min.js" />
     <Content Include="Scripts\react-input-autosize.js" />
     <Content Include="Scripts\react-select.js" />
     <Content Include="Scripts\react-select.min.js" />
+    <Content Include="Scripts\react.min.js" />
     <Content Include="Scripts\respond.js" />
     <Content Include="Scripts\respond.min.js" />
     <Content Include="Scripts\vis-network.min.js" />
