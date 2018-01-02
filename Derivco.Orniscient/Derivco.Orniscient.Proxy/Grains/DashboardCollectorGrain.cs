@@ -101,7 +101,7 @@ namespace Derivco.Orniscient.Proxy.Grains
 
 		    var streamProvider = GetStreamProvider(StreamKeys.StreamProvider);
 
-		    _logger.Info($"About to send the changes to the dashboardInstanceGrains");
+		    _logger.Verbose("About to send the changes to the dashboardInstanceGrains");
 		    var stream = streamProvider.GetStream<DiffModel>(Guid.Empty, StreamKeys.OrniscientChanges);
 		    await stream.OnNextAsync(diffModel);
 		    return diffModel;
@@ -164,7 +164,7 @@ namespace Derivco.Orniscient.Proxy.Grains
 
         private async Task<List<UpdateModel>> _GetAllFromCluster()
         {
-            _logger.Info("_GetAllFromCluster called");
+            _logger.Verbose("_GetAllFromCluster called");
             var detailedStats = await _managementGrain.GetDetailedGrainStatistics(_filteredTypes?.Select(p => p.FullName).ToArray()); ;
             if (detailedStats != null && detailedStats.Any())
             {

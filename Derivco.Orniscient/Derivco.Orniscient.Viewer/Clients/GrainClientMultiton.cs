@@ -40,9 +40,9 @@ namespace Derivco.Orniscient.Viewer.Clients
             return _clients[key];
         }
 
-        public static string RegisterClient(string address, int port)
+        public static string RegisterClient(string address, int port, string guid = null)
         {
-            var grainClientKey = Guid.NewGuid().ToString();
+            var grainClientKey = string.IsNullOrWhiteSpace(guid) ? Guid.NewGuid().ToString() : guid;
             _semaphoreSlim.Wait();
             try
             {
