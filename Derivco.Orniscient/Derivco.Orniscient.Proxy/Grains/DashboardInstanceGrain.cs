@@ -151,6 +151,11 @@ namespace Derivco.Orniscient.Proxy.Grains
             var newGrains = await ApplyFilter(item.NewGrains);
             CurrentStats?.AddRange(newGrains);
 
+            if (item.RemovedGrains?.Any() == true)
+            {
+                CurrentStats = CurrentStats?.Where(p => item.NewGrains.Exists(q => q.Id != p.Id)).ToList();
+            }
+
             if (InSummaryMode)
             {
                 await _dashboardInstanceStream.OnNextAsync(new DiffModel
@@ -168,7 +173,7 @@ namespace Derivco.Orniscient.Proxy.Grains
                 item.NewGrains = newGrains;
                 _logger.Verbose($"OnNextAsync called with {item.NewGrains.Count} items");
 
-                if (item.NewGrains != null && (item.NewGrains.Any() || item.RemovedGrains.Any()))
+                if (item.NewGrains?.Any()==true || item.RemovedGrains?.Any()==true)
                 {
                     item.SummaryView = InSummaryMode;
                     item.SessionId = SessionId;

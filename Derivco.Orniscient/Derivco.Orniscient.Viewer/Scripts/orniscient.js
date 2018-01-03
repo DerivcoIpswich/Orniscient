@@ -78,7 +78,6 @@
                 if (data.SummaryView === true) {
                     addSummaryViewEdges(data.SummaryViewLinks);
                 }
-
             })
             .fail(function (data) {
                 alert('Oops, we cannot connect to the server...');
@@ -138,6 +137,13 @@
                     label:""
                 });
             }
+        }
+    }
+
+    function deleteNodes(grainData, isSummaryView) {
+        var nodeToDelete = orniscient.data.nodes.get(grainData);
+        if (nodeToDelete != undefined) {
+            orniscient.data.nodes.remove(nodeToDelete);
         }
     }
 
@@ -211,6 +217,10 @@
         window.dispatchEvent(new CustomEvent('orniscientUpdated', { detail: diffModel.TypeCounts }));
         $.each(diffModel.NewGrains, function (index, grainData) {
             addToNodes(grainData, diffModel.SummaryView);
+        });
+
+        $.each(diffModel.RemovedGrains, function(index, grainData) {
+            deleteNodes(grainData, diffModel.SummaryView);
         });
 
         if (diffModel.SummaryView === true) {
