@@ -168,7 +168,7 @@
     <Compile Include="Grains\Filters\FilterGrain.cs" />
     <Compile Include="Grains\Filters\GroupedFilter.cs" />
     <Compile Include="Grains\Filters\GroupedTypeFilter.cs" />
-    <Compile Include="Grains\Filters\IFilterableGrain.cs" />
+    <Compile Include="Grains\Filters\IFilterable.cs" />
     <Compile Include="Grains\Filters\IFilterGrain.cs" />
     <Compile Include="Grains\Models\GrainMethod.cs" />
     <Compile Include="Grains\Models\GrainMethodParameters.cs" />
