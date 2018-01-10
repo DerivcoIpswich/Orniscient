@@ -91,7 +91,7 @@
     function addToNodes(grainData, isSummaryView) {
         var nodeLabel = (isSummaryView ? grainData.TypeShortName + '(' + grainData.Count + ')' : grainData.GrainName);
         if (isSummaryView === true) {
-            if (summaryView === false && isSummaryView===true) {
+            if (summaryView === false && isSummaryView === true) {
                 orniscient.data.nodes.clear();
                 orniscient.data.edges.clear();
                 summaryView = true;
@@ -105,6 +105,12 @@
                 orniscient.data.nodes.update(updateNode);
                 return;
             }
+        }
+        
+        if (isSummaryView === false && summaryView === true) {
+            orniscient.data.nodes.clear();
+            orniscient.data.edges.clear();
+            summaryView = false;
         }
 
         var node = {
@@ -215,14 +221,13 @@
 
     function grainActivationChanged(diffModel) {
         window.dispatchEvent(new CustomEvent('orniscientUpdated', { detail: diffModel.TypeCounts }));
-        $.each(diffModel.NewGrains, function (index, grainData) {
-            addToNodes(grainData, diffModel.SummaryView);
-        });
-
-        $.each(diffModel.RemovedGrains, function(index, grainData) {
+        $.each(diffModel.RemovedGrains, function (index, grainData) {
             deleteNodes(grainData, diffModel.SummaryView);
         });
 
+        $.each(diffModel.NewGrains, function (index, grainData) {
+            addToNodes(grainData, diffModel.SummaryView);
+        });
         if (diffModel.SummaryView === true) {
             addSummaryViewEdges(diffModel.SummaryViewLinks);
         }
