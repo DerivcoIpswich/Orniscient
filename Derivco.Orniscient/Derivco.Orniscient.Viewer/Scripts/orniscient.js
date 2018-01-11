@@ -9,10 +9,10 @@
 
     var options = {
         autoResize: true,
-        height: '100%',
+        height: "100%",
         nodes: {
             borderWidth: 3,
-            shape: 'dot',
+            shape: "dot",
             scaling: {
                 label: {
                     min: 8,
@@ -39,24 +39,24 @@
     orniscient.summaryView = function () {return summaryView;}
 
     orniscient.init = function () {
-        console.log('orniscient.init was called');
-        container = document.getElementById('mynetwork');
+        console.log("orniscient.init was called");
+        container = document.getElementById("mynetwork");
         var network = new vis.Network(container, orniscient.data, options);
         network.on("hoverNode", onHover);
-        network.on('selectNode', function (params) {
+        network.on("selectNode", function (params) {
             //this is where we will set id for grain details menu.
-            window.dispatchEvent(new CustomEvent('nodeSelected', { detail: nodes.get(params.nodes)[0] }));
+            window.dispatchEvent(new CustomEvent("nodeSelected", { detail: nodes.get(params.nodes)[0] }));
         });
-        network.on('deselectNode', function () {
-			window.dispatchEvent(new Event('nodeDeselected'));
+        network.on("deselectNode", function () {
+			window.dispatchEvent(new Event("nodeDeselected"));
         });
 
         $.extend(hub.client, {grainActivationChanged: grainActivationChanged});
         $.connection.hub.logging = true;
         $.connection.hub.error(function (error) {
-            console.log('SignalR error: ' + error);
+            console.log("SignalR error: " + error);
         });
-        $.connection.hub.qs = { 'id': getParameterByName('id') };
+        $.connection.hub.qs = { 'id': getParameterByName("id") };
         $.connection.hub.start().then(init);
     }
 
@@ -65,7 +65,7 @@
         orniscient.data.nodes.clear();
         orniscient.data.edges.clear();
 
-        console.log('getting server data');
+        console.log("getting server data");
         if (filter === null)
             filter = {};
 
@@ -80,7 +80,7 @@
                 }
             })
             .fail(function (data) {
-                alert('Oops, we cannot connect to the server...');
+                alert("Oops, we cannot connect to the server...");
             });
     }
 
@@ -89,14 +89,15 @@
     }
 
     function addToNodes(grainData, isSummaryView) {
-        var nodeLabel = (isSummaryView ? grainData.TypeShortName + '(' + grainData.Count + ')' : grainData.GrainName);
-        if (isSummaryView === true) {
-            if (summaryView === false && isSummaryView === true) {
-                orniscient.data.nodes.clear();
-                orniscient.data.edges.clear();
-                summaryView = true;
-            }
+        var nodeLabel = (isSummaryView ? grainData.TypeShortName + "(" + grainData.Count + ")" : grainData.GrainName);
 
+        if (summaryView !== isSummaryView) {
+            orniscient.data.nodes.clear();
+            orniscient.data.edges.clear();
+            summaryView = isSummaryView;
+        }
+
+        if (isSummaryView === true) {
             //find and update 
             var updateNode = orniscient.data.nodes.get(grainData.Id);
             if (updateNode != undefined) {
@@ -106,12 +107,6 @@
                 return;
             }
         }
-        
-        if (isSummaryView === false && summaryView === true) {
-            orniscient.data.nodes.clear();
-            orniscient.data.edges.clear();
-            summaryView = false;
-        }
 
         var node = {
             id: grainData.Id,
@@ -119,7 +114,6 @@
             color: {
                 border: grainData.Colour
             },
-            //border: grainData.Colour,
             silo: grainData.Silo,
             linkToId: grainData.LinkToId,
             graintype: grainData.Type,
@@ -135,10 +129,10 @@
 
         if (isSummaryView === false) {
             //add the edge (link)
-            if (grainData.LinkToId !== null && grainData.LinkToId !== '') {
+            if (grainData.LinkToId !== null && grainData.LinkToId !== "") {
                 orniscient.data.edges.add({
-                    id: grainData.TypeShortName + '_' + grainData.GrainId + 'temp',
-                    from: grainData.TypeShortName + '_' + grainData.GrainId,
+                    id: grainData.TypeShortName + "_" + grainData.GrainId + "temp",
+                    from: grainData.TypeShortName + "_" + grainData.GrainId,
                     to: grainData.LinkToId,
                     label:""
                 });
@@ -156,7 +150,7 @@
     function addSummaryViewEdges(links) {
         orniscient.data.edges.clear();
         $.each(links, function (index, link) {
-            var linkId = (link.FromId + '_' + link.ToId).replace(/[^\w]/gi, '.');
+            var linkId = (link.FromId + "_" + link.ToId).replace(/[^\w]/gi, ".");
             var updateEdge = orniscient.data.edges.get(linkId);
             if (updateEdge != undefined) {
                 updateEdge.value = link.Count;
@@ -180,7 +174,7 @@
         var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
             results = regex.exec(url);
         if (!results) return null;
-        if (!results[2]) return '';
+        if (!results[2]) return "";
         return decodeURIComponent(results[2].replace(/\+/g, " "));
     }
 
@@ -195,7 +189,7 @@
             };
 
             var xhr = new XMLHttpRequest();
-            xhr.open('post', orniscienturls.getGrainInfo, true);
+            xhr.open("post", orniscienturls.getGrainInfo, true);
             xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
             xhr.onload = function () {
                 var grainInfo = [];
@@ -220,7 +214,7 @@
     }
 
     function grainActivationChanged(diffModel) {
-        window.dispatchEvent(new CustomEvent('orniscientUpdated', { detail: diffModel.TypeCounts }));
+        window.dispatchEvent(new CustomEvent("orniscientUpdated", { detail: diffModel.TypeCounts }));
         $.each(diffModel.RemovedGrains, function (index, grainData) {
             deleteNodes(grainData, diffModel.SummaryView);
         });

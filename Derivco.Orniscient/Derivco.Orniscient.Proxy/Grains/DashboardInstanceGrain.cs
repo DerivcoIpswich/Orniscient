@@ -31,7 +31,7 @@ namespace Derivco.Orniscient.Proxy.Grains
 
         private int SessionId => (int) this.GetPrimaryKeyLong();
         
-        private int _summaryViewLimit = 5; 
+        private int _summaryViewLimit = 100; 
         internal List<UpdateModel> CurrentStats = new List<UpdateModel>();
         private bool InSummaryMode => CurrentStats != null && CurrentStats.Count > _summaryViewLimit;
         private IAsyncStream<DiffModel> _dashboardInstanceStream;
