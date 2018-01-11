@@ -146,52 +146,44 @@ namespace Derivco.Orniscient.Proxy.Grains
 
         public async Task OnNextAsync(DiffModel item, StreamSequenceToken token = null)
         {
+            _logger.Verbose($"OnNextAsync called with {item.NewGrains.Count} new items");
+
             List<UpdateModel> previousSummary = null;
-            IEnumerable<string> removedSummaryIds = null;
             if (InSummaryMode)
             {
                 previousSummary = GetGrainSummaries();
             }
 
-            _logger.Verbose($"OnNextAsync called with {item.NewGrains.Count} items");
-            var newGrains = await ApplyFilter(item.NewGrains);
-            CurrentStats?.AddRange(newGrains);
+            item.NewGrains = await ApplyFilter(item.NewGrains);
+            CurrentStats?.AddRange(item.NewGrains);
 
             if (item.RemovedGrains?.Any() == true)
             {
                 CurrentStats = CurrentStats?.Where(p => item.RemovedGrains.All(q => q != p.Id)).ToList();
             }
 
-            var updatedSummary = GetGrainSummaries();
-            if (previousSummary != null)
-            {
-                removedSummaryIds = previousSummary
-                    .Where(summaryGrain => updatedSummary.All(updatedGrain => updatedGrain.Id != summaryGrain.Id))
-                    .Select(model => model.Id);
-            }
 
             if (InSummaryMode)
             {
+                var updatedSummary = GetGrainSummaries();
                 var diffModel = new DiffModel
                 {
                     SummaryView = InSummaryMode,
                     TypeCounts = item.TypeCounts,
-                    NewGrains = GetGrainSummaries(),
+                    NewGrains = updatedSummary,
                     SummaryViewLinks = GetGrainSummaryLinks(),
                     SessionId = SessionId
                 };
 
-                if (previousSummary?.Count > 0)
+                if (previousSummary != null && previousSummary.Count > 0)
                 {
-                    diffModel.RemovedGrains = removedSummaryIds.ToList();
+                    var removed = previousSummary.Where(grain => !updatedSummary.Any(currentGrain => currentGrain.Id == grain.Id)).Select(grain => grain.Id).ToList();
+                    diffModel.RemovedGrains = removed;
                 }
                 await _dashboardInstanceStream.OnNextAsync(diffModel);
             }
             else
             {
-                item.NewGrains = newGrains;
-                _logger.Verbose($"OnNextAsync called with {item.NewGrains.Count} items");
-
                 if (previousSummary != null)
                 {
                     if (item.RemovedGrains == null)
@@ -223,8 +215,8 @@ namespace Derivco.Orniscient.Proxy.Grains
                     var linkToGrain = CurrentStats.FirstOrDefault(p => p.Id == updateModel.LinkToId);
                     if (linkToGrain != null)
                     {
-                        string linkToGrainSummaryId = $"{linkToGrain.Type}_{linkToGrain.Silo}";
-                        string fromGrainSummaryId = $"{updateModel.Type}_{updateModel.Silo}";
+                        var linkToGrainSummaryId = $"{linkToGrain.Type}_{linkToGrain.Silo}";
+                        var fromGrainSummaryId = $"{updateModel.Type}_{updateModel.Silo}";
                         var link = summaryLinks.FirstOrDefault(p => p.FromId == fromGrainSummaryId && p.ToId == linkToGrainSummaryId);
                         if (link != null)
                         {
