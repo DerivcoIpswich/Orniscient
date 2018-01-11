@@ -146,7 +146,7 @@ namespace Derivco.Orniscient.Proxy.Grains
 
         public async Task OnNextAsync(DiffModel item, StreamSequenceToken token = null)
         {
-            _logger.Verbose($"OnNextAsync called with {item.NewGrains.Count} new items");
+            _logger.Verbose($"OnNextAsync called with {item.NewGrains.Count} new grains, {item.RemovedGrains.Count} removed grains");
 
             List<UpdateModel> previousSummary = null;
             if (InSummaryMode)
@@ -180,6 +180,7 @@ namespace Derivco.Orniscient.Proxy.Grains
                     var removed = previousSummary.Where(grain => !updatedSummary.Any(currentGrain => currentGrain.Id == grain.Id)).Select(grain => grain.Id).ToList();
                     diffModel.RemovedGrains = removed;
                 }
+                _logger.Verbose($"DashboardInstanceGrain sending out {diffModel.NewGrains.Count} new grains, {diffModel.RemovedGrains.Count} removed grains");
                 await _dashboardInstanceStream.OnNextAsync(diffModel);
             }
             else
@@ -198,6 +199,7 @@ namespace Derivco.Orniscient.Proxy.Grains
                 {
                     item.SummaryView = InSummaryMode;
                     item.SessionId = SessionId;
+                    _logger.Verbose($"DashboardInstanceGrain sending out {item.NewGrains?.Count} new grains, {item.RemovedGrains?.Count} removed grains");
                     await _dashboardInstanceStream.OnNextAsync(item);
                 }
             }
