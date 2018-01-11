@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Derivco.Orniscient.Proxy;
@@ -11,7 +9,6 @@ using Derivco.Orniscient.Proxy.Grains.Models;
 using Derivco.Orniscient.Viewer.Clients;
 using Derivco.Orniscient.Viewer.Hubs;
 using Microsoft.AspNet.SignalR;
-using Orleans;
 using Orleans.Streams;
 
 namespace Derivco.Orniscient.Viewer.Observers

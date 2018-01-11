@@ -24,6 +24,14 @@
     <!--Add to test with cluster-->
     <!--<SystemStore SystemStoreType="SqlServer" DeploymentId="OrleansTest"
     DataConnectionString="Data Source=.;Initial Catalog=Orleans;Integrated Security=True;Pooling=False;Max Pool Size=200;Asynchronous Processing=True;MultipleActiveResultSets=True" AdoInvariant="System.Data.SqlClient" />-->
+    <Application>
+    <GrainType Type="TestGrains.Grains.FooGrain">
+      <Deactivation AgeLimit="1m"/>
+    </GrainType>
+      <GrainType Type="TestGrains.Grains.SubGrain">
+        <Deactivation AgeLimit="3m"/>
+      </GrainType>
+    </Application>
   </Globals>
   <Defaults>
     <Networking Address="localhost" Port="11111" />

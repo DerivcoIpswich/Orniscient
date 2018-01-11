@@ -58,7 +58,6 @@ namespace Derivco.Orniscient.Proxy.Grains
 
         public async Task<DiffModel> GetAll(AppliedFilter filter = null)
         {
-            _logger.Verbose($"GetAll called DashboardInstance Grain [Id : {this.GetPrimaryKeyLong()}][CurrentStatsCount : {CurrentStats?.Count}]");
             _currentFilter = filter;
             CurrentStats = await ApplyFilter(await _dashboardCollectorGrain.GetAll());
 
@@ -90,7 +89,7 @@ namespace Derivco.Orniscient.Proxy.Grains
         public Task SetSummaryViewLimit(int limit)
         {
             _summaryViewLimit = limit > 0 ? limit : _summaryViewLimit;
-            return TaskDone.Done;
+            return Task.CompletedTask;
         }
 
         private async Task<List<UpdateModel>> ApplyFilter(List<UpdateModel> grains = null)
@@ -147,31 +146,60 @@ namespace Derivco.Orniscient.Proxy.Grains
 
         public async Task OnNextAsync(DiffModel item, StreamSequenceToken token = null)
         {
-            _logger.Verbose($"OnNextAsync called with {item.NewGrains.Count} items");
-            var newGrains = await ApplyFilter(item.NewGrains);
-            CurrentStats?.AddRange(newGrains);
+            _logger.Verbose($"OnNextAsync called with {item.NewGrains.Count} new grains, {item.RemovedGrains.Count} removed grains");
+
+            List<UpdateModel> previousSummary = null;
+            if (InSummaryMode)
+            {
+                previousSummary = GetGrainSummaries();
+            }
+
+            item.NewGrains = await ApplyFilter(item.NewGrains);
+            CurrentStats?.AddRange(item.NewGrains);
+
+            if (item.RemovedGrains?.Any() == true)
+            {
+                CurrentStats = CurrentStats?.Where(p => item.RemovedGrains.All(q => q != p.Id)).ToList();
+            }
+
 
             if (InSummaryMode)
             {
-                await _dashboardInstanceStream.OnNextAsync(new DiffModel
+                var updatedSummary = GetGrainSummaries();
+                var diffModel = new DiffModel
                 {
                     SummaryView = InSummaryMode,
                     TypeCounts = item.TypeCounts,
-                    NewGrains = GetGrainSummaries(),
+                    NewGrains = updatedSummary,
                     SummaryViewLinks = GetGrainSummaryLinks(),
                     SessionId = SessionId
-                    
-                });
+                };
+
+                if (previousSummary != null && previousSummary.Count > 0)
+                {
+                    var removed = previousSummary.Where(grain => !updatedSummary.Any(currentGrain => currentGrain.Id == grain.Id)).Select(grain => grain.Id).ToList();
+                    diffModel.RemovedGrains = removed;
+                }
+                _logger.Verbose($"DashboardInstanceGrain sending out {diffModel.NewGrains.Count} new grains, {diffModel.RemovedGrains.Count} removed grains");
+                await _dashboardInstanceStream.OnNextAsync(diffModel);
             }
             else
             {
-                item.NewGrains = newGrains;
-                _logger.Verbose($"OnNextAsync called with {item.NewGrains.Count} items");
+                if (previousSummary != null)
+                {
+                    if (item.RemovedGrains == null)
+                    {
+                        item.RemovedGrains = new List<string>();
+                    }
+                    item.RemovedGrains.AddRange(previousSummary.Select(grain => grain.Id));
+                    item.NewGrains = new List<UpdateModel>(CurrentStats);
+                }
 
-                if (item.NewGrains != null && (item.NewGrains.Any() || item.RemovedGrains.Any()))
+                if (item.NewGrains?.Any() == true || item.RemovedGrains?.Any() == true)
                 {
                     item.SummaryView = InSummaryMode;
                     item.SessionId = SessionId;
+                    _logger.Verbose($"DashboardInstanceGrain sending out {item.NewGrains?.Count} new grains, {item.RemovedGrains?.Count} removed grains");
                     await _dashboardInstanceStream.OnNextAsync(item);
                 }
             }
@@ -179,7 +207,6 @@ namespace Derivco.Orniscient.Proxy.Grains
 
         private List<Link> GetGrainSummaryLinks()
         {
-            //add the orniscient info here......
             var summaryLinks = new List<Link>();
 
             foreach (var updateModel in CurrentStats)
@@ -190,8 +217,8 @@ namespace Derivco.Orniscient.Proxy.Grains
                     var linkToGrain = CurrentStats.FirstOrDefault(p => p.Id == updateModel.LinkToId);
                     if (linkToGrain != null)
                     {
-                        string linkToGrainSummaryId = $"{linkToGrain.Type}_{linkToGrain.Silo}";
-                        string fromGrainSummaryId = $"{updateModel.Type}_{updateModel.Silo}";
+                        var linkToGrainSummaryId = $"{linkToGrain.Type}_{linkToGrain.Silo}";
+                        var fromGrainSummaryId = $"{updateModel.Type}_{updateModel.Silo}";
                         var link = summaryLinks.FirstOrDefault(p => p.FromId == fromGrainSummaryId && p.ToId == linkToGrainSummaryId);
                         if (link != null)
                         {
@@ -214,29 +241,27 @@ namespace Derivco.Orniscient.Proxy.Grains
 
         private List<UpdateModel> GetGrainSummaries()
         {
-            var changedSummaries = (from grain in CurrentStats
-                                    group grain by new { grain.Type, grain.Silo, grain.Colour }
-                                    into grp
-                                    select new UpdateModel
-                                    {
-                                        Type = grp.Key.Type,
-                                        Silo = grp.Key.Silo,
-                                        Colour = grp.Key.Colour,
-                                        Count = grp.Count(),
-                                        GrainId = $"{grp.Key.Type}_{grp.Key.Silo}",
-                                        Id = $"{grp.Key.Type}_{grp.Key.Silo}"
-                                    }).ToList();
-            return changedSummaries;
+            return CurrentStats.GroupBy(grain => new {grain.Type, grain.Silo, grain.Colour})
+                .Select(grp => new UpdateModel
+                {
+                    Type = grp.Key.Type,
+                    Silo = grp.Key.Silo,
+                    Colour = grp.Key.Colour,
+                    Count = grp.Count(),
+                    GrainId = $"{grp.Key.Type}_{grp.Key.Silo}",
+                    Id = $"{grp.Key.Type}_{grp.Key.Silo}"
+                })
+                .ToList();
         }
 
         public Task OnCompletedAsync()
         {
-            return TaskDone.Done;
+            return Task.CompletedTask;
         }
 
         public Task OnErrorAsync(Exception ex)
         {
-            return TaskDone.Done;
+            return Task.CompletedTask;
         }
     }
 }
