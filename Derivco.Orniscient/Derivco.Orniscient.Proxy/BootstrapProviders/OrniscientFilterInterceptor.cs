@@ -22,9 +22,10 @@ namespace Derivco.Orniscient.Proxy.BootstrapProviders
             _logger = providerRuntime.GetLogger(Name);
             OrniscientLinkMap.Instance.Init(_logger);
             _logger.Info("OrniscientFilterInterceptor started.");
+
             providerRuntime.SetInvokeInterceptor((method, request, grain, invoker) =>
             {
-                if (!(grain is IFilterableGrain) ||
+                if (!(grain is IFilterable) ||
                     _grainsWhereTimerWasRegistered.Contains(((Grain)grain).IdentityString))
                 {
                     return invoker.Invoke(grain, request);
@@ -52,14 +53,15 @@ namespace Derivco.Orniscient.Proxy.BootstrapProviders
         private Func<object, Task> GetTimerFunc(IProviderRuntime providerRuntime, IGrain grain)
         {
             var grainName = grain.GetType().FullName;
+            var pKey = grain.GetPrimaryKey();
             return async o =>
             {
-                var filterableGrain = grain.AsReference<IFilterableGrain>();
+                var filterableGrain = grain as IFilterable; 
                 var result = await filterableGrain.GetFilters();
                 if (result != null)
                 {
                     var filterGrain = providerRuntime.GrainFactory.GetGrain<ITypeFilterGrain>(grain.GetType().FullName);
-                    await filterGrain.RegisterFilter(grainName, filterableGrain.GetPrimaryKey().ToString(), result);
+                    await filterGrain.RegisterFilter(grainName, $"{pKey}", result);
 
                     var filterString = string.Join(",", result.Select(p => $"{p.FilterName} : {p.Value}"));
                     _logger.Verbose($"Filters for grain [Type : {grainName}] [Id : {grain.GetPrimaryKey()}][Filter : {filterString}]");
