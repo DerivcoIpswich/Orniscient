@@ -41,6 +41,7 @@
     </Tracing>
     <Statistics MetricsTableWriteInterval="30s" PerfCounterWriteInterval="30s" LogWriteInterval="300s"
                 WriteLogStatisticsToTable="true" />
+    <Scheduler MaxActiveThreads="4" />
   </Defaults>
   <!--<Override Node="Primary">
     <Networking Address="localhost" Port="11111" />

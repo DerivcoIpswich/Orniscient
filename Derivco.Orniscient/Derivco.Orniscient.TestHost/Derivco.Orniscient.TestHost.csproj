@@ -190,9 +190,15 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="DevTestClientConfiguration.Release.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="DevTestClientConfiguration.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>
+    </Content>
+    <Content Include="DevTestServerConfiguration.Release.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="DevTestServerConfiguration.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

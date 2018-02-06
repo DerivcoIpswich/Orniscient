@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<OrleansConfiguration xmlns="urn:orleans" xmlns:xdt="http://schemas.microsoft.com/XML-Document-Transform">
+  <Globals xdt:Transform="InsertIfMissing">
+    <SeedNode Address="#{Octopus.Machine.Name}" Port="#{NetworkingPort}" xdt:Transform="Replace"/>
+  </Globals>
+	<Defaults xdt:Transform="InsertIfMissing">
+		<Networking Address="#{Octopus.Machine.Name}" Port="#{NetworkingPort}" xdt:Transform="Replace"/>
+		<ProxyingGateway Address="#{Octopus.Machine.Name}" Port="#{GatewayProviderPort}" xdt:Transform="Replace" />
+	</Defaults>
+</OrleansConfiguration>
